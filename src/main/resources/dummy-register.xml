@@ -1,0 +1,131 @@
+<?xml version="1.0"?>
+<methodResponse>
+<params>
+<param><value><struct>
+<member><name>protogeni_error_log</name><value><string>urn:publicid:IDN+wall2.ilabt.iminds.be+log+d4d29138a11f15af4a0db8a9832fbc22</string></value></member>
+<member><name>protogeni_error_url</name><value><string>https://www.wall2.ilabt.iminds.be/spewlogfile.php3?logfile=d4d29138a11f15af4a0db8a9832fbc22</string></value></member>
+<member><name>value</name><value><string>&lt;?xml version=&quot;1.0&quot; encoding=&quot;UTF-8&quot; standalone=&quot;no&quot;?&gt;
+&lt;signed-credential xmlns:xsi=&quot;http://www.w3.org/2001/XMLSchema-instance&quot; xsi:noNamespaceSchemaLocation=&quot;http://www.protogeni.net/resources/credential/credential.xsd&quot; xsi:schemaLocation=&quot;http://www.protogeni.net/resources/credential/ext/policy/1 http://www.protogeni.net/resources/credential/ext/policy/1/policy.xsd&quot;&gt;
+  &lt;credential xml:id=&quot;ref89B5DD46A9185644&quot;&gt;
+ &lt;type&gt;privilege&lt;/type&gt;
+ &lt;serial&gt;133127&lt;/serial&gt;
+ &lt;owner_gid&gt;MIIECDCCA3GgAwIBAgIDAKO+MA0GCSqGSIb3DQEBBAUAMIG1MQswCQYDVQQGEwJC
+RTELMAkGA1UECBMCT1YxDjAMBgNVBAcTBUdoZW50MRgwFgYDVQQKEw9pTWluZHMg
+LSBpbGFiLnQxHjAcBgNVBAsTFUNlcnRpZmljYXRlIEF1dGhvcml0eTEjMCEGA1UE
+AxMaYm9zcy53YWxsMi5pbGFidC5pbWluZHMuYmUxKjAoBgkqhkiG9w0BCQEWG3Z3
+YWxsLW9wc0BhdGxhbnRpcy51Z2VudC5iZTAeFw0xNDA2MjAxNDAyMTlaFw0xNTA2
+MjAxNDAyMTlaMIGwMQswCQYDVQQGEwJCRTELMAkGA1UECBMCT1YxGDAWBgNVBAoT
+D2lNaW5kcyAtIGlsYWIudDEdMBsGA1UECxMUaW1pbmRzLXdhbGwyLndpbGxuZXIx
+LTArBgNVBAMTJGViMTM0NTM1LWY2ZDYtMTFlMy1iNDA3LTAwMTUxN2JlY2RjMTEs
+MCoGCSqGSIb3DQEJARYdd2lsbG5lckB3YWxsMi5pbGFidC5pbWluZHMuYmUwgZ8w
+DQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBAMRIxqO8x/NuB3kIx1o/9Xc7kWjtMfV9
+MN0latj8QaXHQrdGVftp3wMV9aHd13vULGHdvpZIR0KeKX0sft4E1GgB9FY4rKeX
+BqEgi9W1FSQMVDMnRkXkSmfh8bBOpMH6xvaGQLnFUUH8KKnjQOcuaUEue1Zv0YX7
+jcL/ylonA8EpAgMBAAGjggEnMIIBIzAMBgNVHRMBAf8EAjAAMB0GA1UdDgQWBBSc
+4sTpQozlRSfqovjJEulYPJyxKzCBjgYDVR0RBIGGMIGDhjN1cm46cHVibGljaWQ6
+SUROK3dhbGwyLmlsYWJ0LmltaW5kcy5iZSt1c2VyK3dpbGxuZXKBHXdpbGxuZXJA
+d2FsbDIuaWxhYnQuaW1pbmRzLmJlhi11cm46dXVpZDplYjEzNDUzNS1mNmQ2LTEx
+ZTMtYjQwNy0wMDE1MTdiZWNkYzEwYwYIKwYBBQUHAQEEVzBVMFMGFGmDzJOAqJjM
+qMe9saeAgKqu14obhjtodHRwczovL3d3dy53YWxsMi5pbGFidC5pbWluZHMuYmU6
+MTIzNjkvcHJvdG9nZW5pL3htbHJwYy9zYTANBgkqhkiG9w0BAQQFAAOBgQATj7Q3
+VdRqe5OWA2E0SpOc5twzA6qkzIHeFxAmyTwtM60b2cv37SSYeUoo6tXzEp7ZGB0Z
+Dd61d4A6/vKYojvvqyC5V3pIHQ9EsiElFZhWkZ07FKn3GHBaAd1QMhIojkeX7u+e
+3GDTe4DL19vMlNLUlL+ie/9iZCR/LroaH5eB4A==
+&lt;/owner_gid&gt;
+ &lt;owner_urn&gt;urn:publicid:IDN+wall2.ilabt.iminds.be+user+willner&lt;/owner_urn&gt;
+ &lt;target_gid&gt;MIIDeTCCAuKgAwIBAgIDAMBjMA0GCSqGSIb3DQEBBAUAMIG1MQswCQYDVQQGEwJC
+RTELMAkGA1UECBMCT1YxDjAMBgNVBAcTBUdoZW50MRgwFgYDVQQKEw9pTWluZHMg
+LSBpbGFiLnQxHjAcBgNVBAsTFUNlcnRpZmljYXRlIEF1dGhvcml0eTEjMCEGA1UE
+AxMaYm9zcy53YWxsMi5pbGFidC5pbWluZHMuYmUxKjAoBgkqhkiG9w0BCQEWG3Z3
+YWxsLW9wc0BhdGxhbnRpcy51Z2VudC5iZTAeFw0xNDA3MTEwNTM5NDBaFw0yMDAx
+MDEwNjM5NDBaMIGtMQswCQYDVQQGEwJCRTELMAkGA1UECBMCT1YxGDAWBgNVBAoT
+D2lNaW5kcyAtIGlsYWIudDEZMBcGA1UECxMQaW1pbmRzLXdhbGwyLmZvbzEtMCsG
+A1UEAxMkMjI5ZGUwZGItMDhjNi0xMWU0LWI0MDctMDAxNTE3YmVjZGMxMS0wKwYJ
+KoZIhvcNAQkBFh5hbGV4YW5kZXIud2lsbG5lckB0dS1iZXJsaW4uZGUwgZ8wDQYJ
+KoZIhvcNAQEBBQADgY0AMIGJAoGBAKxs6H8qJBIWA+kqZP0ttYb6Hav2IDnfAuxc
+0etNNfryjFnAq3IXxeXyDHR1Zf9SF5ZE9fDIXEWLdHX47m2ZpWbw6d9gmROKweWV
+5NtPb8DhnTyykHe3yWabJeykSXVSjaxcTnigvFSkYngjS0xbs2BX7bhLs9WJ+0Di
+WYM3D825AgMBAAGjgZwwgZkwHQYDVR0OBBYEFOIf71bwjk7fppBNc5qBTxYBk6TN
+MGoGA1UdEQRjMGGGMHVybjpwdWJsaWNpZDpJRE4rd2FsbDIuaWxhYnQuaW1pbmRz
+LmJlK3NsaWNlK2Zvb4YtdXJuOnV1aWQ6MjI5ZGUwZGItMDhjNi0xMWU0LWI0MDct
+MDAxNTE3YmVjZGMxMAwGA1UdEwEB/wQCMAAwDQYJKoZIhvcNAQEEBQADgYEAhgGs
+EEJNqxEtwoeT16POMsaoS/BWoF1hxsd/1xSeTh9kg+TppJC2VAcJs75MaubPf/PX
+Q6bAtDzNRExEciuHnu68eftGP2M16I1cqXn9x4F96mnVmaBmjxxRkgBspd5dhlpV
+NJg6fohix1ZzkLFxYPZT2ogRJILZVz2qCUzVV1A=
+&lt;/target_gid&gt;
+ &lt;target_urn&gt;urn:publicid:IDN+wall2.ilabt.iminds.be+slice+foo&lt;/target_urn&gt;
+ &lt;uuid&gt;22d1de1f-08c6-11e4-b407-001517becdc1&lt;/uuid&gt;
+ &lt;expires&gt;2014-07-11T08:39:40Z&lt;/expires&gt;
+  &lt;privileges&gt;
+&lt;privilege&gt;&lt;name&gt;*&lt;/name&gt;&lt;can_delegate&gt;1&lt;/can_delegate&gt;&lt;/privilege&gt;
+&lt;/privileges&gt;&lt;/credential&gt;
+  &lt;signatures&gt;
+    &lt;Signature xmlns=&quot;http://www.w3.org/2000/09/xmldsig#&quot; xml:id=&quot;Sig_ref89B5DD46A9185644&quot;&gt;
+ &lt;SignedInfo&gt;
+  &lt;CanonicalizationMethod Algorithm=&quot;http://www.w3.org/TR/2001/REC-xml-c14n-20010315&quot;/&gt;
+  &lt;SignatureMethod Algorithm=&quot;http://www.w3.org/2000/09/xmldsig#rsa-sha1&quot;/&gt;
+  &lt;Reference URI=&quot;#ref89B5DD46A9185644&quot;&gt;
+    &lt;Transforms&gt;
+      &lt;Transform Algorithm=&quot;http://www.w3.org/2000/09/xmldsig#enveloped-signature&quot;/&gt;
+    &lt;/Transforms&gt;
+    &lt;DigestMethod Algorithm=&quot;http://www.w3.org/2000/09/xmldsig#sha1&quot;/&gt;
+    &lt;DigestValue&gt;2HXqxYbZzX3YtLLoMDbg6ZeZ/VI=&lt;/DigestValue&gt;
+    &lt;/Reference&gt;
+ &lt;/SignedInfo&gt;
+ &lt;SignatureValue&gt;hhw4ZwbcCJ8TwaGr3G+PxQQVm3Lgkku7wraDt2jj0WE0o0RhTPfh/EYR8n4+5Jc+
++zOitGXz5/NvCLjkJyJNxM0qJ4SJtITZRV0Ny6CwMD0FMH4kddlmKSJsrOtqdk9b
+hV0enHeLjOLqp7BW+5iEvHV+oUn7BIp6FsNlFaC9reE=&lt;/SignatureValue&gt;
+ &lt;KeyInfo&gt;
+  &lt;X509Data&gt;
+   
+   
+   
+  &lt;X509Certificate&gt;MIIDsDCCAxmgAwIBAgICA/QwDQYJKoZIhvcNAQEEBQAwgbUxCzAJBgNVBAYTAkJF
+MQswCQYDVQQIEwJPVjEOMAwGA1UEBxMFR2hlbnQxGDAWBgNVBAoTD2lNaW5kcyAt
+IGlsYWIudDEeMBwGA1UECxMVQ2VydGlmaWNhdGUgQXV0aG9yaXR5MSMwIQYDVQQD
+Expib3NzLndhbGwyLmlsYWJ0LmltaW5kcy5iZTEqMCgGCSqGSIb3DQEJARYbdndh
+bGwtb3BzQGF0bGFudGlzLnVnZW50LmJlMB4XDTEzMDkwMjA2NTkyNVoXDTE5MDIy
+MzA3NTkyNVowgakxCzAJBgNVBAYTAkJFMQswCQYDVQQIEwJPVjEYMBYGA1UEChMP
+aU1pbmRzIC0gaWxhYi50MRgwFgYDVQQLEw9pbWluZHMtd2FsbDIuc2ExLTArBgNV
+BAMTJDk1YWM1Njk2LTEzYTUtMTFlMy05NjZhLTAwMTUxN2JlY2RjMTEqMCgGCSqG
+SIb3DQEJARYbdndhbGwtb3BzQGF0bGFudGlzLnVnZW50LmJlMIGfMA0GCSqGSIb3
+DQEBAQUAA4GNADCBiQKBgQCgyCFyx3jrEwbsoXJrlpcyuP4oCNmWGjL0hlYZFoxD
+1sCgTxVMWIAlDtfuIdNgU98jaoKDJjXsKOZGDBBWo/4IWqISmIB/LmVxY58b5r6e
+89i4yfuYGvAqm8zpbsnZ958GT6TnhdkWwz90MI2fZXo1Ce1DaR7l0pQhkuTu9li3
++wIDAQABo4HYMIHVMB0GA1UdDgQWBBR+oou+gYJEndilQR9BUEkCbU8tgTA+BgNV
+HREENzA1hjN1cm46cHVibGljaWQ6SUROK3dhbGwyLmlsYWJ0LmltaW5kcy5iZSth
+dXRob3JpdHkrc2EwDwYDVR0TAQH/BAUwAwEB/zBjBggrBgEFBQcBAQRXMFUwUwYU
+aYPMk4ComMyox72xp4CAqq7XihuGO2h0dHBzOi8vd3d3LndhbGwyLmlsYWJ0Lmlt
+aW5kcy5iZToxMjM2OS9wcm90b2dlbmkveG1scnBjL3NhMA0GCSqGSIb3DQEBBAUA
+A4GBAI3lK1OEeDOlSTW1haUYkWTCk06xeM4YXUCOQghUQe2lxuNAYYU46BQPn2+4
+FX6ohz16e/e1y+wcoYn0USo6G79xB6jItUL2dQviE1cLRic/BXzAp5hJxBdvGUAu
+SEa8hHwPVB57wmU8xpDnIRML9lfVyZPWs+FdscUfOTMTilw4&lt;/X509Certificate&gt;
+&lt;X509SubjectName&gt;emailAddress=vwall-ops@atlantis.ugent.be,CN=95ac5696-13a5-11e3-966a-001517becdc1,OU=iminds-wall2.sa,O=iMinds - ilab.t,ST=OV,C=BE&lt;/X509SubjectName&gt;
+&lt;X509IssuerSerial&gt;
+&lt;X509IssuerName&gt;emailAddress=vwall-ops@atlantis.ugent.be,CN=boss.wall2.ilabt.iminds.be,OU=Certificate Authority,O=iMinds - ilab.t,L=Ghent,ST=OV,C=BE&lt;/X509IssuerName&gt;
+&lt;X509SerialNumber&gt;1012&lt;/X509SerialNumber&gt;
+&lt;/X509IssuerSerial&gt;
+&lt;/X509Data&gt;
+  &lt;KeyValue&gt;
+&lt;RSAKeyValue&gt;
+&lt;Modulus&gt;
+oMghcsd46xMG7KFya5aXMrj+KAjZlhoy9IZWGRaMQ9bAoE8VTFiAJQ7X7iHTYFPf
+I2qCgyY17CjmRgwQVqP+CFqiEpiAfy5lcWOfG+a+nvPYuMn7mBrwKpvM6W7J2fef
+Bk+k54XZFsM/dDCNn2V6NQntQ2ke5dKUIZLk7vZYt/s=
+&lt;/Modulus&gt;
+&lt;Exponent&gt;
+AQAB
+&lt;/Exponent&gt;
+&lt;/RSAKeyValue&gt;
+&lt;/KeyValue&gt;
+ &lt;/KeyInfo&gt;
+&lt;/Signature&gt;
+  &lt;/signatures&gt;
+&lt;/signed-credential&gt;
+</string></value></member>
+<member><name>output</name><value><string></string></value></member>
+<member><name>code</name><value><i4>0</i4></value></member>
+</struct></value>
+</param>
+</params>
+</methodResponse>

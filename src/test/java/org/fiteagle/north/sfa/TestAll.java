@@ -24,6 +24,13 @@ public class TestAll {
 	}
 
 	@Test
+	public void testReadDummy() {
+		String filename = "/dummy-getcred.xml";
+		InputStream filestream = this.getClass().getResourceAsStream(filename);
+		Assert.assertNotNull(filestream);
+	}
+	
+	@Test
 	public void testGetVersion() throws SAXException, IOException {
 		String inputString = "<?xml version='1.0'?><methodCall><methodName>GetVersion</methodName><params></params></methodCall>";
 		SFAXMLRPCHandler handler = new SFAXMLRPCHandlerAM();
@@ -45,16 +52,25 @@ public class TestAll {
 	public void testListProvision() throws SAXException, IOException {
 		String inputString = "<?xml version='1.0'?><methodCall><methodName>Provision</methodName><params></params></methodCall>";
 		SFAXMLRPCHandler handler = new SFAXMLRPCHandlerAM();
-		String expected = "Provision";
+		String expected = "geni_rspec";
 		
 		testMethodCall(handler, inputString, expected);
 	}
 
 	@Test
 	public void testGetCredentials() throws SAXException, IOException {
-		String inputString = "<?xml version='1.0'?><methodCall><methodName>GetCredentials</methodName><params></params></methodCall>";
+		String inputString = "<?xml version='1.0'?><methodCall><methodName>GetCredential</methodName><params></params></methodCall>";
 		SFAXMLRPCHandler handler = new SFAXMLRPCHandlerSA();
-		String expected = "GetCredentials";
+		String expected = "Exponent";
+		
+		testMethodCall(handler, inputString, expected);
+	}
+
+	@Test
+	public void testGetRegister() throws SAXException, IOException {
+		String inputString = "<?xml version='1.0'?><methodCall><methodName>Register</methodName><params></params></methodCall>";
+		SFAXMLRPCHandler handler = new SFAXMLRPCHandlerSA();
+		String expected = "Exponent";
 		
 		testMethodCall(handler, inputString, expected);
 	}
