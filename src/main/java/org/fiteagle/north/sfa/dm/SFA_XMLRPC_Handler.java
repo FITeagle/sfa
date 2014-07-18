@@ -1,6 +1,7 @@
 package org.fiteagle.north.sfa.dm;
 
 import java.io.IOException;
+
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
@@ -58,7 +59,9 @@ public class SFA_XMLRPC_Handler implements ISFA_XMLRPC_InvocationHandler {
 			// todo: forward path and certificate here for AuthN/AuthZ
 			dispatcher.dispatch(inputStream, writer);
 		} catch (XmlRpcException e) {
-			xmlrpcServer.getSerializer().writeError(1, e.getMessage(), writer);
+			String message = e.getMessage() + ": " + e.getCause().getMessage();
+			xmlrpcServer.getSerializer().writeError(1, message, writer);
+			LOGGER.log(Level.WARNING, message);
 		}
 		writer.close();
 	}
@@ -67,7 +70,8 @@ public class SFA_XMLRPC_Handler implements ISFA_XMLRPC_InvocationHandler {
 	public Object invoke(String methodName, List parameter) throws Throwable {
 		LOGGER.log(Level.INFO, "Working on method: " + methodName);
 		LOGGER.log(Level.INFO, "Working on path: " + this.path);
-		LOGGER.log(Level.INFO, "Working with cert: " + this.cert);
+		String certInfo = null == this.cert ? null : this.cert.getSubjectX500Principal().toString();
+		LOGGER.log(Level.INFO, "Working with cert: " + certInfo);
 
 		// todo: move this hack to the manager (i.e. construct dummy answers)
 		if ("ListResources".equals(methodName)) {
