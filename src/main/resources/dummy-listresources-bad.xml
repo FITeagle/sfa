@@ -1,1 +1,42 @@
-<?xml version="1.0" encoding="UTF-8"?><methodResponse><params><param><value><struct><member><name>output</name><value><string>Bad Arguments: malformed arguments</string></value></member><member><name>code</name><value><struct><member><name>geni_code</name><value><int>1</int></value></member><member><name>am_code</name><value><int>-1</int></value></member></struct></value></member><member><name>value</name><value><string></string></value></member></struct></value></param></params></methodResponse>
+<?xml version="1.0" encoding="UTF-8"?>
+<methodResponse>
+	<params>
+		<param>
+			<value>
+				<struct>
+					<member>
+						<name>output</name>
+						<value>
+							<string>Bad Arguments: malformed arguments</string>
+						</value>
+					</member>
+					<member>
+						<name>code</name>
+						<value>
+							<struct>
+								<member>
+									<name>geni_code</name>
+									<value>
+										<int>1</int>
+									</value>
+								</member>
+								<member>
+									<name>am_code</name>
+									<value>
+										<int>-1</int>
+									</value>
+								</member>
+							</struct>
+						</value>
+					</member>
+					<member>
+						<name>value</name>
+						<value>
+							<string></string>
+						</value>
+					</member>
+				</struct>
+			</value>
+		</param>
+	</params>
+</methodResponse>

@@ -1,25 +1,26 @@
-package org.fiteagle.north.sfa;
+package org.fiteagle.north.sfa.dm;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
 import java.net.MalformedURLException;
+import java.security.cert.X509Certificate;
 import java.util.List;
 import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.fiteagle.north.sfa.ISFA;
+
 import redstone.xmlrpc.XmlRpcDispatcher;
 import redstone.xmlrpc.XmlRpcException;
-import redstone.xmlrpc.XmlRpcInvocationHandler;
 import redstone.xmlrpc.XmlRpcServer;
 
-public abstract class SFAXMLRPCHandler implements XmlRpcInvocationHandler {
+public class SFA_XMLRPC_Handler implements ISFA_XMLRPC_InvocationHandler {
 
 	private final static Logger LOGGER = Logger
-			.getLogger(SFAXMLRPCHandler.class.getName());
-	private final static String DUMMY_RESPONSE_FILE_GET_VERSION = "/dummy-getversion.xml";
+			.getLogger(SFA_XMLRPC_Handler.class.getName());
 	private final static String DUMMY_RESPONSE_FILE_LIST_RESOURCES = "/dummy-listresources.xml";
 	private final static String DUMMY_RESPONSE_FILE_GET_CRED = "/dummy-getcred.xml";
 	private static final String DUMMY_RESPONSE_FILE_SLICE_BAD = "/dummy-badslice.xml";
@@ -32,18 +33,29 @@ public abstract class SFAXMLRPCHandler implements XmlRpcInvocationHandler {
 	private XmlRpcServer xmlrpcServer;
 	private XmlRpcDispatcher dispatcher;
 	private PrintWriter writer;
-	protected SFAManager manager;
+	private ISFA manager;
+	private ISFA_XMLRPC_InvocationHandler handler;
+	private String path;
+	private X509Certificate cert;
 
-	public SFAXMLRPCHandler() {
+	public SFA_XMLRPC_Handler(ISFA manager) {
+		this.manager = manager;
+		this.handler = this;
 		this.xmlrpcServer = new XmlRpcServer();
-		xmlrpcServer.addInvocationHandler("__default__", this);
+		this.xmlrpcServer.setSerializer(new SFA_XMLRPC_Serializer());
+		xmlrpcServer.addInvocationHandler("__default__", handler);
+		// todo: xmlrpcServer.addInvocationInterceptor(securityModule);
 		this.dispatcher = new XmlRpcDispatcher(xmlrpcServer, "");
 	}
 
-	public void handle(InputStream inputStream, OutputStream outputStream)
-			throws XmlRpcException, IOException {
+	public void handle(InputStream inputStream, OutputStream outputStream,
+			String path, X509Certificate cert) throws XmlRpcException,
+			IOException {
 		this.writer = new PrintWriter(outputStream);
 		try {
+			this.handler.setPath(path);
+			this.handler.setCert(cert);
+			// todo: forward path and certificate here for AuthN/AuthZ
 			dispatcher.dispatch(inputStream, writer);
 		} catch (XmlRpcException e) {
 			xmlrpcServer.getSerializer().writeError(1, e.getMessage(), writer);
@@ -51,15 +63,14 @@ public abstract class SFAXMLRPCHandler implements XmlRpcInvocationHandler {
 		writer.close();
 	}
 
-	@Override
 	@SuppressWarnings("rawtypes")
-	public String invoke(String methodName, List parameter) throws Throwable {
+	public Object invoke(String methodName, List parameter) throws Throwable {
 		LOGGER.log(Level.INFO, "Working on method: " + methodName);
+		LOGGER.log(Level.INFO, "Working on path: " + this.path);
+		LOGGER.log(Level.INFO, "Working with cert: " + this.cert);
 
 		// todo: move this hack to the manager (i.e. construct dummy answers)
-		if ("GetVersion".equals(methodName)) {
-			return returnDummyValue(DUMMY_RESPONSE_FILE_GET_VERSION);
-		} else if ("ListResources".equals(methodName)) {
+		if ("ListResources".equals(methodName)) {
 			return returnDummyValue(DUMMY_RESPONSE_FILE_LIST_RESOURCES);
 		} else if ("GetCredential".equals(methodName)) {
 			return returnDummyValue(DUMMY_RESPONSE_FILE_GET_CRED);
@@ -77,7 +88,7 @@ public abstract class SFAXMLRPCHandler implements XmlRpcInvocationHandler {
 			return returnDummyValue(DUMMY_RESPONSE_FILE_DELETE);
 		}
 
-		return this.manager.manage(methodName, parameter);
+		return this.manager.handle(methodName, parameter, this.path, this.cert);
 	}
 
 	private String returnDummyValue(String filename)
@@ -92,6 +103,16 @@ public abstract class SFAXMLRPCHandler implements XmlRpcInvocationHandler {
 		@SuppressWarnings("resource")
 		Scanner s = new Scanner(is).useDelimiter("\\A");
 		return s.hasNext() ? s.next() : "";
+	}
+
+	@Override
+	public void setPath(String path) {
+		this.path = path;
+	}
+
+	@Override
+	public void setCert(X509Certificate cert) {
+		this.cert = cert;
 	}
 
 }
