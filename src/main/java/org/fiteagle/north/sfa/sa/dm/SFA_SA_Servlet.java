@@ -13,11 +13,12 @@ import org.fiteagle.north.sfa.sa.SFA_SA;
 		"/api/sa/v1", "/api/sa/v2" })
 public class SFA_SA_Servlet extends AbstractSFA_Servlet {
 
-	protected static Logger LOGGER = Logger
-			.getLogger(SFA_SA_Servlet.class.getName());
-	
+	protected static Logger LOGGER = Logger.getLogger(SFA_SA_Servlet.class
+			.getName());
+
 	public SFA_SA_Servlet() {
 		super();
-		this.handler = new SFA_XMLRPC_Handler(new SFA_SA(new SFA_SA_Delegate_Default()));
+		this.handler = new SFA_XMLRPC_Handler(new SFA_SA(
+				new SFA_SA_Delegate_Default()));
 	}
 }

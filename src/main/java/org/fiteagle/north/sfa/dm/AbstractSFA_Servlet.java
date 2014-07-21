@@ -18,25 +18,30 @@ public abstract class AbstractSFA_Servlet extends HttpServlet {
 			.getName());
 
 	@Override
-	protected void doGet(HttpServletRequest req, HttpServletResponse resp)
-			throws IOException {
-		LOGGER.log(Level.INFO, "Working on: GET");
-		handler.handle(req.getInputStream(), resp.getOutputStream(), req.getPathInfo(), getCert(req));
+	protected void doGet(final HttpServletRequest req,
+			final HttpServletResponse resp) throws IOException {
+		AbstractSFA_Servlet.LOGGER.log(Level.INFO, "Working on: GET");
+		this.handler.handle(req.getInputStream(), resp.getOutputStream(),
+				req.getPathInfo(), this.getCert(req));
 	}
 
 	@Override
-	protected void doPost(HttpServletRequest req, HttpServletResponse resp)
-			throws IOException {
-		LOGGER.log(Level.INFO, "Working on: POST");
-		handler.handle(req.getInputStream(), resp.getOutputStream(), req.getPathInfo(), getCert(req));
+	protected void doPost(final HttpServletRequest req,
+			final HttpServletResponse resp) throws IOException {
+		AbstractSFA_Servlet.LOGGER.log(Level.INFO, "Working on: POST");
+		this.handler.handle(req.getInputStream(), resp.getOutputStream(),
+				req.getPathInfo(), this.getCert(req));
 	}
-	
-	private X509Certificate getCert(HttpServletRequest req) throws IOException {
-	    X509Certificate[] certs = (X509Certificate[]) req.getAttribute("javax.servlet.request.X509Certificate");
-	    if (null != certs && certs.length > 0) {
-	        return certs[0];
-	    }
-	    LOGGER.log(Level.INFO, "No X.509 client certificate found in request");
-	    return null;
-	  }
+
+	private X509Certificate getCert(final HttpServletRequest req)
+			throws IOException {
+		final X509Certificate[] certs = (X509Certificate[]) req
+				.getAttribute("javax.servlet.request.X509Certificate");
+		if ((null != certs) && (certs.length > 0)) {
+			return certs[0];
+		}
+		AbstractSFA_Servlet.LOGGER.log(Level.INFO,
+				"No X.509 client certificate found in request");
+		return null;
+	}
 }

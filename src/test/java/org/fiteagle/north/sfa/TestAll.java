@@ -20,79 +20,82 @@ public class TestAll {
 
 	@Before
 	public void setup() {
-		this.handler = new SFA_XMLRPC_Handler(new SFA_AM(new SFA_AM_Delegate_Default()));
+		this.handler = new SFA_XMLRPC_Handler(new SFA_AM(
+				new SFA_AM_Delegate_Default()));
 	}
-	
+
 	@Test
 	public void testNull() throws SAXException, IOException {
-		String inputString = "";
-		
-		String expected = "A problem occured during parsing";
-		
-		testMethodCall(handler, inputString, expected);
+		final String inputString = "";
+
+		final String expected = "A problem occured during parsing";
+
+		this.testMethodCall(this.handler, inputString, expected);
 	}
 
 	@Test
 	public void testReadDummy() {
-		String filename = "/dummy-getcred.xml";
-		InputStream filestream = this.getClass().getResourceAsStream(filename);
+		final String filename = "/dummy-getcred.xml";
+		final InputStream filestream = this.getClass().getResourceAsStream(
+				filename);
 		Assert.assertNotNull(filestream);
 	}
-	
+
 	@Test
 	public void testGetVersion() throws SAXException, IOException {
-		String inputString = "<?xml version='1.0'?><methodCall><methodName>GetVersion</methodName><params></params></methodCall>";
-		
-		String expected = "geni_api";
-		
-		testMethodCall(handler, inputString, expected);
+		final String inputString = "<?xml version='1.0'?><methodCall><methodName>GetVersion</methodName><params></params></methodCall>";
+
+		final String expected = "geni_api";
+
+		this.testMethodCall(this.handler, inputString, expected);
 	}
 
 	@Test
 	public void testListResources() throws SAXException, IOException {
-		String inputString = "<?xml version='1.0'?><methodCall><methodName>ListResources</methodName><params></params></methodCall>";
-		
-		String expected = "issvrqawv3";
-		
-		testMethodCall(handler, inputString, expected);
+		final String inputString = "<?xml version='1.0'?><methodCall><methodName>ListResources</methodName><params></params></methodCall>";
+
+		// String expected = "issvrqawv3";
+		final String expected = "rspec";
+
+		this.testMethodCall(this.handler, inputString, expected);
 	}
 
 	@Test
 	public void testListProvision() throws SAXException, IOException {
-		String inputString = "<?xml version='1.0'?><methodCall><methodName>Provision</methodName><params></params></methodCall>";
-		
-		String expected = "geni_rspec";
-		
-		testMethodCall(handler, inputString, expected);
+		final String inputString = "<?xml version='1.0'?><methodCall><methodName>Provision</methodName><params></params></methodCall>";
+
+		final String expected = "geni_rspec";
+
+		this.testMethodCall(this.handler, inputString, expected);
 	}
 
 	@Test
 	public void testGetCredentials() throws SAXException, IOException {
-		String inputString = "<?xml version='1.0'?><methodCall><methodName>GetCredential</methodName><params></params></methodCall>";
-		
-		String expected = "Exponent";
-		
-		testMethodCall(handler, inputString, expected);
+		final String inputString = "<?xml version='1.0'?><methodCall><methodName>GetCredential</methodName><params></params></methodCall>";
+
+		final String expected = "Exponent";
+
+		this.testMethodCall(this.handler, inputString, expected);
 	}
 
 	@Test
 	public void testGetRegister() throws SAXException, IOException {
-		String inputString = "<?xml version='1.0'?><methodCall><methodName>Register</methodName><params></params></methodCall>";
-		
-		String expected = "Exponent";
-		
-		testMethodCall(handler, inputString, expected);
+		final String inputString = "<?xml version='1.0'?><methodCall><methodName>Register</methodName><params></params></methodCall>";
+
+		final String expected = "Exponent";
+
+		this.testMethodCall(this.handler, inputString, expected);
 	}
 
-	private void testMethodCall(SFA_XMLRPC_Handler handler, String input,
-			String expected) throws IOException {
-		InputStream inputStream = new ByteArrayInputStream(input.getBytes(StandardCharsets.UTF_8));
-		ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+	private void testMethodCall(final SFA_XMLRPC_Handler handler,
+			final String input, final String expected) throws IOException {
+		final InputStream inputStream = new ByteArrayInputStream(
+				input.getBytes(StandardCharsets.UTF_8));
+		final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 		Assert.assertFalse(outputStream.toString().contains(expected));
 		handler.handle(inputStream, outputStream, null, null);
 		System.out.println(outputStream.toString());
 		Assert.assertTrue(outputStream.toString().contains(expected));
 	}
-	
-	
+
 }

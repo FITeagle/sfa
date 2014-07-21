@@ -1,10 +1,13 @@
 package org.fiteagle.north.sfa.am.dm;
 
+import java.util.logging.Logger;
+
 import org.fiteagle.north.sfa.am.ISFA_AM_Delegate;
 
 public class SFA_AM_Delegate_Default implements ISFA_AM_Delegate {
 
-	private boolean compressed;
+	protected static Logger LOGGER = Logger
+			.getLogger(SFA_AM_Delegate_Default.class.getName());
 
 	@Override
 	public Integer getGeniCode() {
@@ -27,9 +30,7 @@ public class SFA_AM_Delegate_Default implements ISFA_AM_Delegate {
 	}
 
 	@Override
-	public void setCompressed(boolean compressed) {
-		System.out.println("Compressed: " + compressed);
-		this.compressed = compressed;
+	public void setCompressed(final boolean compressed) {
 	}
 
 }
