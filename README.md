@@ -1,3 +1,5 @@
+[![Build Status](https://travis-ci.org/FITeagle/sfa.svg?branch=master)](https://travis-ci.org/FITeagle/sfa)
+
 Slice-based Federation Architecture
 ===================================
 
