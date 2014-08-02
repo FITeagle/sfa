@@ -10,3 +10,8 @@ API
 
     https://localhost:8443/sfa/api/am/v3
     https://localhost:8443/sfa/api/sa/v1
+
+Hint
+----
+
+This module is using a patched version of the redstone xmlrpc to support method without a prefix.
