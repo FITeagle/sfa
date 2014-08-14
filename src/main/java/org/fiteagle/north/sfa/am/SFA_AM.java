@@ -93,7 +93,7 @@ public class SFA_AM implements ISFA_AM {
 			        new ObjectMapper().readValue(json, HashMap.class);
 			value.put("omn_testbed", result);
 		} catch (IOException e) {
-			e.printStackTrace();
+			SFA_AM.LOGGER.log(Level.WARNING, e.getMessage(), e);
 		}
 
 		
