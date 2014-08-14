@@ -45,7 +45,7 @@ public class TestAll {
 	public void testGetVersion() throws SAXException, IOException {
 		final String inputString = "<?xml version='1.0'?><methodCall><methodName>GetVersion</methodName><params></params></methodCall>";
 
-		final String expected = "geni_api";
+		final String expected = "omn_testbed";
 
 		this.testMethodCall(this.handler, inputString, expected);
 	}
@@ -94,7 +94,9 @@ public class TestAll {
 		final ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
 		Assert.assertFalse(outputStream.toString().contains(expected));
 		handler.handle(inputStream, outputStream, null, null);
+		System.out.println("================================");
 		System.out.println(outputStream.toString());
+		System.out.println("================================");
 		Assert.assertTrue(outputStream.toString().contains(expected));
 	}
 

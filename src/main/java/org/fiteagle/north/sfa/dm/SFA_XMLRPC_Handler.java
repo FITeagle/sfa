@@ -110,12 +110,12 @@ public class SFA_XMLRPC_Handler implements ISFA_XMLRPC_InvocationHandler {
 			throws MalformedURLException {
 		final InputStream filestream = this.getClass().getResourceAsStream(
 				filename);
-		this.writer.write(this.convertStreamToString(filestream));
+		this.writer.write(SFA_XMLRPC_Handler.convertStreamToString(filestream));
 		this.writer.flush();
 		return null;
 	}
 
-	private String convertStreamToString(final InputStream is) {
+	public static String convertStreamToString(final InputStream is) {
 		@SuppressWarnings("resource")
 		final Scanner s = new Scanner(is).useDelimiter("\\A");
 		return s.hasNext() ? s.next() : "";

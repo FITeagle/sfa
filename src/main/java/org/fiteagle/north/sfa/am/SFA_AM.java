@@ -1,5 +1,6 @@
 package org.fiteagle.north.sfa.am;
 
+import java.io.InputStream;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -7,6 +8,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
+import org.fiteagle.north.sfa.dm.SFA_XMLRPC_Handler;
 
 public class SFA_AM implements ISFA_AM {
 	private static final int API_VERSION = 3;
@@ -76,6 +79,13 @@ public class SFA_AM implements ISFA_AM {
 		return result;
 	}
 
+	private void addTestbeddescription(Map<String, Object> value) {
+		SFA_AM.LOGGER.log(Level.INFO, "Adding OMN testbed info...");
+		final InputStream filestream = this.getClass().getResourceAsStream(
+				"/dummy-testbed.ttl");
+		value.put("omn_testbed", SFA_XMLRPC_Handler.convertStreamToString(filestream));
+	}
+
 	private void addAPIVersion(final HashMap<String, Object> result) {
 		result.put("geni_api", SFA_AM.API_VERSION);
 	}
@@ -84,6 +94,8 @@ public class SFA_AM implements ISFA_AM {
 		// todo: use delegate for this
 		final Map<String, Object> value = new HashMap<>();
 		value.put("geni_api", SFA_AM.API_VERSION);
+		
+		addTestbeddescription(value);
 
 		final Map<String, String> apiVersions = new HashMap<>();
 		apiVersions.put("3", "https://path_to_this_server_from_ontology");
