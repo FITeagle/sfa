@@ -1,5 +1,6 @@
 package org.fiteagle.north.sfa.am;
 
+import java.io.IOException;
 import java.io.InputStream;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
@@ -9,6 +10,7 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.codehaus.jackson.map.ObjectMapper;
 import org.fiteagle.north.sfa.dm.SFA_XMLRPC_Handler;
 
 public class SFA_AM implements ISFA_AM {
@@ -82,8 +84,19 @@ public class SFA_AM implements ISFA_AM {
 	private void addTestbeddescription(Map<String, Object> value) {
 		SFA_AM.LOGGER.log(Level.INFO, "Adding OMN testbed info...");
 		final InputStream filestream = this.getClass().getResourceAsStream(
-				"/dummy-testbed.ttl");
-		value.put("omn_testbed", SFA_XMLRPC_Handler.convertStreamToString(filestream));
+				"/dummy-testbed.json");
+		String json = SFA_XMLRPC_Handler.convertStreamToString(filestream);
+
+		try {
+			@SuppressWarnings("unchecked")
+			HashMap<String,Object> result =
+			        new ObjectMapper().readValue(json, HashMap.class);
+			value.put("omn_testbed", result);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+
+		
 	}
 
 	private void addAPIVersion(final HashMap<String, Object> result) {

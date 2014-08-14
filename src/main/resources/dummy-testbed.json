@@ -1,0 +1,172 @@
+{
+  "http://fuseco.fokus.fraunhofer.de/about#AnnotationProperty" : {
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : [ {
+        "value" : "http://www.w3.org/2002/07/owl#Class",
+        "type" : "uri"
+        }
+      
+      ]
+    }
+  ,
+  "http://fuseco.fokus.fraunhofer.de/about#Class" : {
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : [ {
+        "value" : "http://www.w3.org/2002/07/owl#Class",
+        "type" : "uri"
+        }
+      
+      ]
+    }
+  ,
+  "http://fuseco.fokus.fraunhofer.de/about#NamedIndividual" : {
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : [ {
+        "value" : "http://www.w3.org/2002/07/owl#Class",
+        "type" : "uri"
+        }
+      
+      ]
+    }
+  ,
+  "http://fuseco.fokus.fraunhofer.de/about#infrastructure" : {
+    "http://open-multinet.info/ontology#partOfFederation" : [ {
+        "value" : "http://fed4fire.eu/resources#federation",
+        "type" : "uri"
+        }
+      
+      ],
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : [ {
+        "value" : "http://fuseco.fokus.fraunhofer.de/about#NamedIndividual",
+        "type" : "uri"
+        }
+      ,
+      {
+        "value" : "http://open-multinet.info/ontology#WirelessInfrastructure",
+        "type" : "uri"
+        }
+      ,
+      {
+        "value" : "http://www.w3.org/2002/07/owl#NamedIndividual",
+        "type" : "uri"
+        }
+      
+      ],
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ {
+        "value" : "FUSECO Playground",
+        "type" : "literal"
+        }
+      
+      ],
+    "http://xmlns.com/foaf/0.1/based_near" : [ {
+        "value" : "http://fuseco.fokus.fraunhofer.de/about#location",
+        "type" : "uri"
+        }
+      
+      ]
+    }
+  ,
+  "http://fuseco.fokus.fraunhofer.de/about#location" : {
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : [ {
+        "value" : "http://www.w3.org/2002/07/owl#NamedIndividual",
+        "type" : "uri"
+        }
+      ,
+      {
+        "value" : "http://www.w3.org/2003/01/geo/wgs84_pos#Point",
+        "type" : "uri"
+        }
+      
+      ],
+    "http://www.w3.org/2000/01/rdf-schema#label" : [ {
+        "value" : "Fraunhofer FOKUS",
+        "lang" : "en",
+        "type" : "literal"
+        }
+      
+      ],
+    "http://www.w3.org/2003/01/geo/wgs84_pos#lat" : [ {
+        "value" : "52.5258083",
+        "type" : "literal"
+        }
+      
+      ],
+    "http://www.w3.org/2003/01/geo/wgs84_pos#long" : [ {
+        "value" : "13.3172764",
+        "type" : "literal"
+        }
+      
+      ]
+    }
+  ,
+  "http://open-multinet.info/ontology#WirelessInfrastructure" : {
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : [ {
+        "value" : "http://fuseco.fokus.fraunhofer.de/about#Class",
+        "type" : "uri"
+        }
+      ,
+      {
+        "value" : "http://www.w3.org/2002/07/owl#Class",
+        "type" : "uri"
+        }
+      ,
+      {
+        "value" : "http://www.w3.org/2002/07/owl#NamedIndividual",
+        "type" : "uri"
+        }
+      
+      ]
+    }
+  ,
+  "http://open-multinet.info/ontology#partOfFederation" : {
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : [ {
+        "value" : "http://fuseco.fokus.fraunhofer.de/about#AnnotationProperty",
+        "type" : "uri"
+        }
+      ,
+      {
+        "value" : "http://www.w3.org/2002/07/owl#AnnotationProperty",
+        "type" : "uri"
+        }
+      ,
+      {
+        "value" : "http://www.w3.org/2002/07/owl#NamedIndividual",
+        "type" : "uri"
+        }
+      
+      ]
+    }
+  ,
+  "http://www.w3.org/2003/01/geo/wgs84_pos#Point" : {
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : [ {
+        "value" : "http://www.w3.org/2002/07/owl#Class",
+        "type" : "uri"
+        }
+      
+      ]
+    }
+  ,
+  "http://www.w3.org/2003/01/geo/wgs84_pos#lat" : {
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : [ {
+        "value" : "http://www.w3.org/2002/07/owl#AnnotationProperty",
+        "type" : "uri"
+        }
+      
+      ]
+    }
+  ,
+  "http://www.w3.org/2003/01/geo/wgs84_pos#long" : {
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : [ {
+        "value" : "http://www.w3.org/2002/07/owl#AnnotationProperty",
+        "type" : "uri"
+        }
+      
+      ]
+    }
+  ,
+  "http://xmlns.com/foaf/0.1/based_near" : {
+    "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" : [ {
+        "value" : "http://www.w3.org/2002/07/owl#AnnotationProperty",
+        "type" : "uri"
+        }
+      
+      ]
+    }
+  }
