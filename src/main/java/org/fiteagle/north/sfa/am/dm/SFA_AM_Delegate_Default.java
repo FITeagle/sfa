@@ -1,8 +1,10 @@
 package org.fiteagle.north.sfa.am.dm;
 
+import java.io.InputStream;
 import java.util.logging.Logger;
 
 import org.fiteagle.north.sfa.am.ISFA_AM_Delegate;
+import org.fiteagle.north.sfa.dm.SFA_XMLRPC_Handler;
 
 public class SFA_AM_Delegate_Default implements ISFA_AM_Delegate {
 
@@ -26,7 +28,11 @@ public class SFA_AM_Delegate_Default implements ISFA_AM_Delegate {
 
 	@Override
 	public String getListResourcesValue() {
-		return "<rspec/>";
+		final InputStream filestream = this.getClass().getResourceAsStream(
+				"/dummy-listresources-semantic.xml");
+		String rspec = SFA_XMLRPC_Handler.convertStreamToString(filestream);
+		
+		return rspec;
 	}
 
 	@Override
