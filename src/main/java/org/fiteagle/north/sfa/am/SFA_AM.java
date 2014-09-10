@@ -12,12 +12,16 @@ import java.util.logging.Logger;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.fiteagle.north.sfa.dm.SFA_XMLRPC_Handler;
+import org.fiteagle.north.sfa.am.dm.SFAsender;
 
 public class SFA_AM implements ISFA_AM {
 	private static final int API_VERSION = 3;
 	private final static Logger LOGGER = Logger.getLogger(SFA_AM.class
 			.getName());
 	private final ISFA_AM_Delegate delegate;
+	
+	// i added
+	private final SFAsender sfaSender = new SFAsender();
 
 	public SFA_AM(final ISFA_AM_Delegate delegate) {
 		this.delegate = delegate;
@@ -36,6 +40,27 @@ public class SFA_AM implements ISFA_AM {
 		case ISFA_AM.METHOD_LIST_RESOURCES:
 			result = this.listResources(parameter);
 			break;
+		case ISFA_AM.METHOD_ALLOCATE:
+			result = this.allocate(parameter);
+			break;
+		case ISFA_AM.METHOD_RENEW:
+			result = this.renew(parameter);
+			break;
+		case ISFA_AM.METHOD_PROVISION:
+			result = this.provision(parameter);
+			break;
+		case ISFA_AM.METHOD_STATUS:
+			result = this.status(parameter);
+			break;
+		case ISFA_AM.METHOD_PERFORMOPERATIONALACTION:
+			result = this.performOperationalAction(parameter);
+			break;
+		case ISFA_AM.METHOD_DELETE:
+			result = this.delete(parameter);
+			break;
+		case ISFA_AM.METHOD_SHUTDOWN:
+			result = this.shutdown(parameter);
+			break;
 		default:
 			result = "Unimplemented method '" + methodName + "'";
 			break;
@@ -45,29 +70,91 @@ public class SFA_AM implements ISFA_AM {
 	}
 
 	@Override
+	public Object allocate(final List<?> parameter){
+		final HashMap<String, Object> result = new HashMap<>();
+		return result;
+	}
+	
+	
+	@Override
+	public Object renew(final List<?> parameter){
+		final HashMap<String, Object> result = new HashMap<>();
+		return result;
+	}
+	
+	@Override
+	public Object provision(final List<?> parameter){
+		final HashMap<String, Object> result = new HashMap<>();
+		return result;
+	}
+	
+	@Override
+	public Object status(final List<?> parameter){
+		final HashMap<String, Object> result = new HashMap<>();
+		return result;
+	}
+	
+	@Override
+	public Object performOperationalAction(final List<?> parameter){
+		final HashMap<String, Object> result = new HashMap<>();
+		return result;
+	}
+	
+	@Override
+	public Object delete(final List<?> parameter){
+		final HashMap<String, Object> result = new HashMap<>();
+		return result;
+	}
+	
+	@Override
+	public Object shutdown(final List<?> parameter){
+		final HashMap<String, Object> result = new HashMap<>();
+		return result;
+	}
+	
+	@Override
 	public Object listResources(final List<?> parameter) {
 		SFA_AM.LOGGER.log(Level.INFO, "listResources...");
 		final HashMap<String, Object> result = new HashMap<>();
 		this.parseListResourcesParameter(parameter);
-		result.put("value", this.delegate.getListResourcesValue());
-
+		//result.put("value", this.delegate.getListResourcesValue()); 
+		result.put("value", this.sfaSender.getListResourcesValue());
 		this.addCode(result);
 		this.addOutput(result);
+		
 		return result;
 	}
 
 	private void parseListResourcesParameter(final List<?> parameter) {
 		for (final Object param : parameter) {
 			if (param instanceof Map<?, ?>) {
-				@SuppressWarnings("unchecked")
-				final Map<String, ?> param2 = (Map<String, ?>) param;
-				this.delegate.setCompressed((Boolean) param2
-						.get("geni_compressed"));
+				this.parseOptionsParameter(param);
 			} else if (param instanceof List<?>) {
 				// tood: parse more
 			}
 		}
 	}
+	
+	private void parseOptionsParameter(final Object param){
+		
+		@SuppressWarnings("unchecked")
+		final Map<String, ?> param2 = (Map<String, ?>) param;
+		
+		if(param2.containsKey("geni_compressed")){
+			this.delegate.setCompressed((Boolean) param2.get("geni_compressed"));
+		}
+		if(param2.containsKey("geni_available")){
+			this.delegate.setAvailable((Boolean) param2.get("geni_available"));
+		}
+		
+		//added for later use.
+		if(param2.get("geni_rspec_version") instanceof Map<?, ?>){
+			final Map<String, ?> geniRSpecVersion = (Map<String, ?>) param2.get("geni_rspec_version");
+			String type = (String) geniRSpecVersion.get("type");
+			String version = (String) geniRSpecVersion.get("version");
+		}
+	}
+	
 
 	@Override
 	public Object getVersion(final List<?> parameter) {
@@ -102,7 +189,7 @@ public class SFA_AM implements ISFA_AM {
 	private void addAPIVersion(final HashMap<String, Object> result) {
 		result.put("geni_api", SFA_AM.API_VERSION);
 	}
-
+	
 	private void addValue(final HashMap<String, Object> result) {
 		// todo: use delegate for this
 		final Map<String, Object> value = new HashMap<>();
@@ -155,4 +242,5 @@ public class SFA_AM implements ISFA_AM {
 		code.put("am_code", this.delegate.getAMCode());
 		result.put("code", code);
 	}
+	
 }
