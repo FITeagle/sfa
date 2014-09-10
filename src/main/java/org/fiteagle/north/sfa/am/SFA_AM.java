@@ -72,7 +72,52 @@ public class SFA_AM implements ISFA_AM {
 	@Override
 	public Object allocate(final List<?> parameter){
 		final HashMap<String, Object> result = new HashMap<>();
+		this.parseAllocateParameter(parameter);
+		this.addAllocateValue(result);
+		this.addCode(result);
+		this.addOutput(result);
 		return result;
+	}
+
+private void parseAllocateParameter(final List<?> parameter) {
+		
+		for (final Object param : parameter) {
+			if (param instanceof String) {	// considered to be slice_urn
+				String param2 = (String) param;
+				this.delegate.setSliceURN(param2);
+			}
+			else if (param instanceof Map<?, ?>) { // considered to be options parameters.
+				this.parseOptionsParameters(param);
+			}
+			else if(param instanceof List<?>){ // considered to be credentials parameters.
+				this.parseCredentialsParameters(param);
+			}
+		}
+			
+	}
+
+	private void addAllocateValue(final HashMap<String, Object> result) {
+		final Map<String, Object> value = new HashMap<>();
+		
+		value.put("geni_rspec", "should be the geni.rspec manifest"); // to be continued
+		
+		// todo: should call a method for the slivers
+		final List<Map<String, Object>> geniSlivers = new LinkedList<>();
+		/**
+		 * should define a loop depending on the slivers number.
+		 * In the loop, Map is created for each sliver containing 
+		 * sliver urn, experires and status.
+		 * The created maps should be added to geni_slivers list.
+		 */
+		final Map<String, Object> sliver = new HashMap<>();
+		sliver.put("geni_sliver_urn", "string sliver urn");
+		sliver.put("geni_expires", "expiration of sliver");
+		sliver.put("geni_allocation_status", "geni_allocated");
+		geniSlivers.add(sliver);
+		
+		value.put("geni_slivers", geniSlivers);
+		
+		result.put("value", value);
 	}
 	
 	
@@ -128,14 +173,15 @@ public class SFA_AM implements ISFA_AM {
 	private void parseListResourcesParameter(final List<?> parameter) {
 		for (final Object param : parameter) {
 			if (param instanceof Map<?, ?>) {
-				this.parseOptionsParameter(param);
+				this.parseOptionsParameters(param);
 			} else if (param instanceof List<?>) {
 				// tood: parse more
+				this.parseCredentialsParameters(param);
 			}
 		}
 	}
 	
-	private void parseOptionsParameter(final Object param){
+	private void parseOptionsParameters(final Object param){
 		
 		@SuppressWarnings("unchecked")
 		final Map<String, ?> param2 = (Map<String, ?>) param;
@@ -155,6 +201,22 @@ public class SFA_AM implements ISFA_AM {
 		}
 	}
 	
+	private void parseCredentialsParameters(final Object param){
+		
+		@SuppressWarnings("unchecked")
+		final List<Map<String, ?>> param2 = (List<Map<String, ?>>) param;
+		for(Map<String, ?> credential : param2){
+			if(credential.containsKey("geni_type")){
+				this.delegate.setGeniType((String) credential.get("geni_type"));
+			}
+			if(credential.containsKey("geni_version")){
+				this.delegate.setGeinVersion((String) credential.get("geni_version"));
+			}
+			if(credential.containsKey("geni_value")){
+				this.delegate.setGeniValue((String) credential.get("geni_value"));
+			}
+		}
+	}
 
 	@Override
 	public Object getVersion(final List<?> parameter) {
@@ -225,7 +287,7 @@ public class SFA_AM implements ISFA_AM {
 		final List<Map<String, Object>> credTypes = new LinkedList<>();
 		final Map<String, Object> credTypeA = new HashMap<>();
 		credTypeA.put("geni_type", "geni_sfa");
-		credTypeA.put("geni_version", "1");
+		credTypeA.put("geni_version", "1");  // should be 3 ?
 		credTypes.add(credTypeA);
 		value.put("geni_credential_types", credTypes);
 
