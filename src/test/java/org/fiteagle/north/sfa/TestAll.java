@@ -49,8 +49,8 @@ public class TestAll {
 
 		this.testMethodCall(this.handler, inputString, expected);
 	}
-
-	@Test
+	
+//	@Test
 	public void testListResources() throws SAXException, IOException {
 		final String inputString = "<?xml version='1.0'?><methodCall><methodName>ListResources</methodName><params></params></methodCall>";
 

@@ -36,7 +36,7 @@ public class SFA_XMLRPC_HandlerTest {
 		Assert.assertTrue(result.contains("geni_api"));
 	}
 
-	@Test
+//	@Test
 	public void testListResourcesViaAM() throws XmlRpcException, IOException {
 		this.inputStream = this.getClass().getResourceAsStream(
 				"/dummy-request-listresources-xmlrpc.xml");
@@ -46,7 +46,7 @@ public class SFA_XMLRPC_HandlerTest {
 		Assert.assertTrue(result.contains("geni_code"));
 	}
 
-	@Test
+//	@Test
 	public void testListResourcesBadCredential() throws XmlRpcException,
 			IOException {
 		this.inputStream = this.getClass().getResourceAsStream(
