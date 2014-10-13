@@ -10,7 +10,6 @@ import javax.jms.Message;
 import javax.jms.Topic;
 
 import org.fiteagle.api.core.IMessageBus;
-import org.fiteagle.api.core.IResourceRepository;
 
 public class SFAsender {
 
@@ -19,6 +18,8 @@ public class SFAsender {
 	@Resource(mappedName = IMessageBus.TOPIC_CORE_NAME)
 	private Topic topic;
 
+	public static String LIST_RESOURCES = "listResources";
+	
 	public SFAsender() {
 		
 	}
@@ -31,7 +32,7 @@ public class SFAsender {
 		final Message message = this.context.createMessage();
 		try {
 			message.setStringProperty(IMessageBus.TYPE_REQUEST,
-					IResourceRepository.LIST_RESOURCES);
+					LIST_RESOURCES);
 			message.setStringProperty(IMessageBus.SERIALIZATION, "TURTLE");
 			message.setStringProperty(IMessageBus.QUERY,
 					"SELECT * {?s ?p ?o} LIMIT 100");
