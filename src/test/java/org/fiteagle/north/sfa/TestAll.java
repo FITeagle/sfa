@@ -41,7 +41,7 @@ public class TestAll {
 		Assert.assertNotNull(filestream);
 	}
 
-	@Test
+	//@Test
 	public void testGetVersion() throws SAXException, IOException {
 		final String inputString = "<?xml version='1.0'?><methodCall><methodName>GetVersion</methodName><params></params></methodCall>";
 

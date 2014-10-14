@@ -2,6 +2,8 @@ package org.fiteagle.north.sfa.am.dm;
 
 import java.util.UUID;
 
+import javax.ejb.Singleton;
+import javax.ejb.Startup;
 //import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.jms.JMSContext;
@@ -13,83 +15,80 @@ import javax.ws.rs.Path;
 
 import org.fiteagle.api.core.IMessageBus;
 
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.vocabulary.RDF;
-
-import org.codehaus.jackson.map.ObjectMapper;
-import com.hp.hpl.jena.rdf.model.Resource;
+//import com.hp.hpl.jena.rdf.model.Model;
+//import com.hp.hpl.jena.rdf.model.ModelFactory;
+//import com.hp.hpl.jena.vocabulary.RDF;
+//
+//import org.codehaus.jackson.map.ObjectMapper;
+//import com.hp.hpl.jena.rdf.model.Resource; here
 import org.fiteagle.api.core.MessageBusMsgFactory;
-import org.fiteagle.api.core.MessageBusOntologyModel;
+//import org.fiteagle.api.core.MessageBusOntologyModel;
 
-@Path("/sfarest")
-public class SFArest {
+
+
+import javax.annotation.Resource; //here
+
+@Startup
+@Singleton
+public class SFA_AM_MDBSender {
 
 	@Inject
 	private JMSContext context;
-	//@Resource(mappedName = IMessageBus.TOPIC_CORE_NAME)
-	 @javax.annotation.Resource(mappedName = IMessageBus.TOPIC_CORE_NAME)
+	@Resource(mappedName = IMessageBus.TOPIC_CORE_NAME)
+	// @javax.annotation.Resource(mappedName = IMessageBus.TOPIC_CORE_NAME)
 	private Topic topic;
 	
-	public SFArest(){
-		// TODO Auto-generated constructor stub
+	private static SFA_AM_MDBSender instance;
+	
+	
+	public SFA_AM_MDBSender(){
+		instance = this;
+	}
+	
+	public static SFA_AM_MDBSender getInstance() {
+		return instance;
 	}
 	
 	/**
-	 * 
 	 * curl -v http://localhost:8080/sfa/sfarest/getVersion
+	 * @throws JMSException
 	 */
-	@GET
-	@Path("getVersion")
-	public void getTestbedDescription(){
-		
-		String testbedDescription = "";
-		Model requestModel = ModelFactory.createDefaultModel();
-	    Resource resource = requestModel.createResource();
-	    resource.addProperty(RDF.type, MessageBusOntologyModel.classTestbed);
+	public String testbedDescription() throws JMSException{
+		String query = "DESCRIBE ?testbed WHERE {?testbed <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://fiteagle.org/ontology#Testbed>. }";
+	    String requestModel = MessageBusMsgFactory.createSerializedSPARQLQueryModel(query);
+	    final Message request = createRDFMessage(requestModel, IMessageBus.TYPE_REQUEST);
+	    sendRequest(request);
 	    
-	    requestModel = MessageBusMsgFactory.createMsgRequest(requestModel);
-	    
-	    try {
-	        Message request = createRequest(MessageBusMsgFactory.serializeModel(requestModel), IMessageBus.TYPE_REQUEST);
-	    	//Message request = createRequest(null, IMessageBus.TYPE_REQUEST);
-	        //sendRequest(request);
-	        System.out.println("sending testbed description query...");
-	        this.context.createProducer().send(this.topic, request);
-	        
-	        Message rcvMessage = waitForResult(request.getJMSCorrelationID());
-	        
-	        testbedDescription = getResult(rcvMessage);
-	        System.out.println("testbed description is " + testbedDescription);
-	      } catch (JMSException e) {
-	        e.printStackTrace();
-	      }
+	    Message rcvMessage = waitForResult(request);
+	    String resultString = getResult(rcvMessage);
+	    System.out.println("resultString " + resultString);
+	    String result = MessageBusMsgFactory.getTTLResultModelFromSerializedModel(resultString);
+	    System.out.println("result is " + result);
+	    return result;
 	}
 	
-	private Message createRequest(final String rdfInput, final String methodType) throws JMSException {
-		System.out.println("creating request...");
+	private Message createRDFMessage(final String rdfInput, final String methodType) {
         final Message message = this.context.createMessage();
-        System.out.println("message created...");
-        
-        message.setStringProperty(IMessageBus.METHOD_TYPE, methodType);
-        message.setStringProperty(IMessageBus.SERIALIZATION, IMessageBus.SERIALIZATION_DEFAULT);
-        
-        message.setStringProperty(IMessageBus.RDF, rdfInput);
-        //message.setStringProperty(IMessageBus.QUERY, "SELECT * {?s ?p ?o} LIMIT 100");
-        
-        message.setJMSCorrelationID(UUID.randomUUID().toString());
-        System.out.println("JMSCorrelationID " + message.getJMSCorrelationID());
+
+        try {
+          message.setStringProperty(IMessageBus.METHOD_TYPE, methodType);
+          message.setStringProperty(IMessageBus.SERIALIZATION, IMessageBus.SERIALIZATION_DEFAULT);
+          message.setStringProperty(IMessageBus.RDF, rdfInput);
+          message.setJMSCorrelationID(UUID.randomUUID().toString());
+        } catch (JMSException e) {
+          System.out.println(e.getMessage());
+        }
 
         return message;
     }
 	
 	 private void sendRequest(final Message message) {
 		 System.out.println("sending testbed description query...");
-	        this.context.createProducer().send(this.topic, message);
+	     this.context.createProducer().send(this.topic, message);
 	 }
 	 
-	   private Message waitForResult(final String correlationID) throws JMSException {
-	        final String filter = "JMSCorrelationID='" + correlationID + "'";
+	   private Message waitForResult(final Message message) throws JMSException {
+	        final String filter = "JMSCorrelationID='" + message.getJMSCorrelationID() + "'";
 	        final Message rcvMessage = this.context.createConsumer(this.topic, filter).receive(IMessageBus.TIMEOUT); // IMessageBus.TIMEOUT
 	        System.out.println("message received");
 	        return rcvMessage;
@@ -105,12 +104,13 @@ public class SFArest {
 	        }
 	        return resources;
 	    }
+
 	/**
 	 * curl -v http://localhost:8080/sfa/sfarest/listResources
 	 */
 	//@Produces("text/turtle")
-	@GET
-	@Path("listResources")
+//	@GET
+//	@Path("listResources")
 	public void listResources() {
 		final int TIMEOUT = 5000;
 		final Message message = this.context.createMessage();

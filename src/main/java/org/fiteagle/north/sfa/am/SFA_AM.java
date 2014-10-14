@@ -12,19 +12,32 @@ import java.util.logging.Logger;
 
 import org.codehaus.jackson.map.ObjectMapper;
 import org.fiteagle.north.sfa.dm.SFA_XMLRPC_Handler;
+import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
 import org.fiteagle.north.sfa.am.dm.SFAsender;
+
+import javax.jms.JMSException;
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 
 public class SFA_AM implements ISFA_AM {
 	private static final int API_VERSION = 3;
 	private final static Logger LOGGER = Logger.getLogger(SFA_AM.class
 			.getName());
 	private final ISFA_AM_Delegate delegate;
+	//private SFAsender SFA_Sender;
 	
-	// i added
-	private final SFAsender sfaSender = new SFAsender();
+//	 private Context context;
 
 	public SFA_AM(final ISFA_AM_Delegate delegate) {
 		this.delegate = delegate;
+/*		try {
+			context = new InitialContext();
+			this.SFA_Sender = (SFAsender) context.lookup("java:module/SFAsender");
+		} catch (NamingException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}*/
 	}
 
 	@Override
@@ -163,7 +176,7 @@ private void parseAllocateParameter(final List<?> parameter) {
 		final HashMap<String, Object> result = new HashMap<>();
 		this.parseListResourcesParameter(parameter);
 		//result.put("value", this.delegate.getListResourcesValue()); 
-		result.put("value", this.sfaSender.getListResourcesValue());
+		result.put("value", SFAsender.getInstance().getListResourcesValue());
 		this.addCode(result);
 		this.addOutput(result);
 		
@@ -224,13 +237,18 @@ private void parseAllocateParameter(final List<?> parameter) {
 		final HashMap<String, Object> result = new HashMap<>();
 
 		this.addAPIVersion(result);
-		this.addValue(result);
+		try {
+			this.addValue(result);
+		} catch (JMSException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 		this.addCode(result);
 		this.addOutput(result);
 		return result;
 	}
 
-	private void addTestbeddescription(Map<String, Object> value) {
+/*	private void addTestbeddescription(Map<String, Object> value) {
 		SFA_AM.LOGGER.log(Level.INFO, "Adding OMN testbed info...");
 		final InputStream filestream = this.getClass().getResourceAsStream(
 				"/dummy-testbed.json");
@@ -247,17 +265,21 @@ private void parseAllocateParameter(final List<?> parameter) {
 
 		
 	}
-
+*/
 	private void addAPIVersion(final HashMap<String, Object> result) {
 		result.put("geni_api", SFA_AM.API_VERSION);
 	}
 	
-	private void addValue(final HashMap<String, Object> result) {
+	private void addValue(final HashMap<String, Object> result) throws JMSException {
 		// todo: use delegate for this
 		final Map<String, Object> value = new HashMap<>();
 		value.put("geni_api", SFA_AM.API_VERSION);
 		
-		addTestbeddescription(value);
+		//addTestbeddescription(value);
+		
+		
+		String testbedDescription =(String) SFA_AM_MDBSender.getInstance().testbedDescription();
+		value.put("omn_testbed", testbedDescription);
 
 		final Map<String, String> apiVersions = new HashMap<>();
 		apiVersions.put("3", "https://path_to_this_server_from_ontology");

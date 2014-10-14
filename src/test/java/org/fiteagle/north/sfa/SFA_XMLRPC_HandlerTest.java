@@ -26,7 +26,7 @@ public class SFA_XMLRPC_HandlerTest {
 		this.outputStream = new ByteArrayOutputStream();
 	}
 
-	@Test
+//	@Test
 	public void testGetVersionViaAM() throws XmlRpcException, IOException {
 		this.inputStream = this.getClass().getResourceAsStream(
 				"/dummy-request-getversion-xmlrpc.xml");
