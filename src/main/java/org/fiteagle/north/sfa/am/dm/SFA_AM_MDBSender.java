@@ -2,6 +2,7 @@ package org.fiteagle.north.sfa.am.dm;
 
 import java.util.UUID;
 
+import javax.annotation.Resource;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 //import javax.annotation.Resource;
@@ -10,13 +11,10 @@ import javax.jms.JMSContext;
 import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.Topic;
-import javax.ws.rs.GET;
-import javax.ws.rs.Path;
+import javax.ws.rs.core.Response;
 
 import org.fiteagle.api.core.IMessageBus;
 import org.fiteagle.api.core.MessageBusMsgFactory;
-
-import javax.annotation.Resource;
 
 @Startup
 @Singleton
@@ -79,7 +77,7 @@ public class SFA_AM_MDBSender {
 	    }
 	   
 	    private String getResult(final Message rcvMessage) throws JMSException {
-	        String resources = IMessageBus.STATUS_408;
+	        String resources = Response.Status.REQUEST_TIMEOUT.name();
 	        if (null != rcvMessage) {
 	            resources = rcvMessage.getStringProperty(IMessageBus.RDF);
 	        }
