@@ -17,6 +17,34 @@ public interface ISFA_AM extends ISFA {
 	String METHOD_DELETE = "DELETE";
 	String METHOD_SHUTDOWN = "SHUTDOWN";
 
+	
+	String GENI_API_VERSION = "geni_api_versions";
+	String GENI_API = "geni_api";
+	String GENI_TYPE = "geni_type";
+	String GENI_SFA = "geni_sfa";
+	String GENI = "GENI";
+	String GENI_SCHEMA = "schema";
+	String GENI_NAMESPACE = "namespace";
+	String GENI_EXTENSIONS = "extensions";
+	String GENI_REQUEST_VERSION = "geni_request_rspec_versions";
+	String GENI_AD_VERSION = "geni_ad_rspec_versions";
+	String GENI_VERSION = "geni_version";
+	String GENI_CREDENTIAL_TYPES = "geni_credential_types";
+	String GENI_CODE = "geni_code";
+	
+	String OMN_TESTBED = "omn_testbed";
+	String API_VERSION = "https://federation.av.tu-berlin.de:8443/sfa/api/am/v3";
+	String TYPE = "type";
+	String REQUEST_SCHEMA = "http://www.geni.net/resources/rspec/3/request.xsd";
+	String AD_SCHEMA = "http://www.geni.net/resources/rspec/3/ad.xsd";
+	String NAMESPACE = "http://www.geni.net/resources/rspec/3";
+	String VERSION = "version";
+	String VALUE = "value";
+	String OUTPUT = "output";
+	String VERSION_3 = "3";
+	String AM_CODE = "am_code";
+	String CODE = "code";
+	
 	public abstract Object listResources(List<?> parameter);
 
 	public abstract Object getVersion(List<?> parameter);

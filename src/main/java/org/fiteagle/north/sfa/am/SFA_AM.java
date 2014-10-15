@@ -254,64 +254,64 @@ private void parseAllocateParameter(final List<?> parameter) {
 	}
 */
 	private void addAPIVersion(final HashMap<String, Object> result) {
-		result.put("geni_api", SFA_AM.API_VERSION);
+		result.put(ISFA_AM.GENI_API, SFA_AM.API_VERSION);
 	}
 	
 	private void addValue(final HashMap<String, Object> result) throws JMSException {
 		// todo: use delegate for this
 		final Map<String, Object> value = new HashMap<>();
-		value.put("geni_api", SFA_AM.API_VERSION);
+		value.put(ISFA_AM.GENI_API, SFA_AM.API_VERSION);
 		
 		//addTestbeddescription(value);
 		
 		
 		String testbedDescription =(String) SFA_AM_MDBSender.getInstance().getTestbedDescription();
-		value.put("omn_testbed", testbedDescription);
+		value.put(ISFA_AM.OMN_TESTBED, testbedDescription);
 
 		final Map<String, String> apiVersions = new HashMap<>();
-		apiVersions.put("3", "https://path_to_this_server_from_ontology");
-		value.put("geni_api_versions", apiVersions);
+		apiVersions.put(ISFA_AM.VERSION_3, ISFA_AM.API_VERSION);
+		value.put(ISFA_AM.GENI_API_VERSION, apiVersions);
 
 		final List<Map<String, Object>> reqRSpecs = new LinkedList<>();
 		final Map<String, Object> typeA = new HashMap<>();
-		typeA.put("type", "GENI");
-		typeA.put("version", "3");
-		typeA.put("schema", "foo");
-		typeA.put("namespace", "bar");
+		typeA.put(ISFA_AM.TYPE, ISFA_AM.GENI);
+		typeA.put(ISFA_AM.VERSION, ISFA_AM.VERSION_3);
+		typeA.put(ISFA_AM.GENI_SCHEMA, ISFA_AM.REQUEST_SCHEMA);
+		typeA.put(ISFA_AM.GENI_NAMESPACE, ISFA_AM.NAMESPACE);
 		final String[] extensions = new String[0];
-		typeA.put("extensions", extensions);
+		typeA.put(ISFA_AM.GENI_EXTENSIONS, extensions);
 		reqRSpecs.add(typeA);
-		value.put("geni_request_rspec_versions", reqRSpecs);
+		value.put(ISFA_AM.GENI_REQUEST_VERSION, reqRSpecs);
 
 		final List<Map<String, Object>> adRSpecs = new LinkedList<>();
 		final Map<String, Object> adTypeA = new HashMap<>();
-		adTypeA.put("type", "GENI");
-		adTypeA.put("version", "3");
-		adTypeA.put("schema", "foo");
-		adTypeA.put("namespace", "bar");
-		adTypeA.put("extensions", extensions);
+		adTypeA.put(ISFA_AM.TYPE, ISFA_AM.GENI);
+		adTypeA.put(ISFA_AM.VERSION, ISFA_AM.VERSION_3);
+		adTypeA.put(ISFA_AM.GENI_SCHEMA, ISFA_AM.AD_SCHEMA);
+		adTypeA.put(ISFA_AM.GENI_NAMESPACE, ISFA_AM.NAMESPACE);
+		adTypeA.put(ISFA_AM.GENI_EXTENSIONS, extensions);
 		adRSpecs.add(adTypeA);
-		value.put("geni_ad_rspec_versions", adRSpecs);
+		value.put(ISFA_AM.GENI_AD_VERSION, adRSpecs);
 
 		final List<Map<String, Object>> credTypes = new LinkedList<>();
 		final Map<String, Object> credTypeA = new HashMap<>();
-		credTypeA.put("geni_type", "geni_sfa");
-		credTypeA.put("geni_version", "1");  // should be 3 ?
+		credTypeA.put(ISFA_AM.GENI_TYPE, ISFA_AM.GENI_SFA);
+		credTypeA.put(ISFA_AM.GENI_VERSION, "1");  // should be 3 ?
 		credTypes.add(credTypeA);
-		value.put("geni_credential_types", credTypes);
+		value.put(ISFA_AM.GENI_CREDENTIAL_TYPES, credTypes);
 
-		result.put("value", value);
+		result.put(ISFA_AM.VALUE, value);
 	}
 
 	private void addOutput(final HashMap<String, Object> result) {
-		result.put("output", this.delegate.getOutput());
+		result.put(ISFA_AM.OUTPUT, this.delegate.getOutput());
 	}
 
 	private void addCode(final HashMap<String, Object> result) {
 		final Map<String, Integer> code = new HashMap<>();
-		code.put("geni_code", this.delegate.getGeniCode());
-		code.put("am_code", this.delegate.getAMCode());
-		result.put("code", code);
+		code.put(ISFA_AM.GENI_CODE, this.delegate.getGeniCode());
+		code.put(ISFA_AM.AM_CODE, this.delegate.getAMCode());
+		result.put(ISFA_AM.CODE, code);
 	}
 	
 }
