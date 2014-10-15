@@ -14,19 +14,9 @@ import javax.ws.rs.GET;
 import javax.ws.rs.Path;
 
 import org.fiteagle.api.core.IMessageBus;
-
-//import com.hp.hpl.jena.rdf.model.Model;
-//import com.hp.hpl.jena.rdf.model.ModelFactory;
-//import com.hp.hpl.jena.vocabulary.RDF;
-//
-//import org.codehaus.jackson.map.ObjectMapper;
-//import com.hp.hpl.jena.rdf.model.Resource; here
 import org.fiteagle.api.core.MessageBusMsgFactory;
-//import org.fiteagle.api.core.MessageBusOntologyModel;
 
-
-
-import javax.annotation.Resource; //here
+import javax.annotation.Resource;
 
 @Startup
 @Singleton
@@ -49,11 +39,8 @@ public class SFA_AM_MDBSender {
 		return instance;
 	}
 	
-	/**
-	 * curl -v http://localhost:8080/sfa/sfarest/getVersion
-	 * @throws JMSException
-	 */
-	public String testbedDescription() throws JMSException{
+
+	public String getTestbedDescription() throws JMSException{
 		String query = "DESCRIBE ?testbed WHERE {?testbed <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://fiteagle.org/ontology#Testbed>. }";
 	    String requestModel = MessageBusMsgFactory.createSerializedSPARQLQueryModel(query);
 	    final Message request = createRDFMessage(requestModel, IMessageBus.TYPE_REQUEST);
@@ -61,7 +48,6 @@ public class SFA_AM_MDBSender {
 	    
 	    Message rcvMessage = waitForResult(request);
 	    String resultString = getResult(rcvMessage);
-	    System.out.println("resultString " + resultString);
 	    String result = MessageBusMsgFactory.getTTLResultModelFromSerializedModel(resultString);
 	    System.out.println("result is " + result);
 	    return result;
@@ -83,24 +69,19 @@ public class SFA_AM_MDBSender {
     }
 	
 	 private void sendRequest(final Message message) {
-		 System.out.println("sending testbed description query...");
 	     this.context.createProducer().send(this.topic, message);
 	 }
 	 
 	   private Message waitForResult(final Message message) throws JMSException {
 	        final String filter = "JMSCorrelationID='" + message.getJMSCorrelationID() + "'";
-	        final Message rcvMessage = this.context.createConsumer(this.topic, filter).receive(IMessageBus.TIMEOUT); // IMessageBus.TIMEOUT
-	        System.out.println("message received");
+	        final Message rcvMessage = this.context.createConsumer(this.topic, filter).receive(IMessageBus.TIMEOUT);
 	        return rcvMessage;
 	    }
 	   
 	    private String getResult(final Message rcvMessage) throws JMSException {
 	        String resources = IMessageBus.STATUS_408;
-
-	        System.out.println("Received a message...");
 	        if (null != rcvMessage) {
 	            resources = rcvMessage.getStringProperty(IMessageBus.RDF);
-	            System.out.println(" the RDF description is " + resources);
 	        }
 	        return resources;
 	    }
@@ -115,7 +96,7 @@ public class SFA_AM_MDBSender {
 		final int TIMEOUT = 5000;
 		final Message message = this.context.createMessage();
 		 try {
-			message.setStringProperty(IMessageBus.TYPE_REQUEST, SFAsender.LIST_RESOURCES);
+			//message.setStringProperty(IMessageBus.TYPE_REQUEST, SFAsender.LIST_RESOURCES);
 			message.setStringProperty(IMessageBus.SERIALIZATION, "TURTLE");
 			 message.setStringProperty(IMessageBus.QUERY, "SELECT * {?s ?p ?o} LIMIT 100");
 			 message.setJMSCorrelationID(UUID.randomUUID().toString());
