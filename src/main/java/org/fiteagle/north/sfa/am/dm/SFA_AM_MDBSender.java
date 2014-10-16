@@ -16,6 +16,8 @@ import javax.ws.rs.core.Response;
 import org.fiteagle.api.core.IMessageBus;
 import org.fiteagle.api.core.MessageBusMsgFactory;
 
+import com.hp.hpl.jena.rdf.model.Model;
+
 @Startup
 @Singleton
 public class SFA_AM_MDBSender {
@@ -47,6 +49,11 @@ public class SFA_AM_MDBSender {
 	    Message rcvMessage = waitForResult(request);
 	    String resultString = getResult(rcvMessage);
 	    String result = MessageBusMsgFactory.getTTLResultModelFromSerializedModel(resultString);
+	    
+	    Model resultModel = MessageBusMsgFactory.parseSerializedModel(result);
+	    MessageBusMsgFactory.setCommonPrefixes(resultModel);
+	    result = MessageBusMsgFactory.serializeModel(resultModel);
+	    
 	    System.out.println("result is " + result);
 	    return result;
 	}
