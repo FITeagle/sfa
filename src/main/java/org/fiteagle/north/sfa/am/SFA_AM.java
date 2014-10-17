@@ -267,16 +267,16 @@ private void parseAllocateParameter(final List<?> parameter) {
 		
 		String testbedDescription =(String) SFA_AM_MDBSender.getInstance().getTestbedDescription();
 		value.put(ISFA_AM.OMN_TESTBED, testbedDescription);
-
+		System.out.println("omn_testbed " + value.get(ISFA_AM.OMN_TESTBED));
+		
 		final Map<String, String> apiVersions = new HashMap<>();
 		apiVersions.put(ISFA_AM.VERSION_3, ISFA_AM.API_VERSION);
 		value.put(ISFA_AM.GENI_API_VERSION, apiVersions);
 
 		final List<Map<String, Object>> reqRSpecs = new LinkedList<>();
 		final Map<String, Object> typeA = new HashMap<>();
-		typeA.put(ISFA_AM.TYPE, ISFA_AM.GENI);
-		typeA.put(ISFA_AM.VERSION, ISFA_AM.VERSION_3);
-		typeA.put(ISFA_AM.GENI_SCHEMA, ISFA_AM.REQUEST_SCHEMA);
+		typeA.put(ISFA_AM.TYPE, ISFA_AM.OPEN_MULTINET);
+		typeA.put(ISFA_AM.VERSION, ISFA_AM.VERSION_1);
 		typeA.put(ISFA_AM.GENI_NAMESPACE, ISFA_AM.NAMESPACE);
 		final String[] extensions = new String[0];
 		typeA.put(ISFA_AM.GENI_EXTENSIONS, extensions);
@@ -285,9 +285,8 @@ private void parseAllocateParameter(final List<?> parameter) {
 
 		final List<Map<String, Object>> adRSpecs = new LinkedList<>();
 		final Map<String, Object> adTypeA = new HashMap<>();
-		adTypeA.put(ISFA_AM.TYPE, ISFA_AM.GENI);
-		adTypeA.put(ISFA_AM.VERSION, ISFA_AM.VERSION_3);
-		adTypeA.put(ISFA_AM.GENI_SCHEMA, ISFA_AM.AD_SCHEMA);
+		adTypeA.put(ISFA_AM.TYPE, ISFA_AM.OPEN_MULTINET);
+		adTypeA.put(ISFA_AM.VERSION, ISFA_AM.VERSION_1);
 		adTypeA.put(ISFA_AM.GENI_NAMESPACE, ISFA_AM.NAMESPACE);
 		adTypeA.put(ISFA_AM.GENI_EXTENSIONS, extensions);
 		adRSpecs.add(adTypeA);
