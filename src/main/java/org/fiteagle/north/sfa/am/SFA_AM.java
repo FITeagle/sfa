@@ -161,7 +161,13 @@ private void parseAllocateParameter(final List<?> parameter) {
 	public Object listResources(final List<?> parameter) {
 		SFA_AM.LOGGER.log(Level.INFO, "listResources...");
 		final HashMap<String, Object> result = new HashMap<>();
-		this.parseListResourcesParameter(parameter);
+		try {
+			addRessources(result);
+		} catch (JMSException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		//this.parseListResourcesParameter(parameter);
 		//result.put("value", this.delegate.getListResourcesValue()); 
 		//result.put("value", SFAsender.getInstance().getListResourcesValue());
 		this.addCode(result);
@@ -170,6 +176,17 @@ private void parseAllocateParameter(final List<?> parameter) {
 		return result;
 	}
 
+	private void addRessources (final HashMap<String, Object> result) throws JMSException{
+		final Map<String, Object> value = new HashMap<>();
+		value.put(ISFA_AM.GENI_API, SFA_AM.API_VERSION);
+		
+		String testbedRessources =(String) SFA_AM_MDBSender.getInstance().listRessources2();
+		value.put(ISFA_AM.OMN_TESTBED, testbedRessources);
+		
+		result.put(ISFA_AM.VALUE, value);
+	}
+	
+	
 	private void parseListResourcesParameter(final List<?> parameter) {
 		for (final Object param : parameter) {
 			if (param instanceof Map<?, ?>) {
