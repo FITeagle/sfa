@@ -17,6 +17,8 @@ import javax.ws.rs.core.Response;
 import org.fiteagle.api.core.IMessageBus;
 import org.fiteagle.api.core.MessageBusMsgFactory;
 
+import com.hp.hpl.jena.rdf.model.Model;
+
 @Startup
 @Singleton
 public class SFA_AM_MDBSender {
@@ -48,8 +50,29 @@ public class SFA_AM_MDBSender {
 	    Message rcvMessage = waitForResult(request);
 	    String resultString = getResult(rcvMessage);
 	    String result = MessageBusMsgFactory.getTTLResultModelFromSerializedModel(resultString);
+	    
+	    Model resultModel = MessageBusMsgFactory.parseSerializedModel(result);
+	    setTestbedPrefixes(resultModel); 
+	    result = MessageBusMsgFactory.serializeModel(resultModel);
 	    System.out.println("result is " + result);
 	    return result;
+	}
+	
+	private void setTestbedPrefixes(Model model){
+		
+	      model.removeNsPrefix("j.0");
+	      model.removeNsPrefix("j.1");
+	      model.removeNsPrefix("j.2");
+	      
+	      model.setNsPrefix("", "http://fiteagleinternal#");
+	      model.setNsPrefix("wgs", "http://www.w3.org/2003/01/geo/wgs84_pos#");
+	      model.setNsPrefix("foaf", "http://xmlns.com/foaf/0.1/");
+	      model.setNsPrefix("omn", "http://fiteagle.org/ontology#");
+	      model.setNsPrefix("owl", "http://www.w3.org/2002/07/owl#");
+	      model.setNsPrefix("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#");
+	      model.setNsPrefix("xsd", "http://www.w3.org/2001/XMLSchema#");
+	      model.setNsPrefix("rdfs", "http://www.w3.org/2000/01/rdf-schema#");
+	      
 	}
 	
 	private Message createRDFMessage(final String rdfInput, final String methodType) {
