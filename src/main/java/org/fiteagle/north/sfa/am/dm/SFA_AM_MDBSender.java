@@ -1,5 +1,6 @@
 package org.fiteagle.north.sfa.am.dm;
 
+import java.util.HashMap;
 import java.util.UUID;
 
 import javax.annotation.Resource;
@@ -87,6 +88,32 @@ public class SFA_AM_MDBSender {
 	/**
 	 * curl -v http://localhost:8080/sfa/sfarest/listResources
 	 */
+	    
+	    
+	    public String listRessources2() throws JMSException{
+	    	String query = "DESCRIBE ?resource WHERE {?resource <http://fiteagleinternal#isAdapterIn> <http://fiteagleinternal#AV_Smart_Communication_Testbed>. }";
+			String requestModel = MessageBusMsgFactory.createSerializedSPARQLQueryModel(query);
+			final Message request = createRDFMessage(requestModel, IMessageBus.TYPE_REQUEST);
+			System.out.println("Sending request");
+		    sendRequest(request);
+		    System.out.println("request send");
+		
+		    Message rcvMessage = waitForResult(request);
+		    if (rcvMessage != null){
+		    	System.out.println("Msg recieved");
+		    	 String resultString = getResult(rcvMessage);
+				 String result = MessageBusMsgFactory.getTTLResultModelFromSerializedModel(resultString);
+				 System.out.println("result is " + result);
+				 return result;
+		    }
+		    else{
+		    	System.out.println("Recieved Message is empty");
+		    	return "error";
+		    }
+			
+		   
+		    
+	    }
 	//@Produces("text/turtle")
 //	@GET
 //	@Path("listResources")
