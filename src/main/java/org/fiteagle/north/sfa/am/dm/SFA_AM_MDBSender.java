@@ -1,6 +1,7 @@
 package org.fiteagle.north.sfa.am.dm;
 
 import java.util.HashMap;
+import java.util.Map;
 import java.util.UUID;
 
 import javax.annotation.Resource;
@@ -40,6 +41,25 @@ public class SFA_AM_MDBSender {
 		return instance;
 	}
 	
+	public Map<String, String> getExtensions() throws JMSException {
+		Map<String, String> extensionsMap = new HashMap<>();
+		
+		String query = "DESCRIBE ?resource WHERE {?resource <http://fiteagleinternal#isAdapterIn> <http://fiteagleinternal#AV_Smart_Communication_Testbed>. }";
+		String requestModel = MessageBusMsgFactory.createSerializedSPARQLQueryModel(query);
+	    final Message request = createRDFMessage(requestModel, IMessageBus.TYPE_REQUEST);
+	    sendRequest(request);
+	    
+	    Message rcvMessage = waitForResult(request);
+	    String resultString = getResult(rcvMessage);
+	    String result = MessageBusMsgFactory.getTTLResultModelFromSerializedModel(resultString);
+	    
+	    Model resultModel = MessageBusMsgFactory.parseSerializedModel(result);
+	    result = MessageBusMsgFactory.serializeModel(resultModel);
+	    
+	    Model extensionsModel = MessageBusMsgFactory.parseSerializedModel(result);
+	    extensionsMap = extensionsModel.getNsPrefixMap();
+		return extensionsMap;
+	}
 
 	public String getTestbedDescription() throws JMSException{
 		String query = "DESCRIBE ?testbed WHERE {?testbed <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://fiteagle.org/ontology#Testbed>. }";

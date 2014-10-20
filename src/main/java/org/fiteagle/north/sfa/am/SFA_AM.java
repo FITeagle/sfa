@@ -14,7 +14,6 @@ import org.codehaus.jackson.map.ObjectMapper;
 import org.fiteagle.north.sfa.dm.SFA_XMLRPC_Handler;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
 
-
 import javax.jms.JMSException;
 
 public class SFA_AM implements ISFA_AM {
@@ -295,8 +294,19 @@ private void parseAllocateParameter(final List<?> parameter) {
 		typeA.put(ISFA_AM.TYPE, ISFA_AM.OPEN_MULTINET);
 		typeA.put(ISFA_AM.VERSION, ISFA_AM.VERSION_1);
 		typeA.put(ISFA_AM.GENI_NAMESPACE, ISFA_AM.NAMESPACE);
-		final String[] extensions = new String[0];
+		
+		
+		Map<String, String> extensionsMap = new HashMap<>();
+		extensionsMap = (Map<String, String>) SFA_AM_MDBSender.getInstance().getExtensions();
+		final String[] extensions = new String[extensionsMap.size()];
+		
+		int i = 0;
+		for(Map.Entry<String, String> entry : extensionsMap.entrySet()){
+			extensions[i] = entry.getValue().toString();
+			i++;
+		}
 		typeA.put(ISFA_AM.GENI_EXTENSIONS, extensions);
+		
 		reqRSpecs.add(typeA);
 		value.put(ISFA_AM.GENI_REQUEST_VERSION, reqRSpecs);
 
