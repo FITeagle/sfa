@@ -62,7 +62,17 @@ public class SFA_AM_MDBSender {
 	}
 
 	public String getTestbedDescription() throws JMSException{
-		String query = "DESCRIBE ?testbed WHERE {?testbed <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://fiteagle.org/ontology#Testbed>. }";
+		//String query = "DESCRIBE ?testbed WHERE {?testbed <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://fiteagle.org/ontology#Testbed>. }";
+		String query = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
+				+ "PREFIX omn: <http://fiteagle.org/ontology#> "
+				+ "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> "
+				+ "PREFIX wgs: <http://www.w3.org/2003/01/geo/wgs84_pos#> "
+				+ "CONSTRUCT { ?testbed rdf:type omn:Testbed. ?testbed rdfs:label ?label. "
+				+ "?testbed rdfs:seeAlso ?seeAlso. ?testbed wgs:long ?long. ?testbed wgs:lat ?lat. } "
+				+ "FROM <http://localhost:3030/ds/query> "
+				+ "WHERE {?testbed rdf:type omn:Testbed. "
+				+ "OPTIONAL {?testbed rdfs:label ?label. ?testbed rdfs:seeAlso ?seeAlso. ?testbed wgs:long ?long. ?testbed wgs:lat ?lat. } }";
+
 		String requestModel = MessageBusMsgFactory.createSerializedSPARQLQueryModel(query);
 	    final Message request = createRDFMessage(requestModel, IMessageBus.TYPE_REQUEST);
 	    sendRequest(request);
@@ -119,7 +129,8 @@ public class SFA_AM_MDBSender {
 	    
 	    public String listRessources2() throws JMSException{
 	    	String query = "DESCRIBE ?resource WHERE {?resource <http://fiteagleinternal#isAdapterIn> <http://fiteagleinternal#AV_Smart_Communication_Testbed>. }";
-			String requestModel = MessageBusMsgFactory.createSerializedSPARQLQueryModel(query);
+	    	//String query = "DESCRIBE ?resource WHERE {?resource <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://fiteagle.org/ontology#Resource>. }";
+	    	String requestModel = MessageBusMsgFactory.createSerializedSPARQLQueryModel(query);
 			final Message request = createRDFMessage(requestModel, IMessageBus.TYPE_REQUEST);
 			System.out.println("Sending request");
 		    sendRequest(request);
