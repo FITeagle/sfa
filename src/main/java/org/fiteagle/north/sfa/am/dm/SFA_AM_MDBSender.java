@@ -64,9 +64,10 @@ public class SFA_AM_MDBSender {
 	public String getTestbedDescription() throws JMSException{
 		//String query = "DESCRIBE ?testbed WHERE {?testbed <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://fiteagle.org/ontology#Testbed>. }";
 		String query = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
-				+ "PREFIX omn: <http://fiteagle.org/ontology#> "
+				+ "PREFIX omn: <http://open-multinet.info/ontology#> "
 				+ "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> "
 				+ "PREFIX wgs: <http://www.w3.org/2003/01/geo/wgs84_pos#> "
+				+ "PREFIX av: <http://federation.av.tu-berlin.de/about#> "
 				+ "CONSTRUCT { ?testbed rdf:type omn:Testbed. ?testbed rdfs:label ?label. "
 				+ "?testbed rdfs:seeAlso ?seeAlso. ?testbed wgs:long ?long. ?testbed wgs:lat ?lat. } "
 				+ "FROM <http://localhost:3030/ds/query> "
@@ -128,8 +129,27 @@ public class SFA_AM_MDBSender {
 	    
 	    
 	    public String listRessources2() throws JMSException{
-	    	String query = "DESCRIBE ?resource WHERE {?resource <http://fiteagleinternal#isAdapterIn> <http://fiteagleinternal#AV_Smart_Communication_Testbed>. }";
+	    	//String query = "DESCRIBE ?resource WHERE {?resource <http://fiteagleinternal#isAdapterIn> <http://fiteagleinternal#AV_Smart_Communication_Testbed>. }";
 	    	//String query = "DESCRIBE ?resource WHERE {?resource <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://fiteagle.org/ontology#Resource>. }";
+	    	String query = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
+					+ "PREFIX omn: <http://open-multinet.info/ontology#> "
+					+ "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> "
+					+ "PREFIX wgs: <http://www.w3.org/2003/01/geo/wgs84_pos#> "
+					+ "PREFIX av: <http://federation.av.tu-berlin.de/about#> "
+					+ "CONSTRUCT { ?resource omn:partOfGroup av:AV_Smart_Communication_Testbed."
+					+ "?resource rdfs:label ?label. "
+					+ "?resource rdfs:comment ?comment."
+					+ "?resource rdf:type ?type. "
+					+ "?resource wgs:lat ?lat. "
+					+ "?resource wgs:long ?long. } "
+					+ "FROM <http://localhost:3030/ds/query> "
+					+ "WHERE {?resource omn:partOfGroup av:AV_Smart_Communication_Testbed. "
+					+ "OPTIONAL {?resource rdfs:label ?label. "
+					+ "?resource rdfs:comment ?comment. "
+					+ "?resource rdf:type ?type. "
+					+ "?resource wgs:lat ?lat. "
+					+ "?resource wgs:long ?long. } }";
+	    	
 	    	String requestModel = MessageBusMsgFactory.createSerializedSPARQLQueryModel(query);
 			final Message request = createRDFMessage(requestModel, IMessageBus.TYPE_REQUEST);
 			System.out.println("Sending request");
