@@ -27,7 +27,6 @@ public class SFA_AM_MDBSender {
 	@Inject
 	private JMSContext context;
 	@Resource(mappedName = IMessageBus.TOPIC_CORE_NAME)
-	// @javax.annotation.Resource(mappedName = IMessageBus.TOPIC_CORE_NAME)
 	private Topic topic;
 	
 	private static SFA_AM_MDBSender instance;
@@ -44,7 +43,7 @@ public class SFA_AM_MDBSender {
 	public Map<String, String> getExtensions() throws JMSException {
 		Map<String, String> extensionsMap = new HashMap<>();
 		
-		String query = "DESCRIBE ?resource WHERE {?resource <http://fiteagleinternal#isAdapterIn> <http://fiteagleinternal#AV_Smart_Communication_Testbed>. }";
+		String query = "DESCRIBE ?resource WHERE {?resource <http://open-multinet.info/ontology/omn#partOfGroup> <http://federation.av.tu-berlin.de/about#AV_Smart_Communication_Testbed>. }";
 		String requestModel = MessageBusMsgFactory.createSerializedSPARQLQueryModel(query);
 	    final Message request = createRDFMessage(requestModel, IMessageBus.TYPE_REQUEST);
 	    sendRequest(request);
@@ -64,7 +63,7 @@ public class SFA_AM_MDBSender {
 	public String getTestbedDescription() throws JMSException{
 		//String query = "DESCRIBE ?testbed WHERE {?testbed <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://fiteagle.org/ontology#Testbed>. }";
 		String query = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
-				+ "PREFIX omn: <http://open-multinet.info/ontology#> "
+				+ "PREFIX omn: <http://open-multinet.info/ontology/omn#> "
 				+ "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> "
 				+ "PREFIX wgs: <http://www.w3.org/2003/01/geo/wgs84_pos#> "
 				+ "PREFIX av: <http://federation.av.tu-berlin.de/about#> "
@@ -130,7 +129,7 @@ public class SFA_AM_MDBSender {
 	    
 	    public String getListRessources() throws JMSException{
 	      String query = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
-	          + "PREFIX omn: <http://open-multinet.info/ontology#> "
+	          + "PREFIX omn: <http://open-multinet.info/ontology/omn#> "
 	          + "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> "
 	          + "PREFIX wgs: <http://www.w3.org/2003/01/geo/wgs84_pos#> "
 	          + "PREFIX av: <http://federation.av.tu-berlin.de/about#> "
