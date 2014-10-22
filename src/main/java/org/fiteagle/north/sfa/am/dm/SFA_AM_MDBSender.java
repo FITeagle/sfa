@@ -128,9 +128,7 @@ public class SFA_AM_MDBSender {
 	 */
 	    
 	    
-	    public String listRessources2() throws JMSException{
-	    	//String query = "DESCRIBE ?resource WHERE {?resource <http://fiteagleinternal#isAdapterIn> <http://fiteagleinternal#AV_Smart_Communication_Testbed>. }";
-	    	//String query = "DESCRIBE ?resource WHERE {?resource <http://www.w3.org/2000/01/rdf-schema#subClassOf> <http://fiteagle.org/ontology#Resource>. }";
+	    public String getListRessources() throws JMSException{
 	      String query = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
 	          + "PREFIX omn: <http://open-multinet.info/ontology#> "
 	          + "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> "
@@ -168,40 +166,7 @@ public class SFA_AM_MDBSender {
 		    	System.out.println("Recieved Message is empty");
 		    	return "error";
 		    }
-			
-		   
-		    
+
 	    }
-	//@Produces("text/turtle")
-//	@GET
-//	@Path("listResources")
-	public void listResources() {
-		final int TIMEOUT = 5000;
-		final Message message = this.context.createMessage();
-		 try {
-			//message.setStringProperty(IMessageBus.TYPE_REQUEST, SFAsender.LIST_RESOURCES);
-			message.setStringProperty(IMessageBus.SERIALIZATION, "TURTLE");
-			 message.setStringProperty(IMessageBus.QUERY, "SELECT * {?s ?p ?o} LIMIT 100");
-			 message.setJMSCorrelationID(UUID.randomUUID().toString());
-			 System.out.println("sending a request from SFA to resource repository");
-			 this.context.createProducer().send(this.topic, message);
-			 
-			 final String filter = "JMSCorrelationID='"+ message.getJMSCorrelationID() + "'";
-			 Message rcvMessage = this.context.createConsumer(this.topic, filter).receive(TIMEOUT);
-			
-			 String result = "";
-			 if (null != rcvMessage){
-				 result = rcvMessage.getStringProperty(IMessageBus.RESULT); 
-				 System.out.println("the received result for listResources method is " + result);
-			 }
-			 else
-				 System.out.println("the received result for listResources method is empty !");
- 
-		} catch (JMSException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	}
-	
 
 }

@@ -1,10 +1,9 @@
 package org.fiteagle.north.sfa.am.dm;
 
 import java.io.InputStream;
-import java.security.cert.X509Certificate;
+
 import java.util.logging.Logger;
 
-import javax.jms.JMSException;
 
 import org.fiteagle.north.sfa.am.ISFA_AM_Delegate;
 import org.fiteagle.north.sfa.dm.SFA_XMLRPC_Handler;

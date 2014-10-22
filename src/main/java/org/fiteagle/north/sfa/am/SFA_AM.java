@@ -1,7 +1,5 @@
 package org.fiteagle.north.sfa.am;
 
-import java.io.IOException;
-import java.io.InputStream;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -10,8 +8,6 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.codehaus.jackson.map.ObjectMapper;
-import org.fiteagle.north.sfa.dm.SFA_XMLRPC_Handler;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
 
 import javax.jms.JMSException;
@@ -179,7 +175,7 @@ private void parseAllocateParameter(final List<?> parameter) {
 		final Map<String, Object> value = new HashMap<>();
 		value.put(ISFA_AM.GENI_API, SFA_AM.API_VERSION);
 		
-		String testbedRessources =(String) SFA_AM_MDBSender.getInstance().listRessources2();
+		String testbedRessources =(String) SFA_AM_MDBSender.getInstance().getListRessources();
 		value.put(ISFA_AM.OMN_TESTBED, testbedRessources);
 		
 		result.put(ISFA_AM.VALUE, value);

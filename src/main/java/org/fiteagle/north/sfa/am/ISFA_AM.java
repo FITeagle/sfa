@@ -1,7 +1,6 @@
 package org.fiteagle.north.sfa.am;
 
 import java.util.List;
-import java.security.cert.X509Certificate;
 import org.fiteagle.north.sfa.ISFA;
 
 public interface ISFA_AM extends ISFA {
