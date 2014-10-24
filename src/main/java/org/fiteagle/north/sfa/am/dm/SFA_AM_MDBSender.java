@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.UUID;
 
 import javax.annotation.Resource;
+import javax.decorator.Delegate;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 //import javax.annotation.Resource;
@@ -18,7 +19,9 @@ import javax.ws.rs.core.Response;
 import org.fiteagle.api.core.IMessageBus;
 import org.fiteagle.api.core.MessageBusMsgFactory;
 
+
 import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.StmtIterator;
 
 @Startup
 @Singleton
@@ -40,7 +43,7 @@ public class SFA_AM_MDBSender {
 		return instance;
 	}
 	
-	public Map<String, String> getExtensions() throws JMSException {
+	public Map<String, String> getExtensions() throws JMSException, TIMEOUTException {
 		Map<String, String> extensionsMap = new HashMap<>();
 		
 		String query = "DESCRIBE ?resource WHERE {?resource <http://open-multinet.info/ontology/omn#partOfGroup> <http://federation.av.tu-berlin.de/about#AV_Smart_Communication_Testbed>. }";
@@ -60,7 +63,7 @@ public class SFA_AM_MDBSender {
 		return extensionsMap;
 	}
 
-	public String getTestbedDescription() throws JMSException{
+	public String getTestbedDescription() throws JMSException, TIMEOUTException, EmptyException{
 		//String query = "DESCRIBE ?testbed WHERE {?testbed <http://www.w3.org/1999/02/22-rdf-syntax-ns#type> <http://fiteagle.org/ontology#Testbed>. }";
 		String query = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
 				+ "PREFIX omn: <http://open-multinet.info/ontology/omn#> "
@@ -83,6 +86,11 @@ public class SFA_AM_MDBSender {
 	    String result = MessageBusMsgFactory.getTTLResultModelFromSerializedModel(resultString);
 	    
 	    Model resultModel = MessageBusMsgFactory.parseSerializedModel(result);
+	    StmtIterator iterator = resultModel.listStatements();
+	    if(iterator.hasNext() == false){
+	    	throw new EmptyException();
+		    }
+	   
 	    result = MessageBusMsgFactory.serializeModel(resultModel);
 	    System.out.println("result is " + result);
 	    return result;
@@ -110,24 +118,27 @@ public class SFA_AM_MDBSender {
 	 
 	   private Message waitForResult(final Message message) throws JMSException {
 	        final String filter = "JMSCorrelationID='" + message.getJMSCorrelationID() + "'";
-	        final Message rcvMessage = this.context.createConsumer(this.topic, filter).receive(IMessageBus.TIMEOUT);
+	        final Message rcvMessage = this.context.createConsumer(this.topic, filter).receive(IMessageBus.SHORT_TIMEOUT);
 	        return rcvMessage;
 	    }
 	   
-	    private String getResult(final Message rcvMessage) throws JMSException {
+	    private String getResult(final Message rcvMessage) throws JMSException, TIMEOUTException {
 	        String resources = Response.Status.REQUEST_TIMEOUT.name();
-	        if (null != rcvMessage) {
-	            resources = rcvMessage.getStringProperty(IMessageBus.RDF);
+	        if (rcvMessage == null){
+	        	throw new TIMEOUTException();
 	        }
+	        else resources = rcvMessage.getStringProperty(IMessageBus.RDF);
+	     
 	        return resources;
 	    }
 
 	/**
 	 * curl -v http://localhost:8080/sfa/sfarest/listResources
+	 * @throws TIMEOUTException 
 	 */
 	    
 	    
-	    public String getListRessources() throws JMSException{
+	    public String getListRessources() throws JMSException, TIMEOUTException{
 	      String query = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
 	          + "PREFIX omn: <http://open-multinet.info/ontology/omn#> "
 	          + "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> "
@@ -167,5 +178,37 @@ public class SFA_AM_MDBSender {
 		    }
 
 	    }
+	    
+	    public class TIMEOUTException extends Exception{
+	    	/**
+			 * 
+			 */
+			private static final long serialVersionUID = -927138508647382475L;
+
+	    	public TIMEOUTException(){
+	    		super("REQUEST TIMEOUT");
+	    	}
+	    	}
+	    
+	    
+	    
+	    public class EmptyException extends Exception{
+	    	/**
+			 * 
+			 */
+			private static final long serialVersionUID = 3084952835284992423L;
+
+			/**
+	    		 * 
+	    		 */
+	    	public EmptyException(){
+	    		super("EMPTY ANSWER");
+	    	}
+	    	}
 
 }
+
+
+
+
+

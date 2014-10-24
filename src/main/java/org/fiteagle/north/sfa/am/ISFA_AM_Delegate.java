@@ -3,14 +3,18 @@ package org.fiteagle.north.sfa.am;
 
 public interface ISFA_AM_Delegate {
 
-	Integer getGeniCode();
+	
 
 	Integer getAMCode();
 
-	String getOutput();
-
 	String getListResourcesValue();
 	
+	
+	String getOutput();
+	void setOutput(String outputString);
+	
+	void setGeniCode(int geniCode);
+	Integer getGeniCode();
 
 	void setCompressed(boolean equalsIgnoreCase);
 	boolean getCompressed();

@@ -9,6 +9,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
+import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender.TIMEOUTException;
+import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender.EmptyException;
 
 import javax.jms.JMSException;
 
@@ -161,6 +163,9 @@ private void parseAllocateParameter(final List<?> parameter) {
 		} catch (JMSException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch (org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender.TIMEOUTException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
 		}
 		//this.parseListResourcesParameter(parameter);
 		//result.put("value", this.delegate.getListResourcesValue()); 
@@ -171,7 +176,7 @@ private void parseAllocateParameter(final List<?> parameter) {
 		return result;
 	}
 
-	private void addRessources (final HashMap<String, Object> result) throws JMSException{
+	private void addRessources (final HashMap<String, Object> result) throws JMSException, TIMEOUTException{
 		final Map<String, Object> value = new HashMap<>();
 		value.put(ISFA_AM.GENI_API, SFA_AM.API_VERSION);
 		
@@ -234,13 +239,14 @@ private void parseAllocateParameter(final List<?> parameter) {
 	public Object getVersion(final List<?> parameter) {
 		SFA_AM.LOGGER.log(Level.INFO, "getVersion...");
 		final HashMap<String, Object> result = new HashMap<>();
-
 		this.addAPIVersion(result);
 		try {
 			this.addValue(result);
 		} catch (JMSException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
+		} catch (TIMEOUTException e) {
+			// TODO Auto-generated catch block
 		}
 		this.addCode(result);
 		this.addOutput(result);
@@ -269,7 +275,7 @@ private void parseAllocateParameter(final List<?> parameter) {
 		result.put(ISFA_AM.GENI_API, SFA_AM.API_VERSION);
 	}
 	
-	private void addValue(final HashMap<String, Object> result) throws JMSException {
+	private void addValue(final HashMap<String, Object> result) throws JMSException, TIMEOUTException{
 		// todo: use delegate for this
 		final Map<String, Object> value = new HashMap<>();
 		value.put(ISFA_AM.GENI_API, SFA_AM.API_VERSION);
@@ -277,9 +283,27 @@ private void parseAllocateParameter(final List<?> parameter) {
 		//addTestbeddescription(value);
 		
 		
-		String testbedDescription =(String) SFA_AM_MDBSender.getInstance().getTestbedDescription();
+		String testbedDescription;
+		
+		try {
+		testbedDescription = (String) SFA_AM_MDBSender.getInstance().getTestbedDescription();
 		value.put(ISFA_AM.OMN_TESTBED, testbedDescription);
 		System.out.println("omn_testbed " + value.get(ISFA_AM.OMN_TESTBED));
+		this.delegate.setGeniCode(0);
+		this.delegate.setOutput("OK");
+		}catch (EmptyException e) {
+			System.out.println("EMPTY ANSWER");
+			this.delegate.setGeniCode(1);
+			this.delegate.setOutput("EMPTY ANSWER");
+		}
+		catch (TIMEOUTException e){
+			System.out.println("REQUEST TIMEOUT");
+			this.delegate.setGeniCode(7);
+			this.delegate.setOutput("REQUEST TIMEOUT");
+			
+		} 
+		
+		
 		
 		final Map<String, String> apiVersions = new HashMap<>();
 		apiVersions.put(ISFA_AM.VERSION_3, ISFA_AM.API_VERSION);
@@ -335,5 +359,8 @@ private void parseAllocateParameter(final List<?> parameter) {
 		code.put(ISFA_AM.AM_CODE, this.delegate.getAMCode());
 		result.put(ISFA_AM.CODE, code);
 	}
+   
+	
+	
 	
 }

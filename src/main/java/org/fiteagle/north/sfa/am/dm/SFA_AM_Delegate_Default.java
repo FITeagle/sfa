@@ -22,10 +22,22 @@ public class SFA_AM_Delegate_Default implements ISFA_AM_Delegate {
 	private String geni_type;
 	private String geni_version;
 	private String geni_value;
+	private String output = "";
+	private int geni_code= 0;
+	
+	@Override
+	public void setOutput (String outputString){
+		this.output = outputString;
+	}
+	
+	@Override
+	public void setGeniCode(int geniCode){
+		this.geni_code = geniCode;
+	}
 	
 	@Override
 	public Integer getGeniCode() {
-		return 0;
+		return geni_code;
 	}
 
 	@Override
@@ -35,7 +47,7 @@ public class SFA_AM_Delegate_Default implements ISFA_AM_Delegate {
 
 	@Override
 	public String getOutput() {
-		return "";
+		return output;
 	}
 
 	@Override
