@@ -46,7 +46,16 @@ public class SFA_AM_MDBSender {
 	public Map<String, String> getExtensions() throws JMSException, TIMEOUTException {
 		Map<String, String> extensionsMap = new HashMap<>();
 		
-		String query = "DESCRIBE ?resource WHERE {?resource <http://open-multinet.info/ontology/omn#partOfGroup> <http://federation.av.tu-berlin.de/about#AV_Smart_Communication_Testbed>. }";
+		//String query = "DESCRIBE ?resource WHERE {?resource <http://open-multinet.info/ontology/omn#partOfGroup> <http://federation.av.tu-berlin.de/about#AV_Smart_Communication_Testbed>. }";
+		String query = "PREFIX omn: <http://open-multinet.info/ontology/omn#> "
+		          + "PREFIX wgs: <http://www.w3.org/2003/01/geo/wgs84_pos#> "
+		          + "PREFIX av: <http://federation.av.tu-berlin.de/about#> "
+		          + "CONSTRUCT { ?resource omn:partOfGroup av:AV_Smart_Communication_Testbed."
+		          + "?resource wgs:lat ?lat. ?resource wgs:long ?long. "
+		          + "} "
+		          + "FROM <http://localhost:3030/ds/query> "
+		          + "WHERE {?resource omn:partOfGroup av:AV_Smart_Communication_Testbed. "
+		          + "}";
 		String requestModel = MessageBusMsgFactory.createSerializedSPARQLQueryModel(query);
 	    final Message request = createRDFMessage(requestModel, IMessageBus.TYPE_REQUEST);
 	    sendRequest(request);
