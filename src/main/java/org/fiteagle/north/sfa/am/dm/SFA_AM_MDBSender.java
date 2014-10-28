@@ -5,7 +5,6 @@ import java.util.Map;
 import java.util.UUID;
 
 import javax.annotation.Resource;
-import javax.decorator.Delegate;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
 //import javax.annotation.Resource;
@@ -19,7 +18,6 @@ import javax.ws.rs.core.Response;
 import org.fiteagle.api.core.IMessageBus;
 import org.fiteagle.api.core.MessageBusMsgFactory;
 
-import org.fiteagle.north.sfa.am.ISFA_AM_Delegate;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
@@ -33,8 +31,8 @@ public class SFA_AM_MDBSender {
 	@Resource(mappedName = IMessageBus.TOPIC_CORE_NAME)
 	private Topic topic;
 	
-	private static SFA_AM_MDBSender instance;
 	
+	private static SFA_AM_MDBSender instance;
 	
 	public SFA_AM_MDBSender(){
 		instance = this;
@@ -148,38 +146,42 @@ public class SFA_AM_MDBSender {
 	 */
 	    
 	    
-	    public String getListRessources() throws JMSException, TIMEOUTException{
+	    public String getListRessources(String geni_query) throws JMSException, TIMEOUTException{
+	    	String requestModel;
+	    	if (!geni_query.isEmpty()){
+	    		 requestModel = MessageBusMsgFactory.createSerializedSPARQLQueryModel(geni_query);
+	    		 System.out.println("we are using the query from the user ");
+	    	}
+	    	else {
+	    		String query = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
+	    		          + "PREFIX omn: <http://open-multinet.info/ontology/omn#> "
+	    		          + "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> "
+	    		          + "PREFIX wgs: <http://www.w3.org/2003/01/geo/wgs84_pos#> "
+	    		          + "CONSTRUCT { "
+	    		          + "?resource omn:partOfGroup ?testbed."
+	    		          + "?resource rdfs:label ?label. "
+	    		          + "?resource rdfs:comment ?comment."
+	    		          + "?resource rdf:type ?type. "
+	    		          + "?resource wgs:lat ?lat. "
+	    		          + "?resource wgs:long ?long. } "
+	    		          + "FROM <http://localhost:3030/ds/query> "
+	    		          + "WHERE {"
+	    		          + "?resource omn:partOfGroup ?testbed. "
+	    		          + "?testbed a omn:Testbed. "
+	    		          + "OPTIONAL {?resource rdfs:label ?label. }"
+	    		          + "OPTIONAL {?resource rdfs:comment ?comment. }"
+	    		          + "OPTIONAL {?resource rdf:type ?type. }"
+	    		          + "OPTIONAL {?resource wgs:lat ?lat. }"
+	    		          + "OPTIONAL {?resource wgs:long ?long. } }";
+	    		requestModel = MessageBusMsgFactory.createSerializedSPARQLQueryModel(query);
+	    		System.out.println("we are using the default query");
+	    	}
 	    	
-	      String query = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
-	          + "PREFIX omn: <http://open-multinet.info/ontology/omn#> "
-	          + "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> "
-	          + "PREFIX wgs: <http://www.w3.org/2003/01/geo/wgs84_pos#> "
-	          + "CONSTRUCT { "
-	          + "?resource omn:partOfGroup ?testbed."
-	          + "?resource rdfs:label ?label. "
-	          + "?resource rdfs:comment ?comment."
-	          + "?resource rdf:type ?type. "
-	          + "?resource wgs:lat ?lat. "
-	          + "?resource wgs:long ?long. } "
-	          + "FROM <http://localhost:3030/ds/query> "
-	          + "WHERE {"
-	          + "?resource omn:partOfGroup ?testbed. "
-	          + "?testbed a omn:Testbed. "
-	          + "OPTIONAL {?resource rdfs:label ?label. }"
-	          + "OPTIONAL {?resource rdfs:comment ?comment. }"
-	          + "OPTIONAL {?resource rdf:type ?type. }"
-	          + "OPTIONAL {?resource wgs:lat ?lat. }"
-	          + "OPTIONAL {?resource wgs:long ?long. } }";
-	    	
-	    	String requestModel = MessageBusMsgFactory.createSerializedSPARQLQueryModel(query);
 			final Message request = createRDFMessage(requestModel, IMessageBus.TYPE_REQUEST);
-			System.out.println("Sending request");
 		    sendRequest(request);
-		    System.out.println("request send");
 		
 		    Message rcvMessage = waitForResult(request);
 		    if (rcvMessage != null){
-		    	System.out.println("Msg recieved");
 		    	 String resultString = getResult(rcvMessage);
 				 String result = MessageBusMsgFactory.getTTLResultModelFromSerializedModel(resultString);
 				 System.out.println("result is " + result);

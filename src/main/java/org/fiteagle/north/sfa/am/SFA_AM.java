@@ -19,11 +19,13 @@ public class SFA_AM implements ISFA_AM {
 	private final static Logger LOGGER = Logger.getLogger(SFA_AM.class
 			.getName());
 	private final ISFA_AM_Delegate delegate;
-
+	
 	public SFA_AM(final ISFA_AM_Delegate delegate) {
 		this.delegate = delegate;
 	}
 
+	private String query = "";
+	
 	@Override
 	public Object handle(final String methodName, final List<?> parameter,
 			final String path, final X509Certificate cert) {
@@ -158,6 +160,7 @@ private void parseAllocateParameter(final List<?> parameter) {
 	public Object listResources(final List<?> parameter) {
 		SFA_AM.LOGGER.log(Level.INFO, "listResources...");
 		final HashMap<String, Object> result = new HashMap<>();
+		this.parseListResourcesParameter(parameter);
 		try {
 			addRessources(result);
 		} catch (JMSException e) {
@@ -167,7 +170,7 @@ private void parseAllocateParameter(final List<?> parameter) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
-		//this.parseListResourcesParameter(parameter);
+		
 		//result.put("value", this.delegate.getListResourcesValue()); 
 		//result.put("value", SFAsender.getInstance().getListResourcesValue());
 		this.addCode(result);
@@ -180,7 +183,7 @@ private void parseAllocateParameter(final List<?> parameter) {
 		final Map<String, Object> value = new HashMap<>();
 		value.put(ISFA_AM.GENI_API, SFA_AM.API_VERSION);
 		
-		String testbedRessources =(String) SFA_AM_MDBSender.getInstance().getListRessources();
+		String testbedRessources =(String) SFA_AM_MDBSender.getInstance().getListRessources(this.query);
 		value.put(ISFA_AM.OMN_TESTBED, testbedRessources);
 		
 		result.put(ISFA_AM.VALUE, value);
@@ -191,10 +194,11 @@ private void parseAllocateParameter(final List<?> parameter) {
 		for (final Object param : parameter) {
 			if (param instanceof Map<?, ?>) {
 				this.parseOptionsParameters(param);
-			} else if (param instanceof List<?>) {
+			} 
+			/*else if (param instanceof List<?>) {
 				// tood: parse more
-				this.parseCredentialsParameters(param);
-			}
+				//this.parseCredentialsParameters(param);
+			}*/
 		}
 	}
 	
@@ -202,6 +206,14 @@ private void parseAllocateParameter(final List<?> parameter) {
 		
 		@SuppressWarnings("unchecked")
 		final Map<String, ?> param2 = (Map<String, ?>) param;
+
+		
+		if(param2.containsKey("geni_query")) {
+			this.query = param2.get("geni_query").toString();
+		}
+		else{
+			this.query = "";
+		}
 		
 		if(param2.containsKey("geni_compressed")){
 			this.delegate.setCompressed((Boolean) param2.get("geni_compressed"));
@@ -210,12 +222,13 @@ private void parseAllocateParameter(final List<?> parameter) {
 			this.delegate.setAvailable((Boolean) param2.get("geni_available"));
 		}
 		
+		
 		//added for later use.
-		if(param2.get("geni_rspec_version") instanceof Map<?, ?>){
+/*		if(param2.get("geni_rspec_version") instanceof Map<?, ?>){
 			final Map<String, ?> geniRSpecVersion = (Map<String, ?>) param2.get("geni_rspec_version");
 			String type = (String) geniRSpecVersion.get("type");
 			String version = (String) geniRSpecVersion.get("version");
-		}
+		}*/
 	}
 	
 	private void parseCredentialsParameters(final Object param){
