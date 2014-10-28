@@ -19,6 +19,7 @@ import javax.ws.rs.core.Response;
 import org.fiteagle.api.core.IMessageBus;
 import org.fiteagle.api.core.MessageBusMsgFactory;
 
+import org.fiteagle.north.sfa.am.ISFA_AM_Delegate;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
@@ -148,20 +149,22 @@ public class SFA_AM_MDBSender {
 	    
 	    
 	    public String getListRessources() throws JMSException, TIMEOUTException{
+	    	
 	      String query = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
 	          + "PREFIX omn: <http://open-multinet.info/ontology/omn#> "
 	          + "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> "
 	          + "PREFIX wgs: <http://www.w3.org/2003/01/geo/wgs84_pos#> "
-	          //+ "PREFIX av: <http://federation.av.tu-berlin.de/about#> "
-	          + "CONSTRUCT { ?resource omn:partOfGroup ?testbeds."
-	          + "?testbeds a omn:Testbed."
+	          + "CONSTRUCT { "
+	          + "?resource omn:partOfGroup ?testbed."
 	          + "?resource rdfs:label ?label. "
 	          + "?resource rdfs:comment ?comment."
 	          + "?resource rdf:type ?type. "
 	          + "?resource wgs:lat ?lat. "
 	          + "?resource wgs:long ?long. } "
 	          + "FROM <http://localhost:3030/ds/query> "
-	          + "WHERE {?resource omn:partOfGroup ?testbeds. "
+	          + "WHERE {"
+	          + "?resource omn:partOfGroup ?testbed. "
+	          + "?testbed a omn:Testbed. "
 	          + "OPTIONAL {?resource rdfs:label ?label. }"
 	          + "OPTIONAL {?resource rdfs:comment ?comment. }"
 	          + "OPTIONAL {?resource rdf:type ?type. }"
