@@ -8,11 +8,11 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
-import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender.TIMEOUTException;
-import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender.EmptyException;
-
 import javax.jms.JMSException;
+
+import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
+import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender.EmptyException;
+import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender.TIMEOUTException;
 
 public class SFA_AM implements ISFA_AM {
 	private static final int API_VERSION = 3;
@@ -329,13 +329,12 @@ private void parseAllocateParameter(final List<?> parameter) {
 		typeA.put(ISFA_AM.GENI_NAMESPACE, ISFA_AM.NAMESPACE);
 		
 		
-		Map<String, String> extensionsMap = new HashMap<>();
-		extensionsMap = (Map<String, String>) SFA_AM_MDBSender.getInstance().getExtensions();
+    List<String> extensionsMap =  SFA_AM_MDBSender.getInstance().getExtensions();
 		final String[] extensions = new String[extensionsMap.size()];
 		
 		int i = 0;
-		for(Map.Entry<String, String> entry : extensionsMap.entrySet()){
-			extensions[i] = entry.getValue().toString();
+		for(String namespace : extensionsMap){
+			extensions[i] = namespace;
 			i++;
 		}
 		typeA.put(ISFA_AM.GENI_EXTENSIONS, extensions);

@@ -1,13 +1,12 @@
 package org.fiteagle.north.sfa.am.dm;
 
-import java.util.HashMap;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
-import javax.annotation.Resource;
 import javax.ejb.Singleton;
 import javax.ejb.Startup;
-//import javax.annotation.Resource;
 import javax.inject.Inject;
 import javax.jms.JMSContext;
 import javax.jms.JMSException;
@@ -18,8 +17,9 @@ import javax.ws.rs.core.Response;
 import org.fiteagle.api.core.IMessageBus;
 import org.fiteagle.api.core.MessageBusMsgFactory;
 
-
 import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.RDFNode;
+import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 
 @Startup
@@ -28,7 +28,7 @@ public class SFA_AM_MDBSender {
 
 	@Inject
 	private JMSContext context;
-	@Resource(mappedName = IMessageBus.TOPIC_CORE_NAME)
+	@javax.annotation.Resource(mappedName = IMessageBus.TOPIC_CORE_NAME)
 	private Topic topic;
 	
 	
@@ -42,19 +42,18 @@ public class SFA_AM_MDBSender {
 		return instance;
 	}
 	
-	public Map<String, String> getExtensions() throws JMSException, TIMEOUTException {
-		Map<String, String> extensionsMap = new HashMap<>();
-		
-		//String query = "DESCRIBE ?resource WHERE {?resource <http://open-multinet.info/ontology/omn#partOfGroup> <http://federation.av.tu-berlin.de/about#AV_Smart_Communication_Testbed>. }";
-		String query = "PREFIX omn: <http://open-multinet.info/ontology/omn#> "
-		          + "PREFIX wgs: <http://www.w3.org/2003/01/geo/wgs84_pos#> "
-		          + "PREFIX av: <http://federation.av.tu-berlin.de/about#> "
-		          + "CONSTRUCT { ?resource omn:partOfGroup av:AV_Smart_Communication_Testbed."
-		          + "?resource wgs:lat ?lat. ?resource wgs:long ?long. "
-		          + "} "
-		          + "FROM <http://localhost:3030/ds/query> "
-		          + "WHERE {?resource omn:partOfGroup av:AV_Smart_Communication_Testbed. "
-		          + "}";
+	public List<String> getExtensions() throws JMSException, TIMEOUTException {
+		String query = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
+        + "PREFIX omn: <http://open-multinet.info/ontology/omn#> "
+        + "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> "
+        + "CONSTRUCT { "
+        + "?resource omn:partOfGroup ?testbed. "
+        + "?resource rdf:type ?type. }"
+        + "FROM <http://localhost:3030/ds/query> "
+        + "WHERE {"
+        + "?resource omn:partOfGroup ?testbed. "
+        + "?testbed a omn:Testbed. "
+		    + "OPTIONAL {?resource rdf:type ?type. } }";
 		String requestModel = MessageBusMsgFactory.createSerializedSPARQLQueryModel(query);
 	    final Message request = createRDFMessage(requestModel, IMessageBus.TYPE_REQUEST);
 	    sendRequest(request);
@@ -64,11 +63,27 @@ public class SFA_AM_MDBSender {
 	    String result = MessageBusMsgFactory.getTTLResultModelFromSerializedModel(resultString);
 	    
 	    Model resultModel = MessageBusMsgFactory.parseSerializedModel(result);
-	    result = MessageBusMsgFactory.serializeModel(resultModel);
-	    
-	    Model extensionsModel = MessageBusMsgFactory.parseSerializedModel(result);
-	    extensionsMap = extensionsModel.getNsPrefixMap();
-		return extensionsMap;
+	    List<String> namespaces = new ArrayList<>();
+	    StmtIterator iter = resultModel.listStatements();
+	    while(iter.hasNext()){
+	      Resource subject = iter.next().getSubject();
+	      if(!namespaces.contains(subject.getNameSpace())){
+	        namespaces.add(subject.getNameSpace());
+	      }
+	      RDFNode objectNode = iter.next().getObject();
+	      if(objectNode.canAs(Resource.class)){
+	        Resource object = objectNode.asResource();
+	        if(!namespaces.contains(object.getNameSpace())){
+	          namespaces.add(object.getNameSpace());
+	        }
+	      }
+	    }
+	    for(Map.Entry<String, String> entry : resultModel.getNsPrefixMap().entrySet()){
+	      if(!namespaces.contains(entry.getValue())){
+          namespaces.add(entry.getValue());
+        }
+	    }
+		return namespaces;
 	}
 
 	public String getTestbedDescription() throws JMSException, TIMEOUTException, EmptyException{
