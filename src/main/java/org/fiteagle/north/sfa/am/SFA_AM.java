@@ -184,7 +184,7 @@ private void parseAllocateParameter(final List<?> parameter) {
 		value.put(ISFA_AM.GENI_API, SFA_AM.API_VERSION);
 		
 		String testbedRessources =(String) SFA_AM_MDBSender.getInstance().getListRessources(this.query);
-		value.put(ISFA_AM.OMN_TESTBED, testbedRessources);
+		value.put(ISFA_AM.OMN_RESOURCE, testbedRessources);
 		
 		result.put(ISFA_AM.VALUE, value);
 	}

@@ -30,6 +30,7 @@ public interface ISFA_AM extends ISFA {
 	String GENI_CODE = "geni_code";
 	
 	String OMN_TESTBED = "omn_testbed";
+	String OMN_RESOURCE = "omn_resource";
 	String API_VERSION = "https://federation.av.tu-berlin.de:8443/sfa/api/am/v3";
 	String TYPE = "type";
 	String NAMESPACE = "http://open-multinet.info/ontology/omn-resource";
