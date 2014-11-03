@@ -166,10 +166,7 @@ private void parseAllocateParameter(final List<?> parameter) {
 		} catch (JMSException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
-		} catch (org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender.TIMEOUTException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		} 
 		
 		//result.put("value", this.delegate.getListResourcesValue()); 
 		//result.put("value", SFAsender.getInstance().getListResourcesValue());
@@ -179,12 +176,21 @@ private void parseAllocateParameter(final List<?> parameter) {
 		return result;
 	}
 
-	private void addRessources (final HashMap<String, Object> result) throws JMSException, TIMEOUTException{
+	private void addRessources (final HashMap<String, Object> result) throws JMSException{
 		final Map<String, Object> value = new HashMap<>();
 		value.put(ISFA_AM.GENI_API, SFA_AM.API_VERSION);
-		
+		try{
 		String testbedRessources =(String) SFA_AM_MDBSender.getInstance().getListRessources(this.query);
 		value.put(ISFA_AM.OMN_RESOURCE, testbedRessources);
+		}catch (EmptyException e) {
+			System.out.println("EMPTY ANSWER");
+			this.delegate.setGeniCode(GENI_CodeEnum.BADARGS.getValue());
+			this.delegate.setOutput(GENI_CodeEnum.BADARGS.getDescription());
+		}catch (TIMEOUTException t){
+			System.out.println("TIMEOUT");
+			this.delegate.setGeniCode(GENI_CodeEnum.TIMEDOUT.getValue());
+			this.delegate.setOutput(GENI_CodeEnum.TIMEDOUT.getDescription());
+		} 
 		
 		result.put(ISFA_AM.VALUE, value);
 	}
@@ -303,16 +309,16 @@ private void parseAllocateParameter(final List<?> parameter) {
 		value.put(ISFA_AM.OMN_TESTBED, testbedDescription);
 		System.out.println("omn_testbed " + value.get(ISFA_AM.OMN_TESTBED));
 		this.delegate.setGeniCode(0);
-		this.delegate.setOutput("OK");
+		this.delegate.setOutput("SUCCESS");
 		}catch (EmptyException e) {
 			System.out.println("EMPTY ANSWER");
-			this.delegate.setGeniCode(1);
-			this.delegate.setOutput("EMPTY ANSWER");
+			this.delegate.setGeniCode(GENI_CodeEnum.BADARGS.getValue());
+			this.delegate.setOutput(GENI_CodeEnum.BADARGS.getDescription());
 		}
 		catch (TIMEOUTException e){
 			System.out.println("REQUEST TIMEOUT");
-			this.delegate.setGeniCode(7);
-			this.delegate.setOutput("REQUEST TIMEOUT");
+			this.delegate.setGeniCode(GENI_CodeEnum.TIMEDOUT.getValue());
+			this.delegate.setOutput(GENI_CodeEnum.TIMEDOUT.getDescription());
 			
 		} 
 		

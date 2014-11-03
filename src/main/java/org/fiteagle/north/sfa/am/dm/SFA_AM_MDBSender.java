@@ -161,7 +161,7 @@ public class SFA_AM_MDBSender {
 	 */
 	    
 	    
-	    public String getListRessources(String geni_query) throws JMSException, TIMEOUTException{
+	    public String getListRessources(String geni_query) throws JMSException, TIMEOUTException, EmptyException{
 	    	String requestModel;
 	    	if (!geni_query.isEmpty()){
 	    		 requestModel = MessageBusMsgFactory.createSerializedSPARQLQueryModel(geni_query);
@@ -196,16 +196,23 @@ public class SFA_AM_MDBSender {
 		    sendRequest(request);
 		
 		    Message rcvMessage = waitForResult(request);
-		    if (rcvMessage != null){
-		    	 String resultString = getResult(rcvMessage);
-				 String result = MessageBusMsgFactory.getTTLResultModelFromSerializedModel(resultString);
-				 System.out.println("result is " + result);
-				 return result;
-		    }
-		    else{
-		    	System.out.println("Recieved Message is empty");
-		    	return "error";
-		    }
+		    
+		    
+		    
+		    String resultString = getResult(rcvMessage);
+			String result = MessageBusMsgFactory.getTTLResultModelFromSerializedModel(resultString);
+			Model resultModel = MessageBusMsgFactory.parseSerializedModel(result);
+			StmtIterator iterator = resultModel.listStatements();
+			
+			if(iterator.hasNext() == false){
+				throw new EmptyException();}
+				
+				
+			System.out.println("result is " + result);
+			return result;
+		
+		   
+		 
 
 	    }
 	    
@@ -235,6 +242,11 @@ public class SFA_AM_MDBSender {
 	    		super("EMPTY ANSWER");
 	    	}
 	    	}
+		  
+	    
+	    
+      
+      
 
 }
 

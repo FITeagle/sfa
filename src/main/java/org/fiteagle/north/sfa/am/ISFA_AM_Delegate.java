@@ -34,4 +34,5 @@ public interface ISFA_AM_Delegate {
 	
 	void setGeniValue(String geni_value);
 	String getGeniValue();
+	
 }
