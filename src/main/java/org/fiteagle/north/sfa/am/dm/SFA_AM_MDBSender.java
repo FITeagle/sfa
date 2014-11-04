@@ -1,5 +1,6 @@
 package org.fiteagle.north.sfa.am.dm;
 
+import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -26,6 +27,7 @@ import com.hp.hpl.jena.rdf.model.StmtIterator;
 @Singleton
 public class SFA_AM_MDBSender {
 
+	private static final String UTF_8 = "UTF-8";
 	@Inject
 	private JMSContext context;
 	@javax.annotation.Resource(mappedName = IMessageBus.TOPIC_CORE_NAME)
@@ -200,6 +202,11 @@ public class SFA_AM_MDBSender {
 		    	 String resultString = getResult(rcvMessage);
 				 String result = MessageBusMsgFactory.getTTLResultModelFromSerializedModel(resultString);
 				 System.out.println("result is " + result);
+				 
+				 Model resultModel = MessageBusMsgFactory.parseSerializedModel(result);
+				 result = MessageBusMsgFactory.serializeModel(resultModel, IMessageBus.SERIALIZATION_RDFXML);
+				 System.out.println("result after serialization " + result);
+				 
 				 return result;
 		    }
 		    else{
