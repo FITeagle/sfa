@@ -1,22 +1,18 @@
 package org.fiteagle.north.sfa.am;
 
-import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Scanner;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.Deflater;
-import java.util.zip.DeflaterOutputStream;
 
 import javax.jms.JMSException;
 
+import org.apache.commons.codec.binary.Base64;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender.EmptyException;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender.TIMEOUTException;
@@ -175,33 +171,17 @@ private void parseAllocateParameter(final List<?> parameter) {
 			e.printStackTrace();
 		} 
 		
-		//result.put("value", this.delegate.getListResourcesValue()); 
-		//result.put("value", SFAsender.getInstance().getListResourcesValue());
 		this.addCode(result);
 		this.addOutput(result);
 		
 		return result;
 	}
 
-	private String getDummyListResourcesValue() {
-		final InputStream filestream = this.getClass().getResourceAsStream(
-				"/listResources.xml");
-		String rspec = convertStreamToString(filestream);
-
-		return rspec;
-	}
-	private static String convertStreamToString(final InputStream is) {
-		@SuppressWarnings("resource")
-		final Scanner s = new Scanner(is).useDelimiter("\\A");
-		return s.hasNext() ? s.next() : "";
-	}
-	
 	private void addRessources (final HashMap<String, Object> result) throws JMSException{
-		//final Map<String, Object> value = new HashMap<>();
-		//value.put(ISFA_AM.GENI_API, SFA_AM.API_VERSION);
+		
 		try{
 		String testbedRessources =(String) SFA_AM_MDBSender.getInstance().getListRessources(this.query);
-		//value.put(ISFA_AM.OMN_RESOURCE, testbedRessources);
+		
 		
 		if(this.delegate.getCompressed()){
 			result.put(ISFA_AM.VALUE, compress(testbedRessources));
@@ -220,117 +200,32 @@ private void parseAllocateParameter(final List<?> parameter) {
 			this.delegate.setOutput(GENI_CodeEnum.TIMEDOUT.getDescription());
 		} 
 		
-//			String compressed = this.compress(testbedRessources);
-//			System.out.println("compressed string " + compressed);
-//			result.put(ISFA_AM.VALUE, compressed);
-			
-			//byte[] compressed = this.compress(testbedRessources);
-			//result.put(ISFA_AM.VALUE, compressed);
-			
-			//byte[] compressed = compress(testbedRessources);
-			//result.put(ISFA_AM.VALUE,compressed);
-			
-			
-			
-			//String dummyAnswer = getDummyListResourcesValue();
-			//System.out.println("the dummy RDF/XML is " + dummyAnswer);
-			//result.put(ISFA_AM.VALUE, this.compress(dummyAnswer));
-		
-		
 	}
-	
-	public static String compress(String toCompress) {
-		byte[] input = null;
-		try {
-			input = toCompress.getBytes("UTF-8");
-		} catch (UnsupportedEncodingException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		
-		ByteArrayOutputStream stream = new ByteArrayOutputStream();
-		Deflater compresser = new Deflater(Deflater.BEST_COMPRESSION, true);
-		DeflaterOutputStream deflaterOutputStream = new DeflaterOutputStream(stream, compresser);
-		try {
-			deflaterOutputStream.write(input);
-			deflaterOutputStream.close();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		
-		byte[] output = stream.toByteArray();
-		
-		String outputString = null;
-		try {
-			outputString = new String(output, 0, output.length, "UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-		System.out.println(outputString);
-		return outputString;
+	  public static String compress(String toCompress) {
+			byte[] output = null;
+			String outputString = "";
 
-	}
-	
-/*
-    private String compress(String toCompress) {
-		String inputString = toCompress;
-		byte[] input;
-		int compressedDataLength = 0;
-		byte[] output = null;
-		String outputString = "";
+			try {
+				byte[] input = toCompress.getBytes("UTF-8");
+				// Compress the bytes
+				output = new byte[input.length];
+				Deflater compresser = new Deflater();
+				compresser.setInput(input);
+				compresser.finish();
+				compresser.deflate(output);
+				compresser.end();
+				outputString = Base64.encodeBase64String(output);
 
-		try {
-			input = inputString.getBytes("UTF-8");
-			// Compress the bytes
-			output = new byte[input.length];
-			Deflater compresser = new Deflater();
-			compresser.setInput(input);
-			compresser.finish();
-			compressedDataLength = compresser.deflate(output);
-			
-			compresser.end();
-			//outputString = new String(output, "UTF-8");
-			outputString = new String(output, 0, compressedDataLength, "UTF-8");
+			} catch (UnsupportedEncodingException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
 			return outputString;
-		} catch (UnsupportedEncodingException ex) {
-			// TODO Auto-generated catch block
-			ex.printStackTrace();
+
 		}
-
-		System.out.println("number of bytes of compressed data " + outputString.length());
-		//System.out.println("compress " + outputString);
-		return outputString;
-	}
-  */ 
-/*
-    public byte[] compress(String toCompress) {
-		//String inputString = toCompress;
-		//byte[] input;
-		//int compressedDataLength = 0;
-		byte[] output = null;
-
-		try {
-			byte[] input = toCompress.getBytes("UTF-8");
-			// Compress the bytes
-			output = new byte[input.length];
-			Deflater compresser = new Deflater();
-			compresser.setInput(input);
-			compresser.finish();
-			int compressedDataLength = compresser.deflate(output);
-			compresser.end();
-			return output;
-
-		} catch (UnsupportedEncodingException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-
-		return output;
-
-	}
-  */
+   
+  
 	private void parseListResourcesParameter(final List<?> parameter) {
 		for (final Object param : parameter) {
 			if (param instanceof Map<?, ?>) {
@@ -407,35 +302,14 @@ private void parseAllocateParameter(final List<?> parameter) {
 		return result;
 	}
 
-/*	private void addTestbeddescription(Map<String, Object> value) {
-		SFA_AM.LOGGER.log(Level.INFO, "Adding OMN testbed info...");
-		final InputStream filestream = this.getClass().getResourceAsStream(
-				"/dummy-testbed.json");
-		String json = SFA_XMLRPC_Handler.convertStreamToString(filestream);
-
-		try {
-			@SuppressWarnings("unchecked")
-			HashMap<String,Object> result =
-			        new ObjectMapper().readValue(json, HashMap.class);
-			value.put("omn_testbed", result);
-		} catch (IOException e) {
-			SFA_AM.LOGGER.log(Level.WARNING, e.getMessage(), e);
-		}
-
-		
-	}
-*/
 	private void addAPIVersion(final HashMap<String, Object> result) {
 		result.put(ISFA_AM.GENI_API, SFA_AM.API_VERSION);
 	}
 	
 	private void addValue(final HashMap<String, Object> result) throws JMSException, TIMEOUTException{
-		// todo: use delegate for this
+
 		final Map<String, Object> value = new HashMap<>();
 		value.put(ISFA_AM.GENI_API, SFA_AM.API_VERSION);
-		
-		//addTestbeddescription(value);
-		
 		
 		String testbedDescription;
 		

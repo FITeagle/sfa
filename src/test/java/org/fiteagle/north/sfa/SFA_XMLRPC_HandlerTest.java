@@ -9,7 +9,6 @@ import org.fiteagle.north.sfa.am.dm.SFA_AM_Delegate_Default;
 import org.fiteagle.north.sfa.dm.SFA_XMLRPC_Handler;
 import org.junit.Assert;
 import org.junit.Before;
-import org.junit.Test;
 
 import redstone.xmlrpc.XmlRpcException;
 

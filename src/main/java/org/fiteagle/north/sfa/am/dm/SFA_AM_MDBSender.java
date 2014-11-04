@@ -1,6 +1,5 @@
 package org.fiteagle.north.sfa.am.dm;
 
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -27,7 +26,6 @@ import com.hp.hpl.jena.rdf.model.StmtIterator;
 @Singleton
 public class SFA_AM_MDBSender {
 
-	private static final String UTF_8 = "UTF-8";
 	@Inject
 	private JMSContext context;
 	@javax.annotation.Resource(mappedName = IMessageBus.TOPIC_CORE_NAME)
@@ -157,11 +155,6 @@ public class SFA_AM_MDBSender {
 	        return resources;
 	    }
 
-	/**
-	 * curl -v http://localhost:8080/sfa/sfarest/listResources
-	 * @throws TIMEOUTException 
-	 */
-	    
 	    
 	    public String getListRessources(String geni_query) throws JMSException, TIMEOUTException, EmptyException{
 	    	String requestModel;
@@ -242,15 +235,5 @@ public class SFA_AM_MDBSender {
 	    		super("EMPTY ANSWER");
 	    	}
 	    	}
-		  
-	    
-	    
-      
-      
 
 }
-
-
-
-
-
