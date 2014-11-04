@@ -163,7 +163,7 @@ public class SFA_AM_MDBSender {
 	 */
 	    
 	    
-	    public String getListRessources(String geni_query) throws JMSException, TIMEOUTException{
+	    public String getListRessources(String geni_query) throws JMSException, TIMEOUTException, EmptyException{
 	    	String requestModel;
 	    	if (!geni_query.isEmpty()){
 	    		 requestModel = MessageBusMsgFactory.createSerializedSPARQLQueryModel(geni_query);
@@ -242,6 +242,11 @@ public class SFA_AM_MDBSender {
 	    		super("EMPTY ANSWER");
 	    	}
 	    	}
+		  
+	    
+	    
+      
+      
 
 }
 

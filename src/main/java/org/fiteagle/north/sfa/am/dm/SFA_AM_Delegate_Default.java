@@ -1,9 +1,7 @@
 package org.fiteagle.north.sfa.am.dm;
 
 import java.io.InputStream;
-
 import java.util.logging.Logger;
-
 
 import org.fiteagle.north.sfa.am.ISFA_AM_Delegate;
 import org.fiteagle.north.sfa.dm.SFA_XMLRPC_Handler;
@@ -24,6 +22,7 @@ public class SFA_AM_Delegate_Default implements ISFA_AM_Delegate {
 	private String geni_value;
 	private String output = "";
 	private int geni_code= 0;
+	
 	
 	@Override
 	public void setOutput (String outputString){
@@ -119,4 +118,10 @@ public class SFA_AM_Delegate_Default implements ISFA_AM_Delegate {
 	public String getGeniValue(){
 		return this.geni_value;
 	}
+	
+
+	
+	
+
+
 }
