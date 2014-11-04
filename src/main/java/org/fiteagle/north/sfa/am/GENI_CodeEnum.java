@@ -21,15 +21,21 @@ public enum GENI_CodeEnum {
 	INPROGRESS(16, "In Progress"),
 	ALREADYEXISTS(17, "Already Exists (eg the slice)"),
 	VLAN_UNAVAILABLE(24, "VLAN tag(s) requested not available (likely stitching failure)");
+	
 	int valueOf;
 	String description;
+	
 	private GENI_CodeEnum(int value,String description){
-	this.valueOf = value;
-	this.description = description;
-	}
+		this.valueOf = value;
+		this.description = description;
+		}
+	
 	public int getValue(){
-	return this.valueOf;
-	}
+		return this.valueOf;
+		}
+	
 	public String getDescription(){
-	return this.description;
-	}}
+		return this.description;
+		}
+	
+}
