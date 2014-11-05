@@ -142,7 +142,7 @@ public class SFA_AM_MDBSender {
 	 
 	   private Message waitForResult(final Message message) throws JMSException {
 	        final String filter = "JMSCorrelationID='" + message.getJMSCorrelationID() + "'";
-	        final Message rcvMessage = this.context.createConsumer(this.topic, filter).receive(IMessageBus.SHORT_TIMEOUT);
+	        final Message rcvMessage = this.context.createConsumer(this.topic, filter).receive(IMessageBus.TIMEOUT);
 	        return rcvMessage;
 	    }
 	   
