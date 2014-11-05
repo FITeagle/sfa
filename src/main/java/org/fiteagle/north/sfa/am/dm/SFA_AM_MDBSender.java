@@ -1,6 +1,5 @@
 package org.fiteagle.north.sfa.am.dm;
 
-import java.io.StringWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -27,12 +26,12 @@ import com.hp.hpl.jena.rdf.model.StmtIterator;
 @Singleton
 public class SFA_AM_MDBSender {
 
-	private static final String UTF_8 = "UTF-8";
 	@Inject
 	private JMSContext context;
 	@javax.annotation.Resource(mappedName = IMessageBus.TOPIC_CORE_NAME)
 	private Topic topic;
 	
+	private final static String TRIPLET_STORE_URL = "<http://localhost:3030/fiteagle/query> ";
 	
 	private static SFA_AM_MDBSender instance;
 	
@@ -51,7 +50,7 @@ public class SFA_AM_MDBSender {
         + "CONSTRUCT { "
         + "?resource omn:partOfGroup ?testbed. "
         + "?resource rdf:type ?type. }"
-        + "FROM <http://localhost:3030/ds/query> "
+        + "FROM " + TRIPLET_STORE_URL
         + "WHERE {"
         + "?resource omn:partOfGroup ?testbed. "
         + "?testbed a omn:Testbed. "
@@ -97,7 +96,7 @@ public class SFA_AM_MDBSender {
 				+ "PREFIX av: <http://federation.av.tu-berlin.de/about#> "
 				+ "CONSTRUCT { ?testbed rdf:type omn:Testbed. ?testbed rdfs:label ?label. "
 				+ "?testbed rdfs:seeAlso ?seeAlso. ?testbed wgs:long ?long. ?testbed wgs:lat ?lat. } "
-				+ "FROM <http://localhost:3030/ds/query> "
+				+ "FROM " + TRIPLET_STORE_URL
 				+ "WHERE {?testbed rdf:type omn:Testbed. "
 				+ "OPTIONAL {?testbed rdfs:label ?label. ?testbed rdfs:seeAlso ?seeAlso. ?testbed wgs:long ?long. ?testbed wgs:lat ?lat. } }";
 
@@ -157,11 +156,6 @@ public class SFA_AM_MDBSender {
 	        return resources;
 	    }
 
-	/**
-	 * curl -v http://localhost:8080/sfa/sfarest/listResources
-	 * @throws TIMEOUTException 
-	 */
-	    
 	    
 	    public String getListRessources(String geni_query) throws JMSException, TIMEOUTException, EmptyException{
 	    	String requestModel;
@@ -181,7 +175,7 @@ public class SFA_AM_MDBSender {
 	    		          + "?resource rdf:type ?type. "
 	    		          + "?resource wgs:lat ?lat. "
 	    		          + "?resource wgs:long ?long. } "
-	    		          + "FROM <http://localhost:3030/ds/query> "
+	    		          + "FROM " + TRIPLET_STORE_URL
 	    		          + "WHERE {"
 	    		          + "?resource omn:partOfGroup ?testbed. "
 	    		          + "?testbed a omn:Testbed. "
@@ -242,15 +236,5 @@ public class SFA_AM_MDBSender {
 	    		super("EMPTY ANSWER");
 	    	}
 	    	}
-		  
-	    
-	    
-      
-      
 
 }
-
-
-
-
-
