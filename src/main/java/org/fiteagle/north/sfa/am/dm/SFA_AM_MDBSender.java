@@ -115,7 +115,7 @@ public class SFA_AM_MDBSender {
 	    	throw new EmptyException();
 		    }
 	   
-	    result = MessageBusMsgFactory.serializeModel(resultModel);
+	    result = MessageBusMsgFactory.serializeModel(resultModel, IMessageBus.SERIALIZATION_RDFJSON);
 	    System.out.println("result is " + result);
 	    return result;
 	}
