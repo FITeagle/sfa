@@ -16,6 +16,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender.EmptyException;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender.TIMEOUTException;
+import org.fiteagle.north.sfa.allocate.AllocateParameter;
 
 public class SFA_AM implements ISFA_AM {
 	private static final int API_VERSION = 3;
@@ -73,17 +74,47 @@ public class SFA_AM implements ISFA_AM {
 
 	@Override
 	public Object allocate(final List<?> parameter){
+		SFA_AM.LOGGER.log(Level.INFO, "allocate...");
 		final HashMap<String, Object> result = new HashMap<>();
 		this.parseAllocateParameter(parameter);
-		this.addAllocateValue(result);
-		this.addCode(result);
-		this.addOutput(result);
+		//this.addAllocateValue(result);
+		//this.addCode(result);
+		//this.addOutput(result);
 		return result;
 	}
 
 private void parseAllocateParameter(final List<?> parameter) {
+	SFA_AM.LOGGER.log(Level.INFO,"parsing allocate parameter");
+	AllocateParameter parameters = new AllocateParameter();
+	
+	for (final Object param : parameter) {
+		if (param instanceof String){
+			String allocateParameter = (String) param;
+			if(allocateParameter.startsWith("urn:")){
+				parameters.setURN(allocateParameter);
+				System.out.println(parameters.getURN());
+			}
+			else if(allocateParameter.contains("request")){
+				parameters.setRequest(allocateParameter);
+				System.out.println(parameters.getRequest());
+			}
+		}
 		
-		for (final Object param : parameter) {
+		if (param instanceof Map<?, ?>) {
+			@SuppressWarnings("unchecked")
+			final Map<String, ?> param2 = (Map<String, ?>) param;
+			if(!param2.isEmpty()){
+				for(Map.Entry<String, ?> allocateParameters : param2.entrySet()){
+					if(allocateParameters.getKey().toString().equals(ISFA_AM.GENI_END_TIME)){
+						parameters.setEndTime(allocateParameters.getValue().toString());
+						System.out.println(parameters.getEndTime());
+					}
+				}
+			}
+		} 
+	}
+		
+/*		for (final Object param : parameter) {
 			if (param instanceof String) {	// considered to be slice_urn
 				String param2 = (String) param;
 				this.delegate.setSliceURN(param2);
@@ -94,9 +125,11 @@ private void parseAllocateParameter(final List<?> parameter) {
 			else if(param instanceof List<?>){ // considered to be credentials parameters.
 				this.parseCredentialsParameters(param);
 			}
-		}
+		}*/
 			
 	}
+
+
 
 	private void addAllocateValue(final HashMap<String, Object> result) {
 		final Map<String, Object> value = new HashMap<>();

@@ -92,10 +92,12 @@ public class SFA_XMLRPC_Handler implements ISFA_XMLRPC_InvocationHandler {
 		} else if ("Describe".equals(methodName)) {
 			return this
 					.returnDummyValue(SFA_XMLRPC_Handler.DUMMY_RESPONSE_FILE_DESCRIBE);
-		} else if ("Allocate".equals(methodName)) {
+		} /*
+		else if ("Allocate".equals(methodName)) {
 			return this
 					.returnDummyValue(SFA_XMLRPC_Handler.DUMMY_RESPONSE_FILE_ALLOCATE);
-		} else if ("Provision".equals(methodName)) {
+		} */
+		else if ("Provision".equals(methodName)) {
 			return this
 					.returnDummyValue(SFA_XMLRPC_Handler.DUMMY_RESPONSE_FILE_PROVISION);
 		} else if ("Delete".equals(methodName)) {

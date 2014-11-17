@@ -28,6 +28,7 @@ public interface ISFA_AM extends ISFA {
 	String GENI_VERSION = "geni_version";
 	String GENI_CREDENTIAL_TYPES = "geni_credential_types";
 	String GENI_CODE = "geni_code";
+	String GENI_END_TIME = "geni_end_time";
 	
 	String OMN_TESTBED = "omn_testbed";
 	String OMN_RESOURCE = "omn_resource";
