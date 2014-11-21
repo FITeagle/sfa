@@ -70,6 +70,9 @@ public class SFA_XMLRPC_Handler implements ISFA_XMLRPC_InvocationHandler {
 	@SuppressWarnings("rawtypes")
 	public Object invoke(final String methodName, final List parameter)
 			throws Throwable {
+		
+		System.out.println("            parameter:"+parameter);
+		
 		SFA_XMLRPC_Handler.LOGGER.log(Level.INFO, "Working on method: "
 				+ methodName);
 		SFA_XMLRPC_Handler.LOGGER.log(Level.INFO, "Working on path: "
@@ -104,8 +107,8 @@ public class SFA_XMLRPC_Handler implements ISFA_XMLRPC_InvocationHandler {
 			return this
 					.returnDummyValue(SFA_XMLRPC_Handler.DUMMY_RESPONSE_FILE_DELETE);
 		}
-
-		return this.manager.handle(methodName, parameter, this.path, this.cert);
+		Object result = this.manager.handle(methodName, parameter, this.path, this.cert);
+		return result;
 	}
 
 	private String returnDummyValue(final String filename)

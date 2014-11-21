@@ -10,6 +10,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.Deflater;
 
+import javax.annotation.PostConstruct;
 import javax.jms.JMSException;
 
 import org.apache.commons.codec.binary.Base64;
@@ -17,6 +18,7 @@ import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender.EmptyException;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender.TIMEOUTException;
 import org.fiteagle.north.sfa.allocate.AllocateParameter;
+import org.fiteagle.north.sfa.allocate.UsersAllocateParameters;
 
 public class SFA_AM implements ISFA_AM {
 	private static final int API_VERSION = 3;
@@ -24,8 +26,15 @@ public class SFA_AM implements ISFA_AM {
 			.getName());
 	private final ISFA_AM_Delegate delegate;
 	
+	private static UsersAllocateParameters usersAllocateParameters;
+	static {
+		usersAllocateParameters = new UsersAllocateParameters();
+	}
+
+	
 	public SFA_AM(final ISFA_AM_Delegate delegate) {
 		this.delegate = delegate;
+		//usersAllocateParameters = new UsersAllocateParameters();
 	}
 
 	private String query = "";
@@ -86,17 +95,18 @@ public class SFA_AM implements ISFA_AM {
 private void parseAllocateParameter(final List<?> parameter) {
 	SFA_AM.LOGGER.log(Level.INFO,"parsing allocate parameter");
 	AllocateParameter parameters = new AllocateParameter();
-	
+	System.out.println(parameter);
+	System.out.println(parameter.size());
 	for (final Object param : parameter) {
 		if (param instanceof String){
 			String allocateParameter = (String) param;
 			if(allocateParameter.startsWith("urn:")){
 				parameters.setURN(allocateParameter);
-				System.out.println(parameters.getURN());
+				SFA_AM.LOGGER.log(Level.INFO,parameters.getURN());
 			}
 			else if(allocateParameter.contains("request")){
 				parameters.setRequest(allocateParameter);
-				System.out.println(parameters.getRequest());
+				SFA_AM.LOGGER.log(Level.INFO,parameters.getRequest());
 			}
 		}
 		
@@ -107,12 +117,17 @@ private void parseAllocateParameter(final List<?> parameter) {
 				for(Map.Entry<String, ?> allocateParameters : param2.entrySet()){
 					if(allocateParameters.getKey().toString().equals(ISFA_AM.GENI_END_TIME)){
 						parameters.setEndTime(allocateParameters.getValue().toString());
-						System.out.println(parameters.getEndTime());
+						SFA_AM.LOGGER.log(Level.INFO,parameters.getEndTime());
 					}
 				}
 			}
 		} 
 	}
+	//SFA_AM.LOGGER.log(Level.INFO,"calling usersAllocateParameter");
+	usersAllocateParameters.addAllocateParameter(parameters);
+	//SFA_AM.LOGGER.log(Level.INFO,"the class was called");
+	
+	usersAllocateParameters.getAllParm();
 		
 /*		for (final Object param : parameter) {
 			if (param instanceof String) {	// considered to be slice_urn
