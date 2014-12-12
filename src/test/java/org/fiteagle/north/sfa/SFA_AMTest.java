@@ -6,9 +6,15 @@ import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.util.zip.InflaterInputStream;
 
+import javax.jms.JMSException;
+
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.codec.binary.StringUtils;
+import org.fiteagle.north.sfa.allocate.ProcessAllocate;
 import org.fiteagle.north.sfa.am.SFA_AM;
+import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
+import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender.EmptyException;
+import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender.TIMEOUTException;
 import org.junit.Assert;
 import org.junit.Test;
 
@@ -41,4 +47,10 @@ public class SFA_AMTest {
 
 	}
 
+	@Test
+	public void testgetmaxInsances() throws JMSException, TIMEOUTException{
+		 
+		 String maxInstances = ProcessAllocate.getMaxInstances();
+		System.out.println(maxInstances);
+	}
 }

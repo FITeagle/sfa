@@ -43,6 +43,18 @@ public class SFA_AM_MDBSender {
 		return instance;
 	}
 	
+	public Model sendRequest(String query) throws JMSException, TIMEOUTException {
+		String requestModel = MessageBusMsgFactory.createSerializedSPARQLQueryModel(query);
+		final Message request = createRDFMessage(requestModel, IMessageBus.TYPE_REQUEST);
+		sendMessage(request);
+		
+		Message rcvMessage = waitForResult(request);
+		String resultString = getResult(rcvMessage);
+		String result = MessageBusMsgFactory.getTTLResultModelFromSerializedModel(resultString);
+		Model resultModel = MessageBusMsgFactory.parseSerializedModel(result);
+		return resultModel;
+	}
+	
 	public List<String> getExtensions() throws JMSException, TIMEOUTException {
 		String query = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
         + "PREFIX omn: <http://open-multinet.info/ontology/omn#> "
@@ -57,7 +69,7 @@ public class SFA_AM_MDBSender {
 		    + "OPTIONAL {?resource rdf:type ?type. } }";
 		String requestModel = MessageBusMsgFactory.createSerializedSPARQLQueryModel(query);
 	    final Message request = createRDFMessage(requestModel, IMessageBus.TYPE_REQUEST);
-	    sendRequest(request);
+	    sendMessage(request);
 	    
 	    Message rcvMessage = waitForResult(request);
 	    String resultString = getResult(rcvMessage);
@@ -102,7 +114,7 @@ public class SFA_AM_MDBSender {
 
 		String requestModel = MessageBusMsgFactory.createSerializedSPARQLQueryModel(query);
 	    final Message request = createRDFMessage(requestModel, IMessageBus.TYPE_REQUEST);
-	    sendRequest(request);
+	    sendMessage(request);
 	    
 	    Message rcvMessage = waitForResult(request);
 	    String resultString = getResult(rcvMessage);
@@ -136,7 +148,7 @@ public class SFA_AM_MDBSender {
         return message;
     }
 	
-	 private void sendRequest(final Message message) {
+	 private void sendMessage(final Message message) {
 	     this.context.createProducer().send(this.topic, message);
 	 }
 	 
@@ -189,7 +201,7 @@ public class SFA_AM_MDBSender {
 	    	}
 	    	
 			final Message request = createRDFMessage(requestModel, IMessageBus.TYPE_REQUEST);
-		    sendRequest(request);
+		    sendMessage(request);
 		
 		    Message rcvMessage = waitForResult(request);
 		    if (rcvMessage != null){
