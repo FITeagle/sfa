@@ -15,7 +15,7 @@ import javax.jms.Topic;
 import javax.ws.rs.core.Response;
 
 import org.fiteagle.api.core.IMessageBus;
-import org.fiteagle.api.core.MessageBusMsgFactory;
+import org.fiteagle.api.core.MessageUtil;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.RDFNode;
@@ -44,14 +44,14 @@ public class SFA_AM_MDBSender {
 	}
 	
 	public Model sendRequest(String query) throws JMSException, TIMEOUTException {
-		String requestModel = MessageBusMsgFactory.createSerializedSPARQLQueryModel(query);
+		String requestModel = MessageUtil.createSerializedSPARQLQueryModel(query);
 		final Message request = createRDFMessage(requestModel, IMessageBus.TYPE_REQUEST);
 		sendMessage(request);
 		
 		Message rcvMessage = waitForResult(request);
 		String resultString = getResult(rcvMessage);
-		String result = MessageBusMsgFactory.getTTLResultModelFromSerializedModel(resultString);
-		Model resultModel = MessageBusMsgFactory.parseSerializedModel(result);
+		String result = MessageUtil.getTTLResultModelFromSerializedModel(resultString);
+		Model resultModel = MessageUtil.parseSerializedModel(result);
 		return resultModel;
 	}
 	
@@ -67,15 +67,15 @@ public class SFA_AM_MDBSender {
         + "?resource omn:partOfGroup ?testbed. "
         + "?testbed a omn:Testbed. "
 		    + "OPTIONAL {?resource rdf:type ?type. } }";
-		String requestModel = MessageBusMsgFactory.createSerializedSPARQLQueryModel(query);
+		String requestModel = MessageUtil.createSerializedSPARQLQueryModel(query);
 	    final Message request = createRDFMessage(requestModel, IMessageBus.TYPE_REQUEST);
 	    sendMessage(request);
 	    
 	    Message rcvMessage = waitForResult(request);
 	    String resultString = getResult(rcvMessage);
-	    String result = MessageBusMsgFactory.getTTLResultModelFromSerializedModel(resultString);
+	    String result = MessageUtil.getTTLResultModelFromSerializedModel(resultString);
 	    
-	    Model resultModel = MessageBusMsgFactory.parseSerializedModel(result);
+	    Model resultModel = MessageUtil.parseSerializedModel(result);
 	    List<String> namespaces = new ArrayList<>();
 	    StmtIterator iter = resultModel.listStatements();
 	    while(iter.hasNext()){
@@ -112,22 +112,22 @@ public class SFA_AM_MDBSender {
 				+ "WHERE {?testbed rdf:type omn:Testbed. "
 				+ "OPTIONAL {?testbed rdfs:label ?label. ?testbed rdfs:seeAlso ?seeAlso. ?testbed wgs:long ?long. ?testbed wgs:lat ?lat. } }";
 
-		String requestModel = MessageBusMsgFactory.createSerializedSPARQLQueryModel(query);
+		String requestModel = MessageUtil.createSerializedSPARQLQueryModel(query);
 	    final Message request = createRDFMessage(requestModel, IMessageBus.TYPE_REQUEST);
 	    sendMessage(request);
 	    
 	    Message rcvMessage = waitForResult(request);
 	    String resultString = getResult(rcvMessage);
 	    System.out.println("resultString is " + resultString);
-	    String result = MessageBusMsgFactory.getTTLResultModelFromSerializedModel(resultString);
+	    String result = MessageUtil.getTTLResultModelFromSerializedModel(resultString);
 	    
-	    Model resultModel = MessageBusMsgFactory.parseSerializedModel(result);
+	    Model resultModel = MessageUtil.parseSerializedModel(result);
 	    StmtIterator iterator = resultModel.listStatements();
 	    if(iterator.hasNext() == false){
 	    	throw new EmptyException();
 		    }
 	   
-	    result = MessageBusMsgFactory.serializeModel(resultModel, IMessageBus.SERIALIZATION_RDFJSON);
+	    result = MessageUtil.serializeModel(resultModel, IMessageBus.SERIALIZATION_RDFJSON);
 	    System.out.println("result is " + result);
 	    return result;
 	}
@@ -172,7 +172,7 @@ public class SFA_AM_MDBSender {
 	    public String getListRessources(String geni_query) throws JMSException, TIMEOUTException, EmptyException{
 	    	String requestModel;
 	    	if (!geni_query.isEmpty()){
-	    		 requestModel = MessageBusMsgFactory.createSerializedSPARQLQueryModel(geni_query);
+	    		 requestModel = MessageUtil.createSerializedSPARQLQueryModel(geni_query);
 	    		 System.out.println("we are using the query from the user ");
 	    	}
 	    	else {
@@ -196,7 +196,7 @@ public class SFA_AM_MDBSender {
 	    		          + "OPTIONAL {?resource rdf:type ?type. }"
 	    		          + "OPTIONAL {?resource wgs:lat ?lat. }"
 	    		          + "OPTIONAL {?resource wgs:long ?long. } }";
-	    		requestModel = MessageBusMsgFactory.createSerializedSPARQLQueryModel(query);
+	    		requestModel = MessageUtil.createSerializedSPARQLQueryModel(query);
 	    		System.out.println("we are using the default query");
 	    	}
 	    	
@@ -206,11 +206,11 @@ public class SFA_AM_MDBSender {
 		    Message rcvMessage = waitForResult(request);
 		    if (rcvMessage != null){
 		    	 String resultString = getResult(rcvMessage);
-				 String result = MessageBusMsgFactory.getTTLResultModelFromSerializedModel(resultString);
+				 String result = MessageUtil.getTTLResultModelFromSerializedModel(resultString);
 				 System.out.println("result is " + result);
 				 
-				 Model resultModel = MessageBusMsgFactory.parseSerializedModel(result);
-				 result = MessageBusMsgFactory.serializeModel(resultModel, IMessageBus.SERIALIZATION_RDFXML);
+				 Model resultModel = MessageUtil.parseSerializedModel(result);
+				 result = MessageUtil.serializeModel(resultModel, IMessageBus.SERIALIZATION_RDFXML);
 				 System.out.println("result after serialization " + result);
 				 
 				 return result;
