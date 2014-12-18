@@ -362,18 +362,18 @@ private void parseAllocateParameter(final List<?> parameter) {
 		String testbedDescription;
 		
 		try {
-		testbedDescription = (String) SFA_AM_MDBSender.getInstance().getTestbedDescription();
-		value.put(ISFA_AM.OMN_TESTBED, testbedDescription);
-		System.out.println("omn_testbed " + value.get(ISFA_AM.OMN_TESTBED));
-		this.delegate.setGeniCode(0);
-		this.delegate.setOutput("SUCCESS");
+		  testbedDescription = (String) SFA_AM_MDBSender.getInstance().getTestbedDescription();
+		  value.put(ISFA_AM.OMN_TESTBED, testbedDescription);
+		  System.out.println("omn_testbed " + value.get(ISFA_AM.OMN_TESTBED));
+		  this.delegate.setGeniCode(0);
+		  this.delegate.setOutput("SUCCESS");
 		}catch (EmptyException e) {
-			System.out.println("EMPTY ANSWER");
-			this.delegate.setGeniCode(GENI_CodeEnum.BADARGS.getValue());
-			this.delegate.setOutput(GENI_CodeEnum.BADARGS.getDescription());
+			LOGGER.log(Level.WARNING, e.getMessage());
+			this.delegate.setGeniCode(GENI_CodeEnum.UNAVAILABLE.getValue());
+			this.delegate.setOutput(GENI_CodeEnum.UNAVAILABLE.getDescription());
 		}
 		catch (TIMEOUTException e){
-			System.out.println("REQUEST TIMEOUT");
+		  LOGGER.log(Level.WARNING, e.getMessage());
 			this.delegate.setGeniCode(GENI_CodeEnum.TIMEDOUT.getValue());
 			this.delegate.setOutput(GENI_CodeEnum.TIMEDOUT.getDescription());
 			
