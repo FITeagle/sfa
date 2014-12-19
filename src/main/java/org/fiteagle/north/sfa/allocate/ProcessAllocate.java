@@ -3,7 +3,6 @@ package org.fiteagle.north.sfa.allocate;
 import javax.jms.JMSException;
 
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
-import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender.TIMEOUTException;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
@@ -12,7 +11,7 @@ public class ProcessAllocate {
 	
 	private static String noMaxInstances = "UNLIMITED";
 	
-	public void allocateResources() throws JMSException, TIMEOUTException{
+	public void allocateResources() throws JMSException {
 		String maxInstances = getMaxInstances();
 		if(!maxInstances.equals(noMaxInstances)){
 			int instances = getInstances();
@@ -23,9 +22,9 @@ public class ProcessAllocate {
 	 * 
 	 * @return the maximum number of instances which resource adapter can instantiate  
 	 * @throws JMSException
-	 * @throws TIMEOUTException
+	 * @throws TimeoutException
 	 */
-	public static String getMaxInstances() throws JMSException, TIMEOUTException{
+	public static String getMaxInstances() {
 		String maxInstances = noMaxInstances;
 		String query = "PREFIX av: <http://federation.av.tu-berlin.de/about#> "
 				+ "RREFIX omn: <http://open-multinet.info/ontology/omn#> "
@@ -40,7 +39,7 @@ public class ProcessAllocate {
 		return maxInstances;
 	}
 	
-	public static int getInstances() throws JMSException, TIMEOUTException{
+	public static int getInstances() {
 		int instances = 0;
 		String query = " PREFIX av: <http://federation.av.tu-berlin.de/about#> "
 				+ " RREFIX omn: <http://open-multinet.info/ontology/omn#> "

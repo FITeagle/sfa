@@ -10,15 +10,14 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.Deflater;
 
-import javax.annotation.PostConstruct;
 import javax.jms.JMSException;
+import javax.ws.rs.core.Response;
 
 import org.apache.commons.codec.binary.Base64;
-import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
-import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender.EmptyException;
-import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender.TIMEOUTException;
 import org.fiteagle.north.sfa.allocate.AllocateParameter;
 import org.fiteagle.north.sfa.allocate.UsersAllocateParameters;
+import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
+import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender.EmptyReplyException;
 
 public class SFA_AM implements ISFA_AM {
 	private static final int API_VERSION = 3;
@@ -40,8 +39,7 @@ public class SFA_AM implements ISFA_AM {
 	private String query = "";
 	
 	@Override
-	public Object handle(final String methodName, final List<?> parameter,
-			final String path, final X509Certificate cert) {
+	public Object handle(final String methodName, final List<?> parameter, final String path, final X509Certificate cert) {
 		Object result;
 
 		SFA_AM.LOGGER.log(Level.INFO, "Working on method: " + methodName);
@@ -228,26 +226,32 @@ private void parseAllocateParameter(final List<?> parameter) {
 	private void addRessources (final HashMap<String, Object> result) throws JMSException{
 		
 		try{
-		String testbedRessources =(String) SFA_AM_MDBSender.getInstance().getListRessources(this.query);
+		  String testbedRessources = SFA_AM_MDBSender.getInstance().getListRessources(this.query);
 		
-		
-		if(this.delegate.getCompressed()){
-			result.put(ISFA_AM.VALUE, compress(testbedRessources));
-		}
-		else {
-			result.put(ISFA_AM.VALUE, testbedRessources);
-		}
+  		if(this.delegate.getCompressed()){
+  			result.put(ISFA_AM.VALUE, compress(testbedRessources));
+  		}
+  		else {
+  			result.put(ISFA_AM.VALUE, testbedRessources);
+  		}
 
-		}catch (EmptyException e) {
-			System.out.println("EMPTY ANSWER");
-			this.delegate.setGeniCode(GENI_CodeEnum.BADARGS.getValue());
-			this.delegate.setOutput(GENI_CodeEnum.BADARGS.getDescription());
-		}catch (TIMEOUTException t){
-			System.out.println("TIMEOUT");
-			this.delegate.setGeniCode(GENI_CodeEnum.TIMEDOUT.getValue());
-			this.delegate.setOutput(GENI_CodeEnum.TIMEDOUT.getDescription());
-		} 
-		
+		}catch (EmptyReplyException e) {
+      LOGGER.log(Level.WARNING, e.getMessage());
+      this.delegate.setGeniCode(GENI_CodeEnum.UNAVAILABLE.getValue());
+      this.delegate.setOutput(GENI_CodeEnum.UNAVAILABLE.getDescription()+e.getMessage());
+      return;
+    }catch (RuntimeException e){
+      LOGGER.log(Level.WARNING, e.getMessage());
+      if(e.getMessage().equals(Response.Status.REQUEST_TIMEOUT.name())){
+        this.delegate.setGeniCode(GENI_CodeEnum.TIMEDOUT.getValue());
+        this.delegate.setOutput(GENI_CodeEnum.TIMEDOUT.getDescription());
+      }
+      else{
+        this.delegate.setGeniCode(GENI_CodeEnum.ERROR.getValue());
+        this.delegate.setOutput(e.getMessage());
+      }
+      return;
+    }
 	}
 	  public static String compress(String toCompress) {
 			byte[] output = null;
@@ -334,17 +338,9 @@ private void parseAllocateParameter(final List<?> parameter) {
 
 	@Override
 	public Object getVersion(final List<?> parameter) {
-		SFA_AM.LOGGER.log(Level.INFO, "getVersion...");
 		final HashMap<String, Object> result = new HashMap<>();
 		this.addAPIVersion(result);
-		try {
-			this.addValue(result);
-		} catch (JMSException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		} catch (TIMEOUTException e) {
-			// TODO Auto-generated catch block
-		}
+		this.addValue(result);
 		this.addCode(result);
 		this.addOutput(result);
 		return result;
@@ -354,7 +350,7 @@ private void parseAllocateParameter(final List<?> parameter) {
 		result.put(ISFA_AM.GENI_API, SFA_AM.API_VERSION);
 	}
 	
-	private void addValue(final HashMap<String, Object> result) throws JMSException, TIMEOUTException{
+	private void addValue(final HashMap<String, Object> result) {
 
 		final Map<String, Object> value = new HashMap<>();
 		value.put(ISFA_AM.GENI_API, SFA_AM.API_VERSION);
@@ -367,19 +363,24 @@ private void parseAllocateParameter(final List<?> parameter) {
 		  System.out.println("omn_testbed " + value.get(ISFA_AM.OMN_TESTBED));
 		  this.delegate.setGeniCode(0);
 		  this.delegate.setOutput("SUCCESS");
-		}catch (EmptyException e) {
+		  
+		}catch (EmptyReplyException e) {
 			LOGGER.log(Level.WARNING, e.getMessage());
 			this.delegate.setGeniCode(GENI_CodeEnum.UNAVAILABLE.getValue());
-			this.delegate.setOutput(GENI_CodeEnum.UNAVAILABLE.getDescription());
-		}
-		catch (TIMEOUTException e){
+			this.delegate.setOutput(GENI_CodeEnum.UNAVAILABLE.getDescription()+e.getMessage());
+			return;
+		}catch (RuntimeException e){
 		  LOGGER.log(Level.WARNING, e.getMessage());
-			this.delegate.setGeniCode(GENI_CodeEnum.TIMEDOUT.getValue());
-			this.delegate.setOutput(GENI_CodeEnum.TIMEDOUT.getDescription());
-			
-		} 
-		
-		
+		  if(e.getMessage().equals(Response.Status.REQUEST_TIMEOUT.name())){
+		    this.delegate.setGeniCode(GENI_CodeEnum.TIMEDOUT.getValue());
+	      this.delegate.setOutput(GENI_CodeEnum.TIMEDOUT.getDescription());
+		  }
+		  else{
+		    this.delegate.setGeniCode(GENI_CodeEnum.ERROR.getValue());
+		    this.delegate.setOutput(e.getMessage());
+		  }
+		  return;
+    }
 		
 		final Map<String, String> apiVersions = new HashMap<>();
 		apiVersions.put(ISFA_AM.VERSION_3, ISFA_AM.API_VERSION);
@@ -390,7 +391,6 @@ private void parseAllocateParameter(final List<?> parameter) {
 		typeA.put(ISFA_AM.TYPE, ISFA_AM.OPEN_MULTINET);
 		typeA.put(ISFA_AM.VERSION, ISFA_AM.VERSION_1);
 		typeA.put(ISFA_AM.GENI_NAMESPACE, ISFA_AM.NAMESPACE);
-		
 		
     List<String> extensionsMap =  SFA_AM_MDBSender.getInstance().getExtensions();
 		final String[] extensions = new String[extensionsMap.size()];
@@ -434,8 +434,5 @@ private void parseAllocateParameter(final List<?> parameter) {
 		code.put(ISFA_AM.AM_CODE, this.delegate.getAMCode());
 		result.put(ISFA_AM.CODE, code);
 	}
-   
-	
-	
 	
 }

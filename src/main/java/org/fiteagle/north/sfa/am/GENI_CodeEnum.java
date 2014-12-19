@@ -13,7 +13,7 @@ public enum GENI_CodeEnum {
 	TIMEDOUT(8, "Operation Timed Out"),
 	DBERROR(9, "Database Error"),
 	RPCERROR(10,"RPC Error"),
-	UNAVAILABLE(11, "Unavailable (eg server in lockdown)"),
+	UNAVAILABLE(11, "Unavailable"),
 	SEARCHFAILED(12," Search Failed (eg for slice)"),
 	UNSUPPORTED(13, "Operation Unsupported"),
 	BUSY(14, "Busy (resource, slice); try again later"),
