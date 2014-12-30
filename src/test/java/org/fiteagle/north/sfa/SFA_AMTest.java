@@ -42,10 +42,5 @@ public class SFA_AMTest {
 
 	}
 
-	//@Test
-	public void testgetmaxInsances() {
-		 
-		 String maxInstances = ProcessAllocate.getMaxInstances();
-		System.out.println(maxInstances);
-	}
+
 }

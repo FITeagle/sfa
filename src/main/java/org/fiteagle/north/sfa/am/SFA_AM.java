@@ -15,6 +15,7 @@ import javax.ws.rs.core.Response;
 
 import org.apache.commons.codec.binary.Base64;
 import org.fiteagle.north.sfa.allocate.AllocateParameter;
+import org.fiteagle.north.sfa.allocate.ProcessAllocate;
 import org.fiteagle.north.sfa.allocate.UsersAllocateParameters;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender.EmptyReplyException;
@@ -83,63 +84,26 @@ public class SFA_AM implements ISFA_AM {
 	public Object allocate(final List<?> parameter){
 		SFA_AM.LOGGER.log(Level.INFO, "allocate...");
 		final HashMap<String, Object> result = new HashMap<>();
-		this.parseAllocateParameter(parameter);
+/*		ProcessAllocate handleAllocate = ProcessAllocate.getInstance();
+		if(!(handleAllocate == null)) {
+		  SFA_AM.LOGGER.log(Level.INFO, "created processAllocate instance ");
+		}*/
+		Map<String, String> allocateParameters = new HashMap<>();
+		ProcessAllocate.parseAllocateParameter(parameter, allocateParameters);
+		
+/*		System.out.println("allocate parameters");
+		for (Map.Entry<String, String> alloc : allocateParameters.entrySet()) {
+		  SFA_AM.LOGGER.log(Level.INFO, "map Key " +alloc.getKey() +" map Value " + alloc.getValue());;
+		}*/
+		
+		String allocateResult = "";
+		allocateResult = ProcessAllocate.reserveInstances(allocateParameters);
+		
+		//this.parseAllocateParameter(parameter);
 		//this.addAllocateValue(result);
 		//this.addCode(result);
 		//this.addOutput(result);
 		return result;
-	}
-
-private void parseAllocateParameter(final List<?> parameter) {
-	SFA_AM.LOGGER.log(Level.INFO,"parsing allocate parameter");
-	AllocateParameter parameters = new AllocateParameter();
-	System.out.println(parameter);
-	System.out.println(parameter.size());
-	for (final Object param : parameter) {
-		if (param instanceof String){
-			String allocateParameter = (String) param;
-			if(allocateParameter.startsWith("urn:")){
-				parameters.setURN(allocateParameter);
-				SFA_AM.LOGGER.log(Level.INFO,parameters.getURN());
-			}
-			else if(allocateParameter.contains("request")){
-				parameters.setRequest(allocateParameter);
-				SFA_AM.LOGGER.log(Level.INFO,parameters.getRequest());
-			}
-		}
-		
-		if (param instanceof Map<?, ?>) {
-			@SuppressWarnings("unchecked")
-			final Map<String, ?> param2 = (Map<String, ?>) param;
-			if(!param2.isEmpty()){
-				for(Map.Entry<String, ?> allocateParameters : param2.entrySet()){
-					if(allocateParameters.getKey().toString().equals(ISFA_AM.GENI_END_TIME)){
-						parameters.setEndTime(allocateParameters.getValue().toString());
-						SFA_AM.LOGGER.log(Level.INFO,parameters.getEndTime());
-					}
-				}
-			}
-		} 
-	}
-	//SFA_AM.LOGGER.log(Level.INFO,"calling usersAllocateParameter");
-	usersAllocateParameters.addAllocateParameter(parameters);
-	//SFA_AM.LOGGER.log(Level.INFO,"the class was called");
-	
-	usersAllocateParameters.getAllParm();
-		
-/*		for (final Object param : parameter) {
-			if (param instanceof String) {	// considered to be slice_urn
-				String param2 = (String) param;
-				this.delegate.setSliceURN(param2);
-			}
-			else if (param instanceof Map<?, ?>) { // considered to be options parameters.
-				this.parseOptionsParameters(param);
-			}
-			else if(param instanceof List<?>){ // considered to be credentials parameters.
-				this.parseCredentialsParameters(param);
-			}
-		}*/
-			
 	}
 
 

@@ -17,6 +17,7 @@ import org.fiteagle.api.core.IMessageBus;
 import org.fiteagle.api.core.MessageUtil;
 
 import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
@@ -44,9 +45,17 @@ public class SFA_AM_MDBSender {
     return instance;
   }
   
-  public Model sendRequest(String query) {
+  public Model sendSPARQLQueryRequest(String query) {
     String requestModel = MessageUtil.createSerializedSPARQLQueryModel(query, IMessageBus.SERIALIZATION_TURTLE);
-    final Message request = MessageUtil.createRDFMessage(requestModel, IMessageBus.TYPE_REQUEST, IMessageBus.SERIALIZATION_TURTLE, null, context);
+    
+    Model rdfModel = sendRequest(requestModel);
+    return rdfModel;
+  }
+  
+  public Model sendRequest(String model) {
+    
+    final Message request = MessageUtil.createRDFMessage(model, IMessageBus.TYPE_REQUEST,
+        IMessageBus.SERIALIZATION_TURTLE, null, context);
     this.context.createProducer().send(this.topic, request);
     
     Message rcvMessage = MessageUtil.waitForResult(request, context, topic);
@@ -65,7 +74,7 @@ public class SFA_AM_MDBSender {
         + "?resource omn:partOfGroup ?testbed. " + "?resource rdf:type ?type. }" + "FROM " + TRIPLET_STORE_URL
         + "WHERE {" + "?resource omn:partOfGroup ?testbed. " + "?testbed a omn:Testbed. "
         + "OPTIONAL {?resource rdf:type ?type. } }";
-    Model resultModel = sendRequest(query);
+    Model resultModel = sendSPARQLQueryRequest(query);
     
     List<String> namespaces = new ArrayList<>();
     StmtIterator iter = resultModel.listStatements();
@@ -103,7 +112,7 @@ public class SFA_AM_MDBSender {
         + "WHERE {?testbed rdf:type omn:Testbed. "
         + "OPTIONAL {?testbed rdfs:label ?label. ?testbed rdfs:seeAlso ?seeAlso. ?testbed wgs:long ?long. ?testbed wgs:lat ?lat. } }";
     
-    Model resultModel = sendRequest(query);
+    Model resultModel = sendSPARQLQueryRequest(query);
     StmtIterator iterator = resultModel.listStatements();
     if (iterator.hasNext() == false) {
       throw new EmptyReplyException("No testbed could be found");
@@ -134,7 +143,7 @@ public class SFA_AM_MDBSender {
       LOGGER.log(Level.INFO, "Using default query");
     }
     
-    Model resultModel = sendRequest(query);
+    Model resultModel = sendSPARQLQueryRequest(query);
     String resultString = MessageUtil.serializeModel(resultModel, IMessageBus.SERIALIZATION_RDFXML);
     
     LOGGER.log(Level.INFO, "result after serialization " + resultString);
@@ -151,7 +160,7 @@ public class SFA_AM_MDBSender {
     }
     
     public EmptyReplyException(String message) {
-      super(" ("+message+")");
+      super(" (" + message + ")");
     }
   }
   
