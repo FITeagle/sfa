@@ -1,6 +1,7 @@
 package org.fiteagle.north.sfa.am;
 
 import java.util.List;
+
 import org.fiteagle.north.sfa.ISFA;
 
 public interface ISFA_AM extends ISFA {
@@ -29,6 +30,12 @@ public interface ISFA_AM extends ISFA {
 	String GENI_CREDENTIAL_TYPES = "geni_credential_types";
 	String GENI_CODE = "geni_code";
 	String GENI_END_TIME = "geni_end_time";
+	String GENI_SLIVER_URN = "geni_sliver_urn";
+	String GENI_EXPIRES = "geni_expires";
+	String GENI_ALLOCATION_STATUS = "geni_allocation_status";
+	String GENI_ALLOCATED = "geni_allocated";
+	String GENI_RSPEC = "geni_rspec";
+	String GENI_SLIVERS = "geni_slivers";
 	
 	String OMN_TESTBED = "omn_testbed";
 	String OMN_RESOURCE = "omn_resource";
@@ -43,6 +50,12 @@ public interface ISFA_AM extends ISFA {
 	String AM_CODE = "am_code";
 	String CODE = "code";
 	String OPEN_MULTINET = "open-multinet";
+	String OMN = "http://open-multinet.info/ontology/omn#";
+	String URN = "urn";
+	String REQUEST = "request";
+	String EndTime = "endTime";
+	String node = "node";
+	String componentManagerId = "component_manager_id";
 	
 	public abstract Object listResources(List<?> parameter);
 

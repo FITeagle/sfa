@@ -25,16 +25,10 @@ public class SFA_AM implements ISFA_AM {
 	private final static Logger LOGGER = Logger.getLogger(SFA_AM.class
 			.getName());
 	private final ISFA_AM_Delegate delegate;
-	
-	private static UsersAllocateParameters usersAllocateParameters;
-	static {
-		usersAllocateParameters = new UsersAllocateParameters();
-	}
 
 	
 	public SFA_AM(final ISFA_AM_Delegate delegate) {
 		this.delegate = delegate;
-		//usersAllocateParameters = new UsersAllocateParameters();
 	}
 
 	private String query = "";
@@ -84,29 +78,20 @@ public class SFA_AM implements ISFA_AM {
 	public Object allocate(final List<?> parameter){
 		SFA_AM.LOGGER.log(Level.INFO, "allocate...");
 		final HashMap<String, Object> result = new HashMap<>();
-/*		ProcessAllocate handleAllocate = ProcessAllocate.getInstance();
-		if(!(handleAllocate == null)) {
-		  SFA_AM.LOGGER.log(Level.INFO, "created processAllocate instance ");
-		}*/
+
 		Map<String, String> allocateParameters = new HashMap<>();
 		ProcessAllocate.parseAllocateParameter(parameter, allocateParameters);
 		
-/*		System.out.println("allocate parameters");
-		for (Map.Entry<String, String> alloc : allocateParameters.entrySet()) {
-		  SFA_AM.LOGGER.log(Level.INFO, "map Key " +alloc.getKey() +" map Value " + alloc.getValue());;
-		}*/
-		
-		String allocateResult = "";
-		allocateResult = ProcessAllocate.reserveInstances(allocateParameters);
+		final List<String> sliverList = new LinkedList<>(); 
+		ProcessAllocate.reserveInstances(allocateParameters,sliverList);
+		ProcessAllocate.addAllocateValue(result, sliverList, allocateParameters);
 		
 		//this.parseAllocateParameter(parameter);
 		//this.addAllocateValue(result);
-		//this.addCode(result);
-		//this.addOutput(result);
+		this.addCode(result);
+		this.addOutput(result);
 		return result;
 	}
-
-
 
 	private void addAllocateValue(final HashMap<String, Object> result) {
 		final Map<String, Object> value = new HashMap<>();
