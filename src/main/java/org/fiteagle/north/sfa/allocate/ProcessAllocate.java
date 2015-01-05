@@ -16,12 +16,10 @@ import javax.xml.parsers.ParserConfigurationException;
 import org.fiteagle.api.core.IMessageBus;
 import org.fiteagle.api.core.MessageBusOntologyModel;
 import org.fiteagle.api.core.MessageUtil;
-import org.fiteagle.north.sfa.ISFA;
 import org.fiteagle.north.sfa.am.ISFA_AM;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
-import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
@@ -31,19 +29,14 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
+import com.hp.hpl.jena.vocabulary.RDF;
 
-import javax.xml.parsers.*;
-
-import org.xml.sax.InputSource;
-import org.w3c.dom.*;
-
-import java.io.*;
 
 public class ProcessAllocate {
   
   private final static Logger LOGGER = Logger.getLogger(ProcessAllocate.class.getName());
   
-  public static void parseAllocateParameter(final List<?> parameter, Map<String, String> allocateParameters) {
+  public static void parseAllocateParameter(final List<?> parameter, Map<String,  Object> allocateParameters) {
     ProcessAllocate.LOGGER.log(Level.INFO, "parsing allocate parameter");
     System.out.println(parameter);
     System.out.println(parameter.size());
@@ -52,10 +45,13 @@ public class ProcessAllocate {
         String allocateParameter = (String) param;
         if (allocateParameter.startsWith(ISFA_AM.URN)) {
           allocateParameters.put(ISFA_AM.URN, allocateParameter);
-          ProcessAllocate.LOGGER.log(Level.INFO, allocateParameters.get(ISFA_AM.URN));
+          ProcessAllocate.LOGGER.log(Level.INFO, allocateParameters.get(ISFA_AM.URN).toString());
         } else if (allocateParameter.contains(ISFA_AM.REQUEST)) {
           allocateParameters.put(ISFA_AM.REQUEST, allocateParameter);
-          ProcessAllocate.LOGGER.log(Level.INFO, allocateParameters.get(ISFA_AM.REQUEST));
+          ProcessAllocate.LOGGER.log(Level.INFO, allocateParameters.get(ISFA_AM.REQUEST).toString());
+          final List<String> requiredResources = new LinkedList<>();
+          parseRSpec(allocateParameter, ISFA_AM.componentManagerId, requiredResources);
+          allocateParameters.put(ISFA_AM.RequiredResources, requiredResources);
         }
       }
       if (param instanceof Map<?, ?>) {
@@ -65,7 +61,7 @@ public class ProcessAllocate {
           for (Map.Entry<String, ?> parameters : param2.entrySet()) {
             if (parameters.getKey().toString().equals(ISFA_AM.GENI_END_TIME)) {
               allocateParameters.put(ISFA_AM.EndTime, parameters.getValue().toString());
-              ProcessAllocate.LOGGER.log(Level.INFO, allocateParameters.get(ISFA_AM.EndTime));
+              ProcessAllocate.LOGGER.log(Level.INFO, allocateParameters.get(ISFA_AM.EndTime).toString());
             }
           }
         }
@@ -80,33 +76,42 @@ public class ProcessAllocate {
      */
   }
   
-  public static void reserveInstances(Map<String, String> allocateParameter, List<String> sliverList) {
+  @SuppressWarnings("unchecked")
+  public static void reserveInstances(Map<String, Object> allocateParameter, Map<String, String> sliverMap) {
     
     Model requestModel = ModelFactory.createDefaultModel();
     Resource reservationRequest = requestModel.createResource(MessageBusOntologyModel.internalMessage.getURI());
     reservationRequest.addProperty(MessageBusOntologyModel.requestType, IMessageBus.REQUEST_TYPE_RESERVE);
     
-    for (Map.Entry<String, String> parameter : allocateParameter.entrySet()) {
-      if (parameter.getKey().equals(ISFA_AM.REQUEST)) {
-        reservationRequest.addProperty(requestModel.createProperty(ISFA_AM.OMN + ISFA_AM.componentManagerId),
-            parseRSpec(parameter.getValue(), ISFA_AM.componentManagerId));
-      } else {
-        reservationRequest.addProperty(requestModel.createProperty(ISFA_AM.OMN + parameter.getKey()), parameter.getValue()
-            .toString());
-      }
+    
+    Resource slice = requestModel.createResource(allocateParameter.get(ISFA_AM.URN).toString());
+    slice.addProperty(RDF.type, ISFA_AM.OMN + ISFA_AM.SLICE);
+    if(allocateParameter.containsKey(ISFA_AM.EndTime)){
+      slice.addProperty(requestModel.createProperty(ISFA_AM.OMN + ISFA_AM.EndTime), allocateParameter.get(ISFA_AM.EndTime).toString());
     }
+    int sliverCounter = 1;
+    for (final Object requiredReserouces : (List<String>) allocateParameter.get(ISFA_AM.RequiredResources)){
+      Resource sliver = requestModel.createResource(allocateParameter.get(ISFA_AM.URN).toString() + "+" + ISFA_AM.Sliver + sliverCounter); // to be changed.
+      sliver.addProperty(RDF.type, ISFA_AM.OMN + ISFA_AM.Sliver);
+      sliver.addProperty(requestModel.createProperty(ISFA_AM.OMN + ISFA_AM.PartOf), slice.getURI());
+      sliver.addProperty(requestModel.createProperty(ISFA_AM.OMN + ISFA_AM.ReserveInstanceFrom), requiredReserouces.toString());
+      sliverCounter++;
+    }
+    
     String serializedModel = MessageUtil.serializeModel(requestModel);
+    LOGGER.log(Level.INFO, "send reservation request ...");
     Model resultModel = SFA_AM_MDBSender.getInstance().sendRequest(serializedModel);
+    LOGGER.log(Level.INFO, "reservation reply received.");
+    
     StmtIterator iter = resultModel.listStatements();
     while (iter.hasNext()) {
       Statement st = iter.next();
-      sliverList.add(st.getPredicate().toString());
-      LOGGER.log(Level.INFO, "created sliver " + st.getPredicate());
+      sliverMap.put(st.getSubject().getURI(), st.getObject().toString());
+      LOGGER.log(Level.INFO, "created sliver " + st.getSubject().getURI());
     }
   }
   
-  private static String parseRSpec(String request, String requiredAttribute) {
-    String attribute = "";
+  private static void parseRSpec(String request, String requiredAttribute, List<String> requiredResources) {
     try {
       DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
       DocumentBuilder db;
@@ -119,17 +124,16 @@ public class ProcessAllocate {
       
       for (int i = 0; i < nodes.getLength(); i++) {
         Element element = (Element) nodes.item(i);
-        attribute = element.getAttribute(requiredAttribute);
+        requiredResources.add(element.getAttribute(requiredAttribute));
         System.out.println("parsed element component manager id " + element.getAttribute(requiredAttribute));
       }
     } catch (ParserConfigurationException | SAXException | IOException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
     }
-    return attribute;
   }
   
-  public static void addAllocateValue(final HashMap<String, Object> result, List<String> sliverList, Map<String, String> allocateParameters) {
+  public static void addAllocateValue(final HashMap<String, Object> result, Map<String,String> slivers, Map<String, Object> allocateParameters) {
     final Map<String, Object> value = new HashMap<>();
     
     value.put(ISFA_AM.GENI_RSPEC, "should be the geni.rspec manifest"); // to be continued
@@ -142,41 +146,19 @@ public class ProcessAllocate {
      * sliver urn, experires and status.
      * The created maps should be added to geni_slivers list.
      */
-    for(String sliver : sliverList) {
+    for (Map.Entry<String, String> sliver : slivers.entrySet()) {
       LOGGER.log(Level.INFO, "sliver in the list " + sliver);
       final Map<String, Object> sliverMap = new HashMap<>();
-      sliverMap.put(ISFA_AM.GENI_SLIVER_URN, sliver);
+      sliverMap.put(ISFA_AM.GENI_SLIVER_URN, sliver.getKey());
       if(allocateParameters.containsKey(ISFA_AM.EndTime)){
-        sliverMap.put(ISFA_AM.GENI_EXPIRES, allocateParameters.get(ISFA_AM.EndTime));
+        sliverMap.put(ISFA_AM.GENI_EXPIRES, allocateParameters.get(ISFA_AM.EndTime).toString());
       }
-      sliverMap.put(ISFA_AM.GENI_ALLOCATION_STATUS, ISFA_AM.GENI_ALLOCATED);
+      sliverMap.put(ISFA_AM.GENI_ALLOCATION_STATUS, sliver.getValue());
       geniSlivers.add(sliverMap);
     }
     value.put(ISFA_AM.GENI_SLIVERS, geniSlivers);
     result.put(ISFA_AM.VALUE, value);
   }
   
-  /*
-   * private static String noMaxInstances = "UNLIMITED"; public void allocateResources() throws JMSException { String
-   * maxInstances = getMaxInstances(); if(!maxInstances.equals(noMaxInstances)){ int instances = getInstances(); } }
-   *//**
-   * 
-   * @return the maximum number of instances which resource adapter can instantiate
-   * @throws JMSException
-   * @throws TimeoutException
-   */
-  /*
-   * public static String getMaxInstances() { String maxInstances = noMaxInstances; String query =
-   * "PREFIX av: <http://federation.av.tu-berlin.de/about#> " + "RREFIX omn: <http://open-multinet.info/ontology/omn#> "
-   * + "SELECT ?amount " + "WHERE {av:MotorGarage-1 omn:maxInstances ?amount } "; Model resultModel =
-   * SFA_AM_MDBSender.getInstance().sendRequest(query); StmtIterator iter = resultModel.listStatements();
-   * while(iter.hasNext()){ int result = iter.next().getInt(); return Integer.toString(result); } return maxInstances; }
-   * public static int getInstances() { int instances = 0; String query =
-   * " PREFIX av: <http://federation.av.tu-berlin.de/about#> " +
-   * " RREFIX omn: <http://open-multinet.info/ontology/omn#> " + "SELECT ?instance " +
-   * "WHERE {?instance a ?resourceType . " + "av:MotorGarage-1 a ?adapterType . " +
-   * "?adapterType omn:implements ?resourceType .} "; Model resultModel =
-   * SFA_AM_MDBSender.getInstance().sendRequest(query); StmtIterator iter = resultModel.listStatements();
-   * while(iter.hasNext()){ instances++; iter.next(); } return instances; }
-   */
-}
+  }
+

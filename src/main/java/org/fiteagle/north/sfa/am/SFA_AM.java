@@ -79,44 +79,17 @@ public class SFA_AM implements ISFA_AM {
 		SFA_AM.LOGGER.log(Level.INFO, "allocate...");
 		final HashMap<String, Object> result = new HashMap<>();
 
-		Map<String, String> allocateParameters = new HashMap<>();
+		Map<String, Object> allocateParameters = new HashMap<>();
 		ProcessAllocate.parseAllocateParameter(parameter, allocateParameters);
 		
-		final List<String> sliverList = new LinkedList<>(); 
-		ProcessAllocate.reserveInstances(allocateParameters,sliverList);
-		ProcessAllocate.addAllocateValue(result, sliverList, allocateParameters);
+		final Map<String, String> sliverMap = new HashMap<>(); 
+		ProcessAllocate.reserveInstances(allocateParameters,sliverMap);
+		ProcessAllocate.addAllocateValue(result, sliverMap, allocateParameters);
 		
-		//this.parseAllocateParameter(parameter);
-		//this.addAllocateValue(result);
 		this.addCode(result);
 		this.addOutput(result);
 		return result;
 	}
-
-	private void addAllocateValue(final HashMap<String, Object> result) {
-		final Map<String, Object> value = new HashMap<>();
-		
-		value.put("geni_rspec", "should be the geni.rspec manifest"); // to be continued
-		
-		// todo: should call a method for the slivers
-		final List<Map<String, Object>> geniSlivers = new LinkedList<>();
-		/**
-		 * should define a loop depending on the slivers number.
-		 * In the loop, Map is created for each sliver containing 
-		 * sliver urn, experires and status.
-		 * The created maps should be added to geni_slivers list.
-		 */
-		final Map<String, Object> sliver = new HashMap<>();
-		sliver.put("geni_sliver_urn", "string sliver urn");
-		sliver.put("geni_expires", "expiration of sliver");
-		sliver.put("geni_allocation_status", "geni_allocated");
-		geniSlivers.add(sliver);
-		
-		value.put("geni_slivers", geniSlivers);
-		
-		result.put("value", value);
-	}
-	
 	
 	@Override
 	public Object renew(final List<?> parameter){

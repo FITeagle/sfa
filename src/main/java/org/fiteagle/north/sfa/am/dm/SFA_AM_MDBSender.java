@@ -59,6 +59,7 @@ public class SFA_AM_MDBSender {
     this.context.createProducer().send(this.topic, request);
     
     Message rcvMessage = MessageUtil.waitForResult(request, context, topic);
+    LOGGER.log(Level.INFO, "SFA received a reply");
     String resultString = MessageUtil.getRDFResult(rcvMessage);
     if (resultString != null) {
       return MessageUtil.parseSerializedModel(resultString);

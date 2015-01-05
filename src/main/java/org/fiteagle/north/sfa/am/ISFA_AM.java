@@ -56,6 +56,11 @@ public interface ISFA_AM extends ISFA {
 	String EndTime = "endTime";
 	String node = "node";
 	String componentManagerId = "component_manager_id";
+	String RequiredResources = "requiredResources";
+	String SLICE = "slice";
+	String Sliver = "sliver";
+	String PartOf = "PartOf";
+	String ReserveInstanceFrom = "reserve_Instance_from";
 	
 	public abstract Object listResources(List<?> parameter);
 
