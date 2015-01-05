@@ -60,7 +60,7 @@ public class TestAll {
 		this.testMethodCall(this.handler, inputString, expected);
 	}
 
-	@Test
+//	@Test
 	public void testListProvision() throws SAXException, IOException {
 		final String inputString = "<?xml version='1.0'?><methodCall><methodName>Provision</methodName><params></params></methodCall>";
 
