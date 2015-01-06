@@ -45,17 +45,18 @@ public class SFA_AM_MDBSender {
     return instance;
   }
   
-  public Model sendSPARQLQueryRequest(String query) {
-    String requestModel = MessageUtil.createSerializedSPARQLQueryModel(query, IMessageBus.SERIALIZATION_TURTLE);
-    
-    Model rdfModel = sendRequest(requestModel, IMessageBus.TYPE_REQUEST);
-    return rdfModel;
+  public Model sendSPARQLQueryRequest(String query, String methodTarget) {
+    Message request = MessageUtil.createSPARQLQueryMessage(query, methodTarget, IMessageBus.SERIALIZATION_TURTLE, context);
+    return sendRequest(request, query, IMessageBus.TYPE_GET, methodTarget);
   }
   
-  public Model sendRequest(String model, String methodType) {
-    final Message request = MessageUtil.createRDFMessage(model, methodType, IMessageBus.SERIALIZATION_TURTLE, null, context);
-    this.context.createProducer().send(topic, request);
-    
+  public Model sendRDFRequest(String model, String methodType, String methodTarget) {
+    final Message request = MessageUtil.createRDFMessage(model, methodType, methodTarget, IMessageBus.SERIALIZATION_TURTLE, null, context);
+    return sendRequest(request, model, methodType, methodTarget);
+  }
+  
+  public Model sendRequest(Message request, String forDebug, String methodType, String methodTarget) {
+    context.createProducer().send(topic, request);
     Message rcvMessage = MessageUtil.waitForResult(request, context, topic);
     String resultString = MessageUtil.getRDFResult(rcvMessage);
     if (resultString != null) {
@@ -64,7 +65,7 @@ public class SFA_AM_MDBSender {
     } else {
       String error = MessageUtil.getError(rcvMessage);
       if(error.equals(Response.Status.REQUEST_TIMEOUT.name())){
-        throw new TimeoutException("Sent message ("+ methodType + "): "+model);
+        throw new TimeoutException("Sent message ("+ methodType + "): "+forDebug);
       }
       throw new RuntimeException(error);
     }
@@ -77,7 +78,7 @@ public class SFA_AM_MDBSender {
         + "?resource omn:partOfGroup ?testbed. " + "?resource rdf:type ?type. }" + "FROM " + TRIPLET_STORE_URL
         + "WHERE {" + "?resource omn:partOfGroup ?testbed. " + "?testbed a omn:Testbed. "
         + "OPTIONAL {?resource rdf:type ?type. } }";
-    Model resultModel = sendSPARQLQueryRequest(query);
+    Model resultModel = sendSPARQLQueryRequest(query, IMessageBus.TARGET_RESOURCE_ADAPTER_MANAGER);
     
     List<String> namespaces = new ArrayList<>();
     StmtIterator iter = resultModel.listStatements();
@@ -115,7 +116,7 @@ public class SFA_AM_MDBSender {
         + "WHERE {?testbed rdf:type omn:Testbed. "
         + "OPTIONAL {?testbed rdfs:label ?label. ?testbed rdfs:seeAlso ?seeAlso. ?testbed wgs:long ?long. ?testbed wgs:lat ?lat. } }";
     
-    Model resultModel = sendSPARQLQueryRequest(query);
+    Model resultModel = sendSPARQLQueryRequest(query, IMessageBus.TARGET_FEDERATION_MANAGER);
     StmtIterator iterator = resultModel.listStatements();
     if (iterator.hasNext() == false) {
       throw new EmptyReplyException("No testbed could be found");
@@ -146,7 +147,7 @@ public class SFA_AM_MDBSender {
       LOGGER.log(Level.INFO, "Using default query");
     }
     
-    Model resultModel = sendSPARQLQueryRequest(query);
+    Model resultModel = sendSPARQLQueryRequest(query, IMessageBus.TARGET_RESOURCE_ADAPTER_MANAGER);
     String resultString = MessageUtil.serializeModel(resultModel, IMessageBus.SERIALIZATION_RDFXML);
     
     LOGGER.log(Level.INFO, "result after serialization " + resultString);

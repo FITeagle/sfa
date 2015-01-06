@@ -14,7 +14,6 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.fiteagle.api.core.IMessageBus;
-import org.fiteagle.api.core.MessageBusOntologyModel;
 import org.fiteagle.api.core.MessageUtil;
 import org.fiteagle.north.sfa.am.ISFA_AM;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
@@ -80,9 +79,6 @@ public class ProcessAllocate {
   public static void reserveInstances(Map<String, Object> allocateParameter, Map<String, String> sliverMap) {
     
     Model requestModel = ModelFactory.createDefaultModel();
-    Resource reservationRequest = requestModel.createResource(MessageBusOntologyModel.internalMessage.getURI());
-    reservationRequest.addProperty(MessageBusOntologyModel.requestType, IMessageBus.REQUEST_TYPE_RESERVE);
-    
     
     Resource slice = requestModel.createResource(allocateParameter.get(ISFA_AM.URN).toString());
     slice.addProperty(RDF.type, ISFA_AM.OMN + ISFA_AM.SLICE);
@@ -100,7 +96,7 @@ public class ProcessAllocate {
     
     String serializedModel = MessageUtil.serializeModel(requestModel);
     LOGGER.log(Level.INFO, "send reservation request ...");
-    Model resultModel = SFA_AM_MDBSender.getInstance().sendRequest(serializedModel, IMessageBus.TYPE_REQUEST);
+    Model resultModel = SFA_AM_MDBSender.getInstance().sendRDFRequest(serializedModel, IMessageBus.TYPE_CREATE, IMessageBus.TARGET_RESERVATION);
     LOGGER.log(Level.INFO, "reservation reply received.");
     
     StmtIterator iter = resultModel.listStatements();

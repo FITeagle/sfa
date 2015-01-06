@@ -6,7 +6,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.fiteagle.api.core.IMessageBus;
-import org.fiteagle.api.core.MessageBusOntologyModel;
 import org.fiteagle.api.core.MessageUtil;
 import org.fiteagle.north.sfa.am.ISFA_AM;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
@@ -51,8 +50,6 @@ public class ProcessProvision {
   @SuppressWarnings("unchecked")
   public static void provisionInstnces(Map<String, Object> provisionParameters) {
     Model requestModel = ModelFactory.createDefaultModel();
-    Resource provisionRequest = requestModel.createResource(MessageBusOntologyModel.internalMessage.getURI());
-    //provisionRequest.addProperty(MessageBusOntologyModel.requestType, IMessageBus.REQUEST_TYPE_CREATE);
     
     for (final String urn : (List<String>) provisionParameters.get(ISFA_AM.URN)) {
       Resource slice = requestModel.createResource(urn);
@@ -61,7 +58,7 @@ public class ProcessProvision {
     
     String serializedModel = MessageUtil.serializeModel(requestModel);
     LOGGER.log(Level.INFO, "send provision request ...");
-    Model resultModel = SFA_AM_MDBSender.getInstance().sendRequest(serializedModel, IMessageBus.TYPE_CREATE);
+    Model resultModel = SFA_AM_MDBSender.getInstance().sendRDFRequest(serializedModel, IMessageBus.TYPE_CREATE, IMessageBus.TARGET_ORCHESTRATOR);
     LOGGER.log(Level.INFO, "provision reply received.");
     
   }
