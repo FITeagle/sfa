@@ -3,9 +3,16 @@
 Slice-based Federation Architecture
 ===================================
 
+Requirements
+------------
+ 1. Successfully deployed repository module
+ 2. Successfully deployed reservation module
+ 3. Successfully deployed testbed adapter module
+ 4. Successfully deployed resource adapter module (e.g. Motor)
+
 Installation
 ------------
-    mvn clean install wildfly:deploy 
+    mvn clean wildfly:deploy 
 
 API
 ---
@@ -13,7 +20,12 @@ API
     https://localhost:8443/sfa/api/am/v3
     https://localhost:8443/sfa/api/sa/v1
 
-Hint
-----
+Testing
+-------
 
-This module is using a patched version of the redstone xmlrpc to support method without a prefix.
+    ./src/test/bin/runJfed.sh
+
+Remark
+------
+
+This module is using an own patched version of the redstone xmlrpc to support method without a prefix.
