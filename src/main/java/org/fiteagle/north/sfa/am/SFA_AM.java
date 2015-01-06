@@ -150,6 +150,7 @@ public class SFA_AM implements ISFA_AM {
     return result;
   }
   
+  // TODO: merge with addValue? Lot of duplicated code! 
   private void addRessources(final HashMap<String, Object> result) throws JMSException {
     
     try {
@@ -162,12 +163,12 @@ public class SFA_AM implements ISFA_AM {
       }
       
     } catch (EmptyReplyException e) {
-      LOGGER.log(Level.WARNING, e.getMessage());
+      LOGGER.log(Level.WARNING, e.getMessage(), e.getCause());
       this.delegate.setGeniCode(GENI_CodeEnum.UNAVAILABLE.getValue());
       this.delegate.setOutput(GENI_CodeEnum.UNAVAILABLE.getDescription() + e.getMessage());
       return;
     } catch (RuntimeException e) {
-      LOGGER.log(Level.WARNING, e.getMessage());
+      LOGGER.log(Level.WARNING, e.getMessage(), e.getCause());
       if (e.getMessage().equals(Response.Status.REQUEST_TIMEOUT.name())) {
         this.delegate.setGeniCode(GENI_CodeEnum.TIMEDOUT.getValue());
         this.delegate.setOutput(GENI_CodeEnum.TIMEDOUT.getDescription());
@@ -286,12 +287,12 @@ public class SFA_AM implements ISFA_AM {
       this.delegate.setOutput("SUCCESS");
       
     } catch (EmptyReplyException e) {
-      LOGGER.log(Level.WARNING, e.getMessage());
+      LOGGER.log(Level.WARNING, e.getMessage(), e.getCause());
       this.delegate.setGeniCode(GENI_CodeEnum.UNAVAILABLE.getValue());
       this.delegate.setOutput(GENI_CodeEnum.UNAVAILABLE.getDescription() + e.getMessage());
       return;
     } catch (RuntimeException e) {
-      LOGGER.log(Level.WARNING, e.getMessage());
+      LOGGER.log(Level.WARNING, e.getMessage(), e.getCause());
       if (e.getMessage().equals(Response.Status.REQUEST_TIMEOUT.name())) {
         this.delegate.setGeniCode(GENI_CodeEnum.TIMEDOUT.getValue());
         this.delegate.setOutput(GENI_CodeEnum.TIMEDOUT.getDescription());
