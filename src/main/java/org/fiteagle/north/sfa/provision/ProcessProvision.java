@@ -48,7 +48,7 @@ public class ProcessProvision {
   }
   
   @SuppressWarnings("unchecked")
-  public static void provisionInstnces(Map<String, Object> provisionParameters) {
+  public static void provisionInstances(Map<String, Object> provisionParameters) {
     Model requestModel = ModelFactory.createDefaultModel();
     
     for (final String urn : (List<String>) provisionParameters.get(ISFA_AM.URN)) {
@@ -58,7 +58,7 @@ public class ProcessProvision {
     
     String serializedModel = MessageUtil.serializeModel(requestModel);
     LOGGER.log(Level.INFO, "send provision request ...");
-    Model resultModel = SFA_AM_MDBSender.getInstance().sendRDFRequest(serializedModel, IMessageBus.TYPE_CREATE, IMessageBus.TARGET_ORCHESTRATOR);
+    Model resultModel = SFA_AM_MDBSender.getInstance().sendRDFRequest(serializedModel, IMessageBus.TYPE_CONFIGURE, IMessageBus.TARGET_ORCHESTRATOR);
     LOGGER.log(Level.INFO, "provision reply received.");
     
   }
