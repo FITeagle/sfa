@@ -1,0 +1,10 @@
+<rspec type="request" xsi:schemaLocation="http://www.geni.net/resources/rspec/3 http://www.geni.net/resources/rspec/3/request.xsd " xmlns:client="http://www.protogeni.net/resources/rspec/ext/client/1" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://www.geni.net/resources/rspec/3">
+  <node
+    client_id="pnode"
+    component_id="urn:publicid:IDN+localhost+node+pc"
+    component_manager_id="urn:publicid:IDN+localhost+authority+am"
+    exclusive="true"
+    client_id="PC">
+    <sliver_type name="raw-pc"/>
+  </node>
+</rspec>
