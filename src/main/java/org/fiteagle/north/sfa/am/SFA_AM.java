@@ -101,7 +101,7 @@ public class SFA_AM implements ISFA_AM {
     
     Map<String, Object> provisionParameters = new HashMap<>();
     ProcessProvision.parseProvsionParameter(parameter, provisionParameters);
-    ProcessProvision.provisionInstnces(provisionParameters);
+    ProcessProvision.provisionInstances(provisionParameters);
     
     return result;
   }
