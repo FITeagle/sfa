@@ -11,14 +11,12 @@ import java.util.logging.Logger;
 import java.util.zip.Deflater;
 
 import javax.jms.JMSException;
-import javax.ws.rs.core.Response;
 
 import org.apache.commons.codec.binary.Base64;
-import org.fiteagle.north.sfa.allocate.AllocateParameter;
 import org.fiteagle.north.sfa.allocate.ProcessAllocate;
-import org.fiteagle.north.sfa.allocate.UsersAllocateParameters;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender.EmptyReplyException;
+import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender.TimeoutException;
 import org.fiteagle.north.sfa.provision.ProcessProvision;
 
 public class SFA_AM implements ISFA_AM {
@@ -167,15 +165,15 @@ public class SFA_AM implements ISFA_AM {
       this.delegate.setGeniCode(GENI_CodeEnum.UNAVAILABLE.getValue());
       this.delegate.setOutput(GENI_CodeEnum.UNAVAILABLE.getDescription() + e.getMessage());
       return;
+    } catch(TimeoutException e){
+      LOGGER.log(Level.WARNING, e.getMessage(), e.getCause());
+      this.delegate.setGeniCode(GENI_CodeEnum.TIMEDOUT.getValue());
+      this.delegate.setOutput(e.getMessage());
+      return;
     } catch (RuntimeException e) {
       LOGGER.log(Level.WARNING, e.getMessage(), e.getCause());
-      if (e.getMessage().equals(Response.Status.REQUEST_TIMEOUT.name())) {
-        this.delegate.setGeniCode(GENI_CodeEnum.TIMEDOUT.getValue());
-        this.delegate.setOutput(GENI_CodeEnum.TIMEDOUT.getDescription());
-      } else {
-        this.delegate.setGeniCode(GENI_CodeEnum.ERROR.getValue());
-        this.delegate.setOutput(e.getMessage());
-      }
+      this.delegate.setGeniCode(GENI_CodeEnum.ERROR.getValue());
+      this.delegate.setOutput(e.getMessage());
       return;
     }
   }
@@ -291,15 +289,15 @@ public class SFA_AM implements ISFA_AM {
       this.delegate.setGeniCode(GENI_CodeEnum.UNAVAILABLE.getValue());
       this.delegate.setOutput(GENI_CodeEnum.UNAVAILABLE.getDescription() + e.getMessage());
       return;
+    } catch(TimeoutException e){
+      LOGGER.log(Level.WARNING, e.getMessage(), e.getCause());
+      this.delegate.setGeniCode(GENI_CodeEnum.TIMEDOUT.getValue());
+      this.delegate.setOutput(e.getMessage());
+      return;
     } catch (RuntimeException e) {
       LOGGER.log(Level.WARNING, e.getMessage(), e.getCause());
-      if (e.getMessage().equals(Response.Status.REQUEST_TIMEOUT.name())) {
-        this.delegate.setGeniCode(GENI_CodeEnum.TIMEDOUT.getValue());
-        this.delegate.setOutput(GENI_CodeEnum.TIMEDOUT.getDescription());
-      } else {
-        this.delegate.setGeniCode(GENI_CodeEnum.ERROR.getValue());
-        this.delegate.setOutput(e.getMessage());
-      }
+      this.delegate.setGeniCode(GENI_CodeEnum.ERROR.getValue());
+      this.delegate.setOutput(e.getMessage());
       return;
     }
     

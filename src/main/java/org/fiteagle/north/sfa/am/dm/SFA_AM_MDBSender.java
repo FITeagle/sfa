@@ -12,12 +12,12 @@ import javax.inject.Inject;
 import javax.jms.JMSContext;
 import javax.jms.Message;
 import javax.jms.Topic;
+import javax.ws.rs.core.Response;
 
 import org.fiteagle.api.core.IMessageBus;
 import org.fiteagle.api.core.MessageUtil;
 
 import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
@@ -53,18 +53,20 @@ public class SFA_AM_MDBSender {
   }
   
   public Model sendRequest(String model, String methodType) {
-    
-    final Message request = MessageUtil.createRDFMessage(model, methodType,
-        IMessageBus.SERIALIZATION_TURTLE, null, context);
-    this.context.createProducer().send(this.topic, request);
+    final Message request = MessageUtil.createRDFMessage(model, methodType, IMessageBus.SERIALIZATION_TURTLE, null, context);
+    this.context.createProducer().send(topic, request);
     
     Message rcvMessage = MessageUtil.waitForResult(request, context, topic);
-    LOGGER.log(Level.INFO, "SFA received a reply");
     String resultString = MessageUtil.getRDFResult(rcvMessage);
     if (resultString != null) {
+      LOGGER.log(Level.INFO, "Received reply");
       return MessageUtil.parseSerializedModel(resultString);
     } else {
-      throw new RuntimeException(MessageUtil.getError(rcvMessage));
+      String error = MessageUtil.getError(rcvMessage);
+      if(error.equals(Response.Status.REQUEST_TIMEOUT.name())){
+        throw new TimeoutException("Sent message ("+ methodType + "): "+model);
+      }
+      throw new RuntimeException(error);
     }
   }
   
@@ -152,7 +154,17 @@ public class SFA_AM_MDBSender {
     return resultString;
   }
   
-  public class EmptyReplyException extends Exception {
+
+  public class TimeoutException extends RuntimeException {
+    
+    private static final long serialVersionUID = -5630226460026376892L;
+    
+    public TimeoutException(String message) {
+      super("Timeout while waiting for a response: " + message);
+    }
+  }
+  
+  public class EmptyReplyException extends RuntimeException {
     
     private static final long serialVersionUID = 3084952835284992423L;
     
