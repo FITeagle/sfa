@@ -52,7 +52,7 @@ public class ProcessProvision {
   public static void provisionInstnces(Map<String, Object> provisionParameters) {
     Model requestModel = ModelFactory.createDefaultModel();
     Resource provisionRequest = requestModel.createResource(MessageBusOntologyModel.internalMessage.getURI());
-    provisionRequest.addProperty(MessageBusOntologyModel.requestType, IMessageBus.REQUEST_TYPE_CREATE);
+    //provisionRequest.addProperty(MessageBusOntologyModel.requestType, IMessageBus.REQUEST_TYPE_CREATE);
     
     for (final String urn : (List<String>) provisionParameters.get(ISFA_AM.URN)) {
       Resource slice = requestModel.createResource(urn);
@@ -61,7 +61,7 @@ public class ProcessProvision {
     
     String serializedModel = MessageUtil.serializeModel(requestModel);
     LOGGER.log(Level.INFO, "send provision request ...");
-    Model resultModel = SFA_AM_MDBSender.getInstance().sendRequest(serializedModel);
+    Model resultModel = SFA_AM_MDBSender.getInstance().sendRequest(serializedModel, IMessageBus.TYPE_CREATE);
     LOGGER.log(Level.INFO, "provision reply received.");
     
   }

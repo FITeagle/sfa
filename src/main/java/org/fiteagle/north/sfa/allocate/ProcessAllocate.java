@@ -100,7 +100,7 @@ public class ProcessAllocate {
     
     String serializedModel = MessageUtil.serializeModel(requestModel);
     LOGGER.log(Level.INFO, "send reservation request ...");
-    Model resultModel = SFA_AM_MDBSender.getInstance().sendRequest(serializedModel);
+    Model resultModel = SFA_AM_MDBSender.getInstance().sendRequest(serializedModel, IMessageBus.TYPE_REQUEST);
     LOGGER.log(Level.INFO, "reservation reply received.");
     
     StmtIterator iter = resultModel.listStatements();

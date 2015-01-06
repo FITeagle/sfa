@@ -48,13 +48,13 @@ public class SFA_AM_MDBSender {
   public Model sendSPARQLQueryRequest(String query) {
     String requestModel = MessageUtil.createSerializedSPARQLQueryModel(query, IMessageBus.SERIALIZATION_TURTLE);
     
-    Model rdfModel = sendRequest(requestModel);
+    Model rdfModel = sendRequest(requestModel, IMessageBus.TYPE_REQUEST);
     return rdfModel;
   }
   
-  public Model sendRequest(String model) {
+  public Model sendRequest(String model, String methodType) {
     
-    final Message request = MessageUtil.createRDFMessage(model, IMessageBus.TYPE_REQUEST,
+    final Message request = MessageUtil.createRDFMessage(model, methodType,
         IMessageBus.SERIALIZATION_TURTLE, null, context);
     this.context.createProducer().send(this.topic, request);
     
