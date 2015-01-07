@@ -14,6 +14,7 @@ import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
 import org.fiteagle.api.core.IMessageBus;
+import org.fiteagle.api.core.MessageBusOntologyModel;
 import org.fiteagle.api.core.MessageUtil;
 import org.fiteagle.north.sfa.am.ISFA_AM;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
@@ -79,19 +80,18 @@ public class ProcessAllocate {
   public static void reserveInstances(Map<String, Object> allocateParameter, Map<String, String> sliverMap) {
     
     Model requestModel = ModelFactory.createDefaultModel();
-    
     Resource slice = requestModel.createResource(allocateParameter.get(ISFA_AM.URN).toString());
-    slice.addProperty(RDF.type, ISFA_AM.OMN + ISFA_AM.SLICE);
+    slice.addProperty(RDF.type, MessageBusOntologyModel.classGroup);
     if(allocateParameter.containsKey(ISFA_AM.EndTime)){
-      slice.addProperty(requestModel.createProperty(ISFA_AM.OMN + ISFA_AM.EndTime), allocateParameter.get(ISFA_AM.EndTime).toString());
+      slice.addProperty(MessageBusOntologyModel.endTime, allocateParameter.get(ISFA_AM.EndTime).toString());
     }
-    int sliverCounter = 1;
+    int reservationCounter = 1;
     for (final Object requiredReserouces : (List<String>) allocateParameter.get(ISFA_AM.RequiredResources)){
-      Resource sliver = requestModel.createResource(allocateParameter.get(ISFA_AM.URN).toString() + "+" + ISFA_AM.Sliver + sliverCounter); // to be changed.
-      sliver.addProperty(RDF.type, ISFA_AM.OMN + ISFA_AM.Sliver);
-      sliver.addProperty(requestModel.createProperty(ISFA_AM.OMN + ISFA_AM.PartOf), slice.getURI());
-      sliver.addProperty(requestModel.createProperty(ISFA_AM.OMN + ISFA_AM.ReserveInstanceFrom), requiredReserouces.toString());
-      sliverCounter++;
+      Resource sliver = requestModel.createResource(allocateParameter.get(ISFA_AM.URN).toString() + "+" + ISFA_AM.Sliver + reservationCounter); // to be changed.
+      sliver.addProperty(RDF.type, MessageBusOntologyModel.classReservation);
+      sliver.addProperty(MessageBusOntologyModel.partOf, slice.getURI());
+      sliver.addProperty(MessageBusOntologyModel.reserveInstanceFrom, requiredReserouces.toString());
+      reservationCounter++;
     }
     
     String serializedModel = MessageUtil.serializeModel(requestModel);
@@ -143,9 +143,10 @@ public class ProcessAllocate {
      * The created maps should be added to geni_slivers list.
      */
     for (Map.Entry<String, String> sliver : slivers.entrySet()) {
-      LOGGER.log(Level.INFO, "sliver in the list " + sliver);
+      LOGGER.log(Level.INFO, "sliver in the list " + sliver.getKey());
       final Map<String, Object> sliverMap = new HashMap<>();
-      sliverMap.put(ISFA_AM.GENI_SLIVER_URN, sliver.getKey());
+      sliverMap.put(ISFA_AM.GENI_SLIVER_URN, sliver.getKey().toString());
+      LOGGER.log(Level.INFO, "sliver in the map is " + sliverMap.get(ISFA_AM.GENI_SLIVER_URN));
       if(allocateParameters.containsKey(ISFA_AM.EndTime)){
         sliverMap.put(ISFA_AM.GENI_EXPIRES, allocateParameters.get(ISFA_AM.EndTime).toString());
       }

@@ -6,6 +6,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.fiteagle.api.core.IMessageBus;
+import org.fiteagle.api.core.MessageBusOntologyModel;
 import org.fiteagle.api.core.MessageUtil;
 import org.fiteagle.north.sfa.am.ISFA_AM;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
@@ -53,7 +54,7 @@ public class ProcessProvision {
     
     for (final String urn : (List<String>) provisionParameters.get(ISFA_AM.URN)) {
       Resource slice = requestModel.createResource(urn);
-      slice.addProperty(RDF.type, ISFA_AM.OMN + ISFA_AM.SLICE);
+      slice.addProperty(RDF.type, MessageBusOntologyModel.classGroup);
     }
     
     String serializedModel = MessageUtil.serializeModel(requestModel);
