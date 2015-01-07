@@ -20,6 +20,7 @@ import org.fiteagle.api.core.MessageUtil;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.RDFNode;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.Statement;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 
 @Startup
@@ -83,11 +84,12 @@ public class SFA_AM_MDBSender {
     List<String> namespaces = new ArrayList<>();
     StmtIterator iter = resultModel.listStatements();
     while (iter.hasNext()) {
-      Resource subject = iter.next().getSubject();
+      Statement currentStatement = iter.next();
+      Resource subject = currentStatement.getSubject();
       if (!namespaces.contains(subject.getNameSpace())) {
         namespaces.add(subject.getNameSpace());
       }
-      RDFNode objectNode = iter.next().getObject();
+      RDFNode objectNode = currentStatement.getObject();
       if (objectNode.canAs(Resource.class)) {
         Resource object = objectNode.asResource();
         if (!namespaces.contains(object.getNameSpace())) {
