@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -85,13 +86,12 @@ public class ProcessAllocate {
     if(allocateParameter.containsKey(ISFA_AM.EndTime)){
       slice.addProperty(MessageBusOntologyModel.endTime, allocateParameter.get(ISFA_AM.EndTime).toString());
     }
-    int reservationCounter = 1;
+    Random random = new Random();
     for (final Object requiredReserouces : (List<String>) allocateParameter.get(ISFA_AM.RequiredResources)){
-      Resource sliver = requestModel.createResource(allocateParameter.get(ISFA_AM.URN).toString() + "+" + ISFA_AM.Sliver + reservationCounter); // to be changed.
+      Resource sliver = requestModel.createResource(allocateParameter.get(ISFA_AM.URN).toString() + random.nextInt());
       sliver.addProperty(RDF.type, MessageBusOntologyModel.classReservation);
       sliver.addProperty(MessageBusOntologyModel.partOf, slice.getURI());
       sliver.addProperty(MessageBusOntologyModel.reserveInstanceFrom, requiredReserouces.toString());
-      reservationCounter++;
     }
     
     String serializedModel = MessageUtil.serializeModel(requestModel, IMessageBus.SERIALIZATION_TURTLE);
