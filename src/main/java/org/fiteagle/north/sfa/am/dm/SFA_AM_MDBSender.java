@@ -10,6 +10,7 @@ import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.inject.Inject;
 import javax.jms.JMSContext;
+import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.Topic;
 import javax.ws.rs.core.Response;
@@ -48,15 +49,15 @@ public class SFA_AM_MDBSender {
   
   public Model sendSPARQLQueryRequest(String query, String methodTarget) {
     Message request = MessageUtil.createSPARQLQueryMessage(query, methodTarget, IMessageBus.SERIALIZATION_TURTLE, context);
-    return sendRequest(request, query, IMessageBus.TYPE_GET, methodTarget);
+    return sendRequest(request, IMessageBus.TYPE_GET, methodTarget);
   }
   
   public Model sendRDFRequest(String model, String methodType, String methodTarget) {
     final Message request = MessageUtil.createRDFMessage(model, methodType, methodTarget, IMessageBus.SERIALIZATION_TURTLE, null, context);
-    return sendRequest(request, model, methodType, methodTarget);
+    return sendRequest(request, methodType, methodTarget);
   }
   
-  public Model sendRequest(Message request, String forDebug, String methodType, String methodTarget) {
+  public Model sendRequest(Message request, String methodType, String methodTarget) {
     context.createProducer().send(topic, request);
     Message rcvMessage = MessageUtil.waitForResult(request, context, topic);
     String resultString = MessageUtil.getRDFResult(rcvMessage);
@@ -66,7 +67,11 @@ public class SFA_AM_MDBSender {
     } else {
       String error = MessageUtil.getError(rcvMessage);
       if(error.equals(Response.Status.REQUEST_TIMEOUT.name())){
-        throw new TimeoutException("Sent message ("+ methodType + "): "+forDebug);
+        try {
+          throw new TimeoutException("Sent message ("+ methodType + ") (Target: "+methodTarget+"): "+request.getBody(String.class));
+        } catch (JMSException e) {
+          throw new TimeoutException("Sent message ("+ methodType + ") (Target: "+methodTarget+")");
+        }
       }
       throw new RuntimeException(error);
     }
