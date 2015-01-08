@@ -36,7 +36,7 @@ public class ProcessAllocate {
   
   private final static Logger LOGGER = Logger.getLogger(ProcessAllocate.class.getName());
   
-  public static void parseAllocateParameter(final List<?> parameter, Map<String,  Object> allocateParameters) {
+  public static void parseAllocateParameter(final List<?> parameter, final Map<String,  Object> allocateParameters) {
     ProcessAllocate.LOGGER.log(Level.INFO, "parsing allocate parameter");
     System.out.println(parameter);
     System.out.println(parameter.size());
@@ -77,7 +77,7 @@ public class ProcessAllocate {
   }
   
   @SuppressWarnings("unchecked")
-  public static void reserveInstances(Map<String, Object> allocateParameter, Map<String, String> sliverMap) {
+  public static void reserveInstances(final Map<String, Object> allocateParameter, Map<String, String> sliverMap) {
     
     Model requestModel = ModelFactory.createDefaultModel();
     Resource slice = requestModel.createResource(allocateParameter.get(ISFA_AM.URN).toString());
@@ -102,8 +102,12 @@ public class ProcessAllocate {
     StmtIterator iter = resultModel.listStatements();
     while (iter.hasNext()) {
       Statement st = iter.next();
-      sliverMap.put(st.getSubject().getURI(), st.getObject().toString());
-      LOGGER.log(Level.INFO, "created sliver " + st.getSubject().getURI());
+      Resource r = st.getSubject();
+      //sliverMap.put(r.getURI().toString(), "geni_allocated");
+      sliverMap.put(r.getURI().toString(), st.getObject().toString());
+      //sliverMap.put(st.getSubject().getURI(),"geni_allocated");
+      //LOGGER.log(Level.INFO, "created sliver " + st.getSubject().getURI());
+      LOGGER.log(Level.INFO, "created sliver " + r.getURI());
     }
   }
   
@@ -129,7 +133,7 @@ public class ProcessAllocate {
     }
   }
   
-  public static void addAllocateValue(final HashMap<String, Object> result, Map<String,String> slivers, Map<String, Object> allocateParameters) {
+  public static void addAllocateValue(final HashMap<String, Object> result, final Map<String,String> slivers, final Map<String, Object> allocateParameters) {
     final Map<String, Object> value = new HashMap<>();
     
     value.put(ISFA_AM.GENI_RSPEC, "should be the geni.rspec manifest"); // to be continued
@@ -141,16 +145,20 @@ public class ProcessAllocate {
      * In the loop, Map is created for each sliver containing 
      * sliver urn, experires and status.
      * The created maps should be added to geni_slivers list.
-     */
+     */    
     for (Map.Entry<String, String> sliver : slivers.entrySet()) {
       LOGGER.log(Level.INFO, "sliver in the list " + sliver.getKey());
       final Map<String, Object> sliverMap = new HashMap<>();
-      sliverMap.put(ISFA_AM.GENI_SLIVER_URN, sliver.getKey().toString());
+      sliverMap.put(ISFA_AM.GENI_SLIVER_URN, sliver.getKey());
       LOGGER.log(Level.INFO, "sliver in the map is " + sliverMap.get(ISFA_AM.GENI_SLIVER_URN));
       if(allocateParameters.containsKey(ISFA_AM.EndTime)){
-        sliverMap.put(ISFA_AM.GENI_EXPIRES, allocateParameters.get(ISFA_AM.EndTime).toString());
+        sliverMap.put(ISFA_AM.GENI_EXPIRES, allocateParameters.get(ISFA_AM.EndTime));
+        LOGGER.log(Level.INFO, "end time is " + sliverMap.get(ISFA_AM.GENI_EXPIRES));
+      } else {
+        sliverMap.put(ISFA_AM.GENI_EXPIRES, "");
       }
       sliverMap.put(ISFA_AM.GENI_ALLOCATION_STATUS, sliver.getValue());
+      LOGGER.log(Level.INFO, "geni allocation status is " + sliverMap.get(ISFA_AM.GENI_ALLOCATION_STATUS));
       geniSlivers.add(sliverMap);
     }
     value.put(ISFA_AM.GENI_SLIVERS, geniSlivers);

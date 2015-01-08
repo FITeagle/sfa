@@ -76,7 +76,7 @@ public class SFA_AM implements ISFA_AM {
     SFA_AM.LOGGER.log(Level.INFO, "allocate...");
     final HashMap<String, Object> result = new HashMap<>();
     
-    Map<String, Object> allocateParameters = new HashMap<>();
+    final Map<String, Object> allocateParameters = new HashMap<>();
     ProcessAllocate.parseAllocateParameter(parameter, allocateParameters);
     
     final Map<String, String> sliverMap = new HashMap<>();
