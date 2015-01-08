@@ -57,7 +57,7 @@ public class ProcessProvision {
       slice.addProperty(RDF.type, MessageBusOntologyModel.classGroup);
     }
     
-    String serializedModel = MessageUtil.serializeModel(requestModel);
+    String serializedModel = MessageUtil.serializeModel(requestModel, IMessageBus.SERIALIZATION_TURTLE);
     LOGGER.log(Level.INFO, "send provision request ...");
     Model resultModel = SFA_AM_MDBSender.getInstance().sendRDFRequest(serializedModel, IMessageBus.TYPE_CONFIGURE, IMessageBus.TARGET_ORCHESTRATOR);
     LOGGER.log(Level.INFO, "provision reply received.");

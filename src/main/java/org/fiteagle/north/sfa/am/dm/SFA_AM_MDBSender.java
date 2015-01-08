@@ -10,7 +10,6 @@ import javax.ejb.Singleton;
 import javax.ejb.Startup;
 import javax.inject.Inject;
 import javax.jms.JMSContext;
-import javax.jms.JMSException;
 import javax.jms.Message;
 import javax.jms.Topic;
 import javax.ws.rs.core.Response;
@@ -60,20 +59,17 @@ public class SFA_AM_MDBSender {
   public Model sendRequest(Message request, String methodType, String methodTarget) {
     context.createProducer().send(topic, request);
     Message rcvMessage = MessageUtil.waitForResult(request, context, topic);
-    String resultString = MessageUtil.getRDFResult(rcvMessage);
-    if (resultString != null) {
-      LOGGER.log(Level.INFO, "Received reply");
-      return MessageUtil.parseSerializedModel(resultString);
-    } else {
-      String error = MessageUtil.getError(rcvMessage);
-      if(error.equals(Response.Status.REQUEST_TIMEOUT.name())){
-        try {
-          throw new TimeoutException("Sent message ("+ methodType + ") (Target: "+methodTarget+"): "+request.getBody(String.class));
-        } catch (JMSException e) {
-          throw new TimeoutException("Sent message ("+ methodType + ") (Target: "+methodTarget+")");
-        }
+    String resultString = MessageUtil.getStringBody(rcvMessage);
+    
+    if(MessageUtil.getMessageType(rcvMessage).equals(IMessageBus.TYPE_ERROR)){
+      if(resultString.equals(Response.Status.REQUEST_TIMEOUT.name())){
+        throw new TimeoutException("Sent message ("+ methodType + ") (Target: "+methodTarget+"): "+MessageUtil.getStringBody(request));
       }
-      throw new RuntimeException(error);
+      throw new RuntimeException(resultString);
+    }
+    else{
+      LOGGER.log(Level.INFO, "Received reply");
+      return MessageUtil.parseSerializedModel(resultString, IMessageBus.SERIALIZATION_TURTLE);
     }
   }
   

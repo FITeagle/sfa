@@ -94,7 +94,7 @@ public class ProcessAllocate {
       reservationCounter++;
     }
     
-    String serializedModel = MessageUtil.serializeModel(requestModel);
+    String serializedModel = MessageUtil.serializeModel(requestModel, IMessageBus.SERIALIZATION_TURTLE);
     LOGGER.log(Level.INFO, "send reservation request ...");
     Model resultModel = SFA_AM_MDBSender.getInstance().sendRDFRequest(serializedModel, IMessageBus.TYPE_CREATE, IMessageBus.TARGET_RESERVATION);
     LOGGER.log(Level.INFO, "reservation reply received.");

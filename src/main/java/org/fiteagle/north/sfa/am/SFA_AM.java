@@ -311,7 +311,26 @@ public class SFA_AM implements ISFA_AM {
     typeA.put(ISFA_AM.VERSION, ISFA_AM.VERSION_1);
     typeA.put(ISFA_AM.GENI_NAMESPACE, ISFA_AM.NAMESPACE);
     
-    List<String> extensionsMap = SFA_AM_MDBSender.getInstance().getExtensions();
+    List<String> extensionsMap = null;
+    try{
+      extensionsMap = SFA_AM_MDBSender.getInstance().getExtensions();
+    } catch (EmptyReplyException e) {
+      LOGGER.log(Level.WARNING, e.getMessage(), e.getCause());
+      this.delegate.setGeniCode(GENI_CodeEnum.UNAVAILABLE.getValue());
+      this.delegate.setOutput(GENI_CodeEnum.UNAVAILABLE.getDescription() + e.getMessage());
+      return;
+    } catch(TimeoutException e){
+      LOGGER.log(Level.WARNING, e.getMessage(), e.getCause());
+      this.delegate.setGeniCode(GENI_CodeEnum.TIMEDOUT.getValue());
+      this.delegate.setOutput(e.getMessage());
+      return;
+    } catch (RuntimeException e) {
+      LOGGER.log(Level.WARNING, e.getMessage(), e.getCause());
+      this.delegate.setGeniCode(GENI_CodeEnum.ERROR.getValue());
+      this.delegate.setOutput(e.getMessage());
+      return;
+    }      
+      
     final String[] extensions = new String[extensionsMap.size()];
     
     int i = 0;
