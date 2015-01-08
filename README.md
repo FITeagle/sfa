@@ -5,13 +5,14 @@ Slice-based Federation Architecture
 
 Requirements
 ------------
- 1. Successfully installed tripletStoreAccessor module
- 2. Successfully deployed resourceAdapterManager module
- 3. Successfully deployed federationManager module
- 4. Successfully deployed reservation module
- 5. Successfully deployed orchestrator module
- 6. Successfully installed adapters/abstract module
- 7. Successfully deployed resource adapter module (e.g. Motor)
+ 1. Successfully installed core/api module
+ 2. Successfully installed core/tripletStoreAccessor module
+ 3. Successfully deployed core/federationManager module
+ 4. Successfully deployed core/resourceAdapterManager module
+ 5. Successfully deployed core/reservation module
+ 6. Successfully deployed core/orchestrator module
+ 7. Successfully installed adapters/abstract module
+ 8. Successfully deployed resource adapter module (e.g. Motor)
 
 
 Installation
