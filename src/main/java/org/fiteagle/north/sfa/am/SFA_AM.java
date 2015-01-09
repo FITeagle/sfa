@@ -2,10 +2,7 @@ package org.fiteagle.north.sfa.am;
 
 import java.io.UnsupportedEncodingException;
 import java.security.cert.X509Certificate;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.Deflater;
@@ -31,7 +28,7 @@ public class SFA_AM implements ISFA_AM {
   private String query = "";
   
   @Override
-  public Object handle(final String methodName, List<?> parameter, final String path, final X509Certificate cert) {
+  public Object handle(final String methodName,final List<?> parameter, final String path, final X509Certificate cert) {
     Object result;
     
     SFA_AM.LOGGER.log(Level.INFO, "Working on method: " + methodName);
@@ -131,15 +128,21 @@ public class SFA_AM implements ISFA_AM {
   }
   
   @Override
-  public Object listResources(List<?> parameter) {
+  public Object listResources(final List<?> parameter) {
     SFA_AM.LOGGER.log(Level.INFO, "listResources...");
     final HashMap<String, Object> result = new HashMap<>();
-    this.parseListResourcesParameter(parameter);
+
     try {
+      this.parseListResourcesParameter(parameter);
       addRessources(result);
     } catch (JMSException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
+    }catch (CredentialsNotValidException e) {
+      LOGGER.log(Level.WARNING, e.getMessage(), e.getCause());
+      this.delegate.setGeniCode(GENI_CodeEnum.BADARGS.getValue());
+      this.delegate.setOutput(e.getMessage());
+      result.put(ISFA_AM.VALUE,new HashMap<String,Object>());
     }
     
     this.addCode(result);
@@ -203,14 +206,24 @@ public class SFA_AM implements ISFA_AM {
   }
   
   private void parseListResourcesParameter(final List<?> parameter) {
-    for (final Object param : parameter) {
-      if (param instanceof Map<?, ?>) {
-        this.parseOptionsParameters(param);
+
+    //First Parameter is always credential
+    Object credential  = parameter.get(0);
+    Object options = parameter.get(1);
+
+    if(credential instanceof List<?>){
+      parseCredentialsParameters(credential);
+    }else{
+      throw new CredentialsNotValidException();
+    }
+
+      if (options instanceof Map<?, ?>) {
+        this.parseOptionsParameters(options);
       }
       /*
        * else if (param instanceof List<?>) { // tood: parse more //this.parseCredentialsParameters(param); }
        */
-    }
+
   }
   
   private void parseOptionsParameters(final Object param) {
@@ -243,6 +256,7 @@ public class SFA_AM implements ISFA_AM {
     
     @SuppressWarnings("unchecked")
     final List<Map<String, ?>> param2 = (List<Map<String, ?>>) param;
+    if(param2.size() > 0){
     for (Map<String, ?> credential : param2) {
       if (credential.containsKey("geni_type")) {
         this.delegate.setGeniType((String) credential.get("geni_type"));
@@ -253,6 +267,9 @@ public class SFA_AM implements ISFA_AM {
       if (credential.containsKey("geni_value")) {
         this.delegate.setGeniValue((String) credential.get("geni_value"));
       }
+    }
+    }else{
+      throw new CredentialsNotValidException();
     }
   }
   
@@ -374,5 +391,11 @@ public class SFA_AM implements ISFA_AM {
     code.put(ISFA_AM.AM_CODE, this.delegate.getAMCode());
     result.put(ISFA_AM.CODE, code);
   }
-  
+
+  private class CredentialsNotValidException extends RuntimeException{
+    @Override
+    public String getMessage() {
+      return "Credentials not valid";
+    }
+  }
 }

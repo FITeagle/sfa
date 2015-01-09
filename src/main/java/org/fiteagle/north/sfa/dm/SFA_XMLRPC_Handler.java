@@ -69,7 +69,7 @@ public class SFA_XMLRPC_Handler implements ISFA_XMLRPC_InvocationHandler {
 
 	@Override
 	@SuppressWarnings("rawtypes")
-	public Object invoke(final String methodName,  List parameter)
+	public Object invoke(final String methodName, final List parameter)
 			throws Throwable {
 		
 		System.out.println("            parameter:"+parameter);
