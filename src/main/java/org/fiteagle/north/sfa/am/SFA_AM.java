@@ -31,7 +31,7 @@ public class SFA_AM implements ISFA_AM {
   private String query = "";
   
   @Override
-  public Object handle(final String methodName, final List<?> parameter, final String path, final X509Certificate cert) {
+  public Object handle(final String methodName, List<?> parameter, final String path, final X509Certificate cert) {
     Object result;
     
     SFA_AM.LOGGER.log(Level.INFO, "Working on method: " + methodName);
@@ -131,7 +131,7 @@ public class SFA_AM implements ISFA_AM {
   }
   
   @Override
-  public Object listResources(final List<?> parameter) {
+  public Object listResources(List<?> parameter) {
     SFA_AM.LOGGER.log(Level.INFO, "listResources...");
     final HashMap<String, Object> result = new HashMap<>();
     this.parseListResourcesParameter(parameter);

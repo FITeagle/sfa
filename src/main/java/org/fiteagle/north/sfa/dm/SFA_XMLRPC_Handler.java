@@ -30,7 +30,7 @@ public class SFA_XMLRPC_Handler implements ISFA_XMLRPC_InvocationHandler {
 	private static final String DUMMY_RESPONSE_FILE_PROVISION = "/dummy-provision.xml";
 
 	private final XmlRpcServer xmlrpcServer;
-	private final XmlRpcDispatcher dispatcher;
+	private  XmlRpcDispatcher dispatcher;
 	private PrintWriter writer;
 	private final ISFA manager;
 	private final ISFA_XMLRPC_InvocationHandler handler;
@@ -44,7 +44,7 @@ public class SFA_XMLRPC_Handler implements ISFA_XMLRPC_InvocationHandler {
 		this.xmlrpcServer.setSerializer(new SFA_XMLRPC_Serializer());
 		this.xmlrpcServer.addInvocationHandler("__default__", this.handler);
 		// todo: xmlrpcServer.addInvocationInterceptor(securityModule);
-		this.dispatcher = new XmlRpcDispatcher(this.xmlrpcServer, "");
+
 	}
 
 	public void handle(final InputStream inputStream,
@@ -54,6 +54,7 @@ public class SFA_XMLRPC_Handler implements ISFA_XMLRPC_InvocationHandler {
 		try {
 			this.handler.setPath(path);
 			this.handler.setCert(cert);
+			this.dispatcher = new XmlRpcDispatcher(this.xmlrpcServer, "");
 			// todo: forward path and certificate here for AuthN/AuthZ
 			this.dispatcher.dispatch(inputStream, this.writer);
 		} catch (XmlRpcException | NullPointerException e) {
@@ -68,7 +69,7 @@ public class SFA_XMLRPC_Handler implements ISFA_XMLRPC_InvocationHandler {
 
 	@Override
 	@SuppressWarnings("rawtypes")
-	public Object invoke(final String methodName, final List parameter)
+	public Object invoke(final String methodName,  List parameter)
 			throws Throwable {
 		
 		System.out.println("            parameter:"+parameter);
