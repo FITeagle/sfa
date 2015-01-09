@@ -310,6 +310,7 @@ public class SFA_AM implements ISFA_AM {
     typeA.put(ISFA_AM.TYPE, ISFA_AM.OPEN_MULTINET);
     typeA.put(ISFA_AM.VERSION, ISFA_AM.VERSION_1);
     typeA.put(ISFA_AM.GENI_NAMESPACE, ISFA_AM.NAMESPACE);
+    typeA.put(ISFA_AM.SCHEMA, ISFA_AM.GENI_REQUEST_RSPEC_SCHEMA);
     
     List<String> extensionsMap = null;
     try{
@@ -347,6 +348,7 @@ public class SFA_AM implements ISFA_AM {
     final Map<String, Object> adTypeA = new HashMap<>();
     adTypeA.put(ISFA_AM.TYPE, ISFA_AM.OPEN_MULTINET);
     adTypeA.put(ISFA_AM.VERSION, ISFA_AM.VERSION_1);
+    adTypeA.put(ISFA_AM.SCHEMA, ISFA_AM.GENI_AD_RSPEC_SCHEMA);
     adTypeA.put(ISFA_AM.GENI_NAMESPACE, ISFA_AM.NAMESPACE);
     adTypeA.put(ISFA_AM.GENI_EXTENSIONS, extensions);
     adRSpecs.add(adTypeA);

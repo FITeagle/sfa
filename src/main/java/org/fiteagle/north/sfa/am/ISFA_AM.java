@@ -25,7 +25,9 @@ public interface ISFA_AM extends ISFA {
 	String GENI_NAMESPACE = "namespace";
 	String GENI_EXTENSIONS = "extensions";
 	String GENI_REQUEST_VERSION = "geni_request_rspec_versions";
+	String GENI_REQUEST_RSPEC_SCHEMA ="http://www.geni.net/resources/rspec/3/request.xsd";
 	String GENI_AD_VERSION = "geni_ad_rspec_versions";
+	String GENI_AD_RSPEC_SCHEMA ="http://www.geni.net/resources/rspec/3/ad.xsd";
 	String GENI_VERSION = "geni_version";
 	String GENI_CREDENTIAL_TYPES = "geni_credential_types";
 	String GENI_CODE = "geni_code";
@@ -43,6 +45,7 @@ public interface ISFA_AM extends ISFA {
 	String TYPE = "type";
 	String NAMESPACE = "http://open-multinet.info/ontology/omn-resource";
 	String VERSION = "version";
+	String SCHEMA = "schema";
 	String VALUE = "value";
 	String OUTPUT = "output";
 	String VERSION_1 = "1";
