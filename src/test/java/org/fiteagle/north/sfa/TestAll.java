@@ -20,8 +20,7 @@ public class TestAll {
 
 	@Before
 	public void setup() {
-		this.handler = new SFA_XMLRPC_Handler(new SFA_AM(
-				new SFA_AM_Delegate_Default()));
+		this.handler = new SFA_XMLRPC_Handler(new SFA_AM());
 	}
 
 	@Test

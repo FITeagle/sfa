@@ -11,6 +11,7 @@ import javax.jms.JMSException;
 
 import org.apache.commons.codec.binary.Base64;
 import org.fiteagle.north.sfa.allocate.ProcessAllocate;
+import org.fiteagle.north.sfa.am.dm.SFA_AM_Delegate_Default;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender.EmptyReplyException;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender.TimeoutException;
@@ -19,10 +20,10 @@ import org.fiteagle.north.sfa.provision.ProcessProvision;
 public class SFA_AM implements ISFA_AM {
   private static final int API_VERSION = 3;
   private final static Logger LOGGER = Logger.getLogger(SFA_AM.class.getName());
-  private final ISFA_AM_Delegate delegate;
+  private  ISFA_AM_Delegate delegate;
   
-  public SFA_AM(final ISFA_AM_Delegate delegate) {
-    this.delegate = delegate;
+  public SFA_AM() {
+
   }
   
   private String query = "";
@@ -30,7 +31,7 @@ public class SFA_AM implements ISFA_AM {
   @Override
   public Object handle(final String methodName,final List<?> parameter, final String path, final X509Certificate cert) {
     Object result;
-    
+    this.delegate =  new SFA_AM_Delegate_Default();;
     SFA_AM.LOGGER.log(Level.INFO, "Working on method: " + methodName);
     switch (methodName.toUpperCase()) {
       case ISFA_AM.METHOD_GET_VERSION:
@@ -41,6 +42,9 @@ public class SFA_AM implements ISFA_AM {
         break;
       case ISFA_AM.METHOD_ALLOCATE:
         result = this.allocate(parameter);
+        break;
+      case ISFA_AM.METHOD_DESCRIBE:
+        result = this.describe(parameter);
         break;
       case ISFA_AM.METHOD_RENEW:
         result = this.renew(parameter);
@@ -282,7 +286,13 @@ public class SFA_AM implements ISFA_AM {
     this.addOutput(result);
     return result;
   }
-  
+
+  @Override
+  public Object describe(List<?> parameter) {
+    LOGGER.log(Level.ALL,"Describe called");
+    return null;
+  }
+
   private void addAPIVersion(final HashMap<String, Object> result) {
     result.put(ISFA_AM.GENI_API, SFA_AM.API_VERSION);
   }

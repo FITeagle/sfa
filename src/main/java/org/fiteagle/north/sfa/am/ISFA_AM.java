@@ -67,7 +67,7 @@ public interface ISFA_AM extends ISFA {
 
 	public abstract Object getVersion(List<?> parameter);
 	
-//	public abstract Object describe(List<?> parameter);
+	public abstract Object describe(List<?> parameter);
 	
 	public abstract Object allocate(List<?> parameter);
 	
