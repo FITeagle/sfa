@@ -10,11 +10,11 @@ import java.util.zip.Deflater;
 import javax.jms.JMSException;
 
 import org.apache.commons.codec.binary.Base64;
+import org.fiteagle.api.core.MessageUtil;
 import org.fiteagle.north.sfa.allocate.ProcessAllocate;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_Delegate_Default;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender.EmptyReplyException;
-import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender.TimeoutException;
 import org.fiteagle.north.sfa.provision.ProcessProvision;
 
 public class SFA_AM implements ISFA_AM {
@@ -169,7 +169,7 @@ public class SFA_AM implements ISFA_AM {
       this.delegate.setGeniCode(GENI_CodeEnum.UNAVAILABLE.getValue());
       this.delegate.setOutput(GENI_CodeEnum.UNAVAILABLE.getDescription() + e.getMessage());
       return;
-    } catch(TimeoutException e){
+    } catch(MessageUtil.TimeoutException e){
       LOGGER.log(Level.WARNING, e.getMessage(), e.getCause());
       this.delegate.setGeniCode(GENI_CodeEnum.TIMEDOUT.getValue());
       this.delegate.setOutput(e.getMessage());
@@ -348,7 +348,7 @@ public class SFA_AM implements ISFA_AM {
       this.delegate.setGeniCode(GENI_CodeEnum.UNAVAILABLE.getValue());
       this.delegate.setOutput(GENI_CodeEnum.UNAVAILABLE.getDescription() + e.getMessage());
       return;
-    } catch(TimeoutException e){
+    } catch(MessageUtil.TimeoutException e){
       LOGGER.log(Level.WARNING, e.getMessage(), e.getCause());
       this.delegate.setGeniCode(GENI_CodeEnum.TIMEDOUT.getValue());
       this.delegate.setOutput(e.getMessage());
@@ -379,7 +379,7 @@ public class SFA_AM implements ISFA_AM {
       this.delegate.setGeniCode(GENI_CodeEnum.UNAVAILABLE.getValue());
       this.delegate.setOutput(GENI_CodeEnum.UNAVAILABLE.getDescription() + e.getMessage());
       return;
-    } catch(TimeoutException e){
+    } catch(MessageUtil.TimeoutException e){
       LOGGER.log(Level.WARNING, e.getMessage(), e.getCause());
       this.delegate.setGeniCode(GENI_CodeEnum.TIMEDOUT.getValue());
       this.delegate.setOutput(e.getMessage());
