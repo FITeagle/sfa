@@ -16,6 +16,7 @@ import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender.EmptyReplyException;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender.TimeoutException;
 import org.fiteagle.north.sfa.provision.ProcessProvision;
+import org.fiteagle.north.sfa.util.URN;
 
 public class SFA_AM implements ISFA_AM {
   private static final int API_VERSION = 3;
@@ -291,26 +292,42 @@ public class SFA_AM implements ISFA_AM {
     Object URNList = parameter.get(0);
     Object credList = parameter.get(1);
     Object options  = parameter.get(2);
-    
+    List<URN> URNS;
     try {
-      parseURNList(URNList);
+      URNS = parseURNList(URNList);
       parseCredentialsParameters(credList);
       parseDescribeOptions(options);
     }catch(BadArgumentsException e){
       catchBadArgumentsException(result, e.getMessage());
     }
+    
     return result;
   }
 
   private void parseDescribeOptions(Object options) {
+    HashMap<String,Object> optionsMap  = (HashMap<String,Object>) options;
+    try {
+      boolean compressed = (boolean) optionsMap.get("geni_compressed");
+      HashMap<String, Object> geni_rspec_version = (HashMap<String, Object>) optionsMap.get("geni_rspec_version");
+      String geni_rspec_version_type = (String) geni_rspec_version.get("type");
+      String geni_rspec_version_version = (String) geni_rspec_version.get("version");
 
+    }catch(Exception e){
+      throw new BadArgumentsException("error on options");
+    }
   }
 
-  private void parseURNList(Object urnList) {
+  private List<URN> parseURNList(Object urnList) {
     List<String> URNS = (ArrayList<String>) urnList;
     if(URNS == null || URNS.size() == 0){
       throw new BadArgumentsException("URN must not be null");
     }
+    List<URN> returnList = new ArrayList<>();
+    for(String s: URNS){
+      URN u =  new URN(s);
+      returnList.add(u);
+    }
+    return returnList;
   }
 
   private void catchBadArgumentsException(HashMap<String, Object> result, String mes) {
