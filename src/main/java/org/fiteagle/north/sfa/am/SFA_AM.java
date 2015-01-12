@@ -142,11 +142,8 @@ public class SFA_AM implements ISFA_AM {
     } catch (JMSException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
-    }catch (CredentialsNotValidException e) {
-      LOGGER.log(Level.WARNING, e.getMessage(), e.getCause());
-      this.delegate.setGeniCode(GENI_CodeEnum.BADARGS.getValue());
-      this.delegate.setOutput(e.getMessage());
-      result.put(ISFA_AM.VALUE,new HashMap<String,Object>());
+    }catch (BadArgumentsException e) {
+      catchBadArgumentsException(result,e.getMessage() );
     }
     
     this.addCode(result);
@@ -218,7 +215,7 @@ public class SFA_AM implements ISFA_AM {
     if(credential instanceof List<?>){
       parseCredentialsParameters(credential);
     }else{
-      throw new CredentialsNotValidException();
+      throw new BadArgumentsException("Invalid Credentials");
     }
 
       if (options instanceof Map<?, ?>) {
@@ -255,7 +252,7 @@ public class SFA_AM implements ISFA_AM {
      * (String) geniRSpecVersion.get("version"); }
      */
   }
-  
+  //TODO needs way more logic, needs refactoring
   private void parseCredentialsParameters(final Object param) {
     
     @SuppressWarnings("unchecked")
@@ -273,7 +270,7 @@ public class SFA_AM implements ISFA_AM {
       }
     }
     }else{
-      throw new CredentialsNotValidException();
+      throw new BadArgumentsException("Invalid Credentials");
     }
   }
   
@@ -290,7 +287,42 @@ public class SFA_AM implements ISFA_AM {
   @Override
   public Object describe(List<?> parameter) {
     LOGGER.log(Level.ALL,"Describe called");
-    return null;
+    final HashMap<String, Object> result = new HashMap<>();
+    Object URNList = parameter.get(0);
+    Object credList = parameter.get(1);
+    Object options  = parameter.get(2);
+    
+    try {
+      parseURNList(URNList);
+      parseCredentialsParameters(credList);
+      parseDescribeOptions(options);
+    }catch(BadArgumentsException e){
+      catchBadArgumentsException(result, e.getMessage());
+    }
+    return result;
+  }
+
+  private void parseDescribeOptions(Object options) {
+
+  }
+
+  private void parseURNList(Object urnList) {
+    List<String> URNS = (ArrayList<String>) urnList;
+    if(URNS == null || URNS.size() == 0){
+      throw new BadArgumentsException("URN must not be null");
+    }
+  }
+
+  private void catchBadArgumentsException(HashMap<String, Object> result, String mes) {
+    LOGGER.log(Level.WARNING,mes);
+
+    this.delegate.setGeniCode(GENI_CodeEnum.BADARGS.getValue());
+    this.delegate.setOutput(mes);
+    this.addCode(result);
+    this.addOutput(result);
+
+
+    result.put(ISFA_AM.VALUE, new HashMap<String, Object>());
   }
 
   private void addAPIVersion(final HashMap<String, Object> result) {
@@ -402,10 +434,16 @@ public class SFA_AM implements ISFA_AM {
     result.put(ISFA_AM.CODE, code);
   }
 
-  private class CredentialsNotValidException extends RuntimeException{
+
+
+  private class BadArgumentsException extends RuntimeException{
+    private String message;
+    public BadArgumentsException(String message){
+      this.message = message;
+    }
     @Override
-    public String getMessage() {
-      return "Credentials not valid";
+    public String getMessage(){
+      return message;
     }
   }
 }
