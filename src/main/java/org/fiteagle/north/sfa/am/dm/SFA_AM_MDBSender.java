@@ -63,7 +63,7 @@ public class SFA_AM_MDBSender {
     
     if(MessageUtil.getMessageType(rcvMessage).equals(IMessageBus.TYPE_ERROR)){
       if(resultString.equals(Response.Status.REQUEST_TIMEOUT.name())){
-        throw new TimeoutException("Sent message ("+ methodType + ") (Target: "+methodTarget+"): "+MessageUtil.getStringBody(request));
+        throw new MessageUtil.TimeoutException("Sent message ("+ methodType + ") (Target: "+methodTarget+"): "+MessageUtil.getStringBody(request));
       }
       throw new RuntimeException(resultString);
     }
@@ -147,14 +147,14 @@ public class SFA_AM_MDBSender {
   }
   
 
-  public class TimeoutException extends RuntimeException {
+/*  public class TimeoutException extends RuntimeException {
     
     private static final long serialVersionUID = -5630226460026376892L;
     
     public TimeoutException(String message) {
       super("Timeout while waiting for a response: " + message);
     }
-  }
+  }*/
   
   public class EmptyReplyException extends RuntimeException {
     
