@@ -9,12 +9,14 @@ import java.util.zip.Deflater;
 
 import javax.jms.JMSException;
 
+import com.hp.hpl.jena.rdf.model.Model;
 import org.apache.commons.codec.binary.Base64;
 import org.fiteagle.api.core.MessageUtil;
 import org.fiteagle.north.sfa.allocate.ProcessAllocate;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_Delegate_Default;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender.EmptyReplyException;
+import org.fiteagle.north.sfa.describe.DescribeProcessor;
 import org.fiteagle.north.sfa.provision.ProcessProvision;
 import org.fiteagle.north.sfa.util.URN;
 
@@ -34,6 +36,9 @@ public class SFA_AM implements ISFA_AM {
     Object result;
     this.delegate =  new SFA_AM_Delegate_Default();;
     SFA_AM.LOGGER.log(Level.INFO, "Working on method: " + methodName);
+    try{
+
+
     switch (methodName.toUpperCase()) {
       case ISFA_AM.METHOD_GET_VERSION:
         result = this.getVersion(parameter);
@@ -69,7 +74,32 @@ public class SFA_AM implements ISFA_AM {
         result = "Unimplemented method '" + methodName + "'";
         break;
     }
-    
+    }catch(BadArgumentsException e){
+        HashMap<String, Object> exceptionBody = new HashMap<>();
+        handleException(exceptionBody, e.getMessage(), GENI_CodeEnum.BADARGS);
+        result = exceptionBody;
+    }catch (JMSException e){
+        HashMap<String, Object> exceptionBody = new HashMap<>();
+        handleException(exceptionBody,e.getMessage(),GENI_CodeEnum.SERVERERROR);
+        result =  exceptionBody;
+    }catch (EmptyReplyException e) {
+      HashMap<String, Object> exceptionBody = new HashMap<>();
+      handleException(exceptionBody,e.getMessage(),GENI_CodeEnum.SEARCHFAILED);
+      result =  exceptionBody;
+    }catch(MessageUtil.TimeoutException e){
+      HashMap<String, Object> exceptionBody = new HashMap<>();
+      handleException(exceptionBody,e.getMessage(),GENI_CodeEnum.TIMEDOUT);
+      result = exceptionBody;
+    } catch (RuntimeException e) {
+      HashMap<String, Object> exceptionBody = new HashMap<>();
+      handleException(exceptionBody,e.getMessage(),GENI_CodeEnum.ERROR);
+      result = exceptionBody;
+    }catch (UnsupportedEncodingException e) {
+      HashMap<String, Object> exceptionBody = new HashMap<>();
+      handleException(exceptionBody, e.getMessage(), GENI_CodeEnum.ERROR);
+      result = exceptionBody;
+    }
+
     return result;
   }
   
@@ -133,19 +163,14 @@ public class SFA_AM implements ISFA_AM {
   }
   
   @Override
-  public Object listResources(final List<?> parameter) {
+  public Object listResources(final List<?> parameter) throws JMSException, UnsupportedEncodingException {
     SFA_AM.LOGGER.log(Level.INFO, "listResources...");
     final HashMap<String, Object> result = new HashMap<>();
 
-    try {
-      this.parseListResourcesParameter(parameter);
-      addRessources(result);
-    } catch (JMSException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }catch (BadArgumentsException e) {
-      catchBadArgumentsException(result,e.getMessage() );
-    }
+
+    this.parseListResourcesParameter(parameter);
+    addResources(result);
+
     
     this.addCode(result);
     this.addOutput(result);
@@ -154,54 +179,36 @@ public class SFA_AM implements ISFA_AM {
   }
   
   // TODO: merge with addValue? Lot of duplicated code! 
-  private void addRessources(final HashMap<String, Object> result) throws JMSException {
+  private void addResources(final HashMap<String, Object> result) throws JMSException, UnsupportedEncodingException {
     
-    try {
-      String testbedRessources = SFA_AM_MDBSender.getInstance().getListRessources(this.query);
+
+      String testbedResources = SFA_AM_MDBSender.getInstance().getListRessources(this.query);
       
       if (this.delegate.getCompressed()) {
-        result.put(ISFA_AM.VALUE, compress(testbedRessources));
+        result.put(ISFA_AM.VALUE, compress(testbedResources));
       } else {
-        result.put(ISFA_AM.VALUE, testbedRessources);
+        result.put(ISFA_AM.VALUE, testbedResources);
       }
       
-    } catch (EmptyReplyException e) {
-      LOGGER.log(Level.WARNING, e.getMessage(), e.getCause());
-      this.delegate.setGeniCode(GENI_CodeEnum.UNAVAILABLE.getValue());
-      this.delegate.setOutput(GENI_CodeEnum.UNAVAILABLE.getDescription() + e.getMessage());
-      return;
-    } catch(MessageUtil.TimeoutException e){
-      LOGGER.log(Level.WARNING, e.getMessage(), e.getCause());
-      this.delegate.setGeniCode(GENI_CodeEnum.TIMEDOUT.getValue());
-      this.delegate.setOutput(e.getMessage());
-      return;
-    } catch (RuntimeException e) {
-      LOGGER.log(Level.WARNING, e.getMessage(), e.getCause());
-      this.delegate.setGeniCode(GENI_CodeEnum.ERROR.getValue());
-      this.delegate.setOutput(e.getMessage());
-      return;
-    }
+
   }
   
-  public static String compress(String toCompress) {
+  public static String compress(String toCompress) throws UnsupportedEncodingException {
     byte[] output = null;
     String outputString = "";
     
-    try {
-      byte[] input = toCompress.getBytes("UTF-8");
-      // Compress the bytes
-      output = new byte[input.length];
-      Deflater compresser = new Deflater();
-      compresser.setInput(input);
-      compresser.finish();
-      compresser.deflate(output);
-      compresser.end();
-      outputString = Base64.encodeBase64String(output);
+
+    byte[] input = toCompress.getBytes("UTF-8");
+     // Compress the bytes
+    output = new byte[input.length];
+    Deflater compresser = new Deflater();
+    compresser.setInput(input);
+    compresser.finish();
+    compresser.deflate(output);
+    compresser.end();
+    outputString = Base64.encodeBase64String(output);
       
-    } catch (UnsupportedEncodingException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
-    }
+
     
     return outputString;
     
@@ -292,29 +299,25 @@ public class SFA_AM implements ISFA_AM {
     Object URNList = parameter.get(0);
     Object credList = parameter.get(1);
     Object options  = parameter.get(2);
-    List<URN> URNS;
-    try {
-      URNS = parseURNList(URNList);
-      parseCredentialsParameters(credList);
-      parseDescribeOptions(options);
-    }catch(BadArgumentsException e){
-      catchBadArgumentsException(result, e.getMessage());
-    }
-    
+    List<URN> URNS =null;
+
+    URNS = parseURNList(URNList);
+    parseCredentialsParameters(credList);
+    parseDescribeOptions(options);
+
+    DescribeProcessor describeProcessor = new DescribeProcessor();
+    Model m  = describeProcessor.getDescription(URNS);
     return result;
   }
 
   private void parseDescribeOptions(Object options) {
     HashMap<String,Object> optionsMap  = (HashMap<String,Object>) options;
-    try {
-      boolean compressed = (boolean) optionsMap.get("geni_compressed");
-      HashMap<String, Object> geni_rspec_version = (HashMap<String, Object>) optionsMap.get("geni_rspec_version");
-      String geni_rspec_version_type = (String) geni_rspec_version.get("type");
-      String geni_rspec_version_version = (String) geni_rspec_version.get("version");
 
-    }catch(Exception e){
-      throw new BadArgumentsException("error on options");
-    }
+    boolean compressed = (boolean) optionsMap.get("geni_compressed");
+    HashMap<String, Object> geni_rspec_version = (HashMap<String, Object>) optionsMap.get("geni_rspec_version");
+    String geni_rspec_version_type = (String) geni_rspec_version.get("type");
+    String geni_rspec_version_version = (String) geni_rspec_version.get("version");
+
   }
 
   private List<URN> parseURNList(Object urnList) {
@@ -330,10 +333,10 @@ public class SFA_AM implements ISFA_AM {
     return returnList;
   }
 
-  private void catchBadArgumentsException(HashMap<String, Object> result, String mes) {
+  private void handleException(HashMap<String, Object> result, String mes, GENI_CodeEnum errorCode) {
     LOGGER.log(Level.WARNING,mes);
 
-    this.delegate.setGeniCode(GENI_CodeEnum.BADARGS.getValue());
+    this.delegate.setGeniCode(errorCode.getValue());
     this.delegate.setOutput(mes);
     this.addCode(result);
     this.addOutput(result);
@@ -353,29 +356,13 @@ public class SFA_AM implements ISFA_AM {
     
     String testbedDescription;
     
-    try {
-      testbedDescription = (String) SFA_AM_MDBSender.getInstance().getTestbedDescription();
-      value.put(ISFA_AM.OMN_TESTBED, testbedDescription);
-      System.out.println("omn_testbed " + value.get(ISFA_AM.OMN_TESTBED));
-      this.delegate.setGeniCode(0);
-      this.delegate.setOutput("SUCCESS");
-      
-    } catch (EmptyReplyException e) {
-      LOGGER.log(Level.WARNING, e.getMessage(), e.getCause());
-      this.delegate.setGeniCode(GENI_CodeEnum.UNAVAILABLE.getValue());
-      this.delegate.setOutput(GENI_CodeEnum.UNAVAILABLE.getDescription() + e.getMessage());
-      return;
-    } catch(MessageUtil.TimeoutException e){
-      LOGGER.log(Level.WARNING, e.getMessage(), e.getCause());
-      this.delegate.setGeniCode(GENI_CodeEnum.TIMEDOUT.getValue());
-      this.delegate.setOutput(e.getMessage());
-      return;
-    } catch (RuntimeException e) {
-      LOGGER.log(Level.WARNING, e.getMessage(), e.getCause());
-      this.delegate.setGeniCode(GENI_CodeEnum.ERROR.getValue());
-      this.delegate.setOutput(e.getMessage());
-      return;
-    }
+
+    testbedDescription = (String) SFA_AM_MDBSender.getInstance().getTestbedDescription();
+    value.put(ISFA_AM.OMN_TESTBED, testbedDescription);
+    System.out.println("omn_testbed " + value.get(ISFA_AM.OMN_TESTBED));
+    this.delegate.setGeniCode(0);
+    this.delegate.setOutput("SUCCESS");
+
     
     final Map<String, String> apiVersions = new HashMap<>();
     apiVersions.put(ISFA_AM.VERSION_3, ISFA_AM.API_VERSION);
@@ -389,24 +376,9 @@ public class SFA_AM implements ISFA_AM {
     typeA.put(ISFA_AM.SCHEMA, ISFA_AM.GENI_REQUEST_RSPEC_SCHEMA);
     
     List<String> extensionsMap = null;
-    try{
-      extensionsMap = SFA_AM_MDBSender.getInstance().getExtensions();
-    } catch (EmptyReplyException e) {
-      LOGGER.log(Level.WARNING, e.getMessage(), e.getCause());
-      this.delegate.setGeniCode(GENI_CodeEnum.UNAVAILABLE.getValue());
-      this.delegate.setOutput(GENI_CodeEnum.UNAVAILABLE.getDescription() + e.getMessage());
-      return;
-    } catch(MessageUtil.TimeoutException e){
-      LOGGER.log(Level.WARNING, e.getMessage(), e.getCause());
-      this.delegate.setGeniCode(GENI_CodeEnum.TIMEDOUT.getValue());
-      this.delegate.setOutput(e.getMessage());
-      return;
-    } catch (RuntimeException e) {
-      LOGGER.log(Level.WARNING, e.getMessage(), e.getCause());
-      this.delegate.setGeniCode(GENI_CodeEnum.ERROR.getValue());
-      this.delegate.setOutput(e.getMessage());
-      return;
-    }      
+
+    extensionsMap = SFA_AM_MDBSender.getInstance().getExtensions();
+
       
     final String[] extensions = new String[extensionsMap.size()];
     

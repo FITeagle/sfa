@@ -1,8 +1,11 @@
 package org.fiteagle.north.sfa.am;
 
+import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 import org.fiteagle.north.sfa.ISFA;
+
+import javax.jms.JMSException;
 
 public interface ISFA_AM extends ISFA {
 
@@ -63,7 +66,7 @@ public interface ISFA_AM extends ISFA {
 	String Sliver = "sliver";
 
 	
-	public abstract Object listResources(List<?> parameter);
+	public abstract Object listResources(List<?> parameter) throws JMSException, UnsupportedEncodingException;
 
 	public abstract Object getVersion(List<?> parameter);
 	
