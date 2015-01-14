@@ -9,9 +9,9 @@ import java.util.zip.Deflater;
 
 import javax.jms.JMSException;
 
-import com.hp.hpl.jena.rdf.model.Model;
 import org.apache.commons.codec.binary.Base64;
 import org.fiteagle.api.core.MessageUtil;
+import org.fiteagle.north.sfa.ISFA;
 import org.fiteagle.north.sfa.allocate.ProcessAllocate;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_Delegate_Default;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
@@ -178,7 +178,7 @@ public class SFA_AM implements ISFA_AM {
     return result;
   }
   
-  // TODO: merge with addValue? Lot of duplicated code! 
+
   private void addResources(final HashMap<String, Object> result) throws JMSException, UnsupportedEncodingException {
     
 
@@ -293,20 +293,25 @@ public class SFA_AM implements ISFA_AM {
   }
 
   @Override
-  public Object describe(List<?> parameter) {
+  public Object describe(List<?> parameter) throws UnsupportedEncodingException {
     LOGGER.log(Level.ALL,"Describe called");
     final HashMap<String, Object> result = new HashMap<>();
     Object URNList = parameter.get(0);
     Object credList = parameter.get(1);
     Object options  = parameter.get(2);
-    List<URN> URNS =null;
-
-    URNS = parseURNList(URNList);
+    List<URN> URNS =parseURNList(URNList);
+    
     parseCredentialsParameters(credList);
     parseDescribeOptions(options);
 
     DescribeProcessor describeProcessor = new DescribeProcessor();
-    Model m  = describeProcessor.getDescription(URNS);
+    HashMap<String, Object> value = describeProcessor.getValue(credList, options, URNS);
+
+    if(this.delegate.getCompressed())
+      value.put(ISFA_AM.GENI_RSPEC,compress((String)value.get(ISFA_AM.GENI_RSPEC)));
+    this.addCode(result);
+    this.addOutput(result);
+    result.put(ISFA_AM.VALUE,value);
     return result;
   }
 
@@ -314,6 +319,9 @@ public class SFA_AM implements ISFA_AM {
     HashMap<String,Object> optionsMap  = (HashMap<String,Object>) options;
 
     boolean compressed = (boolean) optionsMap.get("geni_compressed");
+    if(compressed)
+      this.delegate.setCompressed(true);
+
     HashMap<String, Object> geni_rspec_version = (HashMap<String, Object>) optionsMap.get("geni_rspec_version");
     String geni_rspec_version_type = (String) geni_rspec_version.get("type");
     String geni_rspec_version_version = (String) geni_rspec_version.get("version");

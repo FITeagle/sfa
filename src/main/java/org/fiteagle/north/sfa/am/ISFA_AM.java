@@ -41,7 +41,7 @@ public interface ISFA_AM extends ISFA {
 	String GENI_ALLOCATED = "geni_allocated";
 	String GENI_RSPEC = "geni_rspec";
 	String GENI_SLIVERS = "geni_slivers";
-	
+	String GENI_URN="geni_urn";
 	String OMN_TESTBED = "omn_testbed";
 	String OMN_RESOURCE = "omn_resource";
 	String API_VERSION = "https://federation.av.tu-berlin.de:8443/sfa/api/am/v3";
@@ -70,7 +70,7 @@ public interface ISFA_AM extends ISFA {
 
 	public abstract Object getVersion(List<?> parameter);
 	
-	public abstract Object describe(List<?> parameter);
+	public abstract Object describe(List<?> parameter) throws UnsupportedEncodingException;
 	
 	public abstract Object allocate(List<?> parameter);
 	
