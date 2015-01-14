@@ -355,43 +355,56 @@ public class SFA_AM implements ISFA_AM {
     value.put(ISFA_AM.GENI_API, SFA_AM.API_VERSION);
     
     String testbedDescription;
-    
 
     testbedDescription = (String) SFA_AM_MDBSender.getInstance().getTestbedDescription();
     value.put(ISFA_AM.OMN_TESTBED, testbedDescription);
     System.out.println("omn_testbed " + value.get(ISFA_AM.OMN_TESTBED));
+
+    final String[] extensions = getSupportedExtensions();
+
+    addSupportedRequestRspecInfo(value, extensions);
+
+    addAdvertisementRspecInfo(value, extensions);
+
+    addSupportedCredentialTypes(value);
     this.delegate.setGeniCode(0);
     this.delegate.setOutput("SUCCESS");
+    result.put(ISFA_AM.VALUE, value);
+  }
 
-    
+  private void addSupportedRequestRspecInfo(Map<String, Object> value, String[] extensions) {
     final Map<String, String> apiVersions = new HashMap<>();
     apiVersions.put(ISFA_AM.VERSION_3, ISFA_AM.API_VERSION);
     value.put(ISFA_AM.GENI_API_VERSION, apiVersions);
-    
+
     final List<Map<String, Object>> reqRSpecs = new LinkedList<>();
     final Map<String, Object> typeA = new HashMap<>();
     typeA.put(ISFA_AM.TYPE, ISFA_AM.OPEN_MULTINET);
     typeA.put(ISFA_AM.VERSION, ISFA_AM.VERSION_1);
     typeA.put(ISFA_AM.GENI_NAMESPACE, ISFA_AM.NAMESPACE);
     typeA.put(ISFA_AM.SCHEMA, ISFA_AM.GENI_REQUEST_RSPEC_SCHEMA);
-    
+
+    typeA.put(ISFA_AM.GENI_EXTENSIONS, extensions);
+
+    reqRSpecs.add(typeA);
+    value.put(ISFA_AM.GENI_REQUEST_VERSION, reqRSpecs);
+  }
+
+  private String[] getSupportedExtensions() {
     List<String> extensionsMap = null;
 
     extensionsMap = SFA_AM_MDBSender.getInstance().getExtensions();
-
-      
     final String[] extensions = new String[extensionsMap.size()];
-    
+
     int i = 0;
     for (String namespace : extensionsMap) {
       extensions[i] = namespace;
       i++;
     }
-    typeA.put(ISFA_AM.GENI_EXTENSIONS, extensions);
-    
-    reqRSpecs.add(typeA);
-    value.put(ISFA_AM.GENI_REQUEST_VERSION, reqRSpecs);
-    
+    return extensions;
+  }
+
+  private void addAdvertisementRspecInfo(Map<String, Object> value, String[] extensions) {
     final List<Map<String, Object>> adRSpecs = new LinkedList<>();
     final Map<String, Object> adTypeA = new HashMap<>();
     adTypeA.put(ISFA_AM.TYPE, ISFA_AM.OPEN_MULTINET);
@@ -401,17 +414,17 @@ public class SFA_AM implements ISFA_AM {
     adTypeA.put(ISFA_AM.GENI_EXTENSIONS, extensions);
     adRSpecs.add(adTypeA);
     value.put(ISFA_AM.GENI_AD_VERSION, adRSpecs);
-    
+  }
+
+  private void addSupportedCredentialTypes(Map<String, Object> value) {
     final List<Map<String, Object>> credTypes = new LinkedList<>();
     final Map<String, Object> credTypeA = new HashMap<>();
     credTypeA.put(ISFA_AM.GENI_TYPE, ISFA_AM.GENI_SFA);
     credTypeA.put(ISFA_AM.GENI_VERSION, "1"); // should be 3 ?
     credTypes.add(credTypeA);
     value.put(ISFA_AM.GENI_CREDENTIAL_TYPES, credTypes);
-    
-    result.put(ISFA_AM.VALUE, value);
   }
-  
+
   private void addOutput(final HashMap<String, Object> result) {
     result.put(ISFA_AM.OUTPUT, this.delegate.getOutput());
   }
