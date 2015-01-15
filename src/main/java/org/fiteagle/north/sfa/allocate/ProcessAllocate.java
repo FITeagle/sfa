@@ -6,7 +6,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -93,6 +92,7 @@ public class ProcessAllocate {
       sliver.addProperty(RDF.type, MessageBusOntologyModel.classReservation);
       sliver.addProperty(MessageBusOntologyModel.partOf, slice.getURI());
       sliver.addProperty(MessageBusOntologyModel.reserveInstanceFrom, requiredReserouces.toString());
+      sliver.addProperty(MessageBusOntologyModel.hasState,"reserved");
       counter = counter + 1;
     }
     
