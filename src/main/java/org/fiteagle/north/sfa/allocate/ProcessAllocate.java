@@ -19,6 +19,7 @@ import org.fiteagle.api.core.MessageBusOntologyModel;
 import org.fiteagle.api.core.MessageUtil;
 import org.fiteagle.north.sfa.am.ISFA_AM;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
+import org.fiteagle.north.sfa.util.URN;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.w3c.dom.NodeList;
@@ -86,12 +87,14 @@ public class ProcessAllocate {
     if(allocateParameter.containsKey(ISFA_AM.EndTime)){
       slice.addProperty(MessageBusOntologyModel.endTime, allocateParameter.get(ISFA_AM.EndTime).toString());
     }
-    Random random = new Random();
+    int counter = 1;
     for (final Object requiredReserouces : (List<String>) allocateParameter.get(ISFA_AM.RequiredResources)){
-      Resource sliver = requestModel.createResource(allocateParameter.get(ISFA_AM.URN).toString() + random.nextInt());
+      //Resource sliver = requestModel.createResource(allocateParameter.get(ISFA_AM.URN).toString() + random.nextInt());
+      Resource sliver = requestModel.createResource(setSliverURN(allocateParameter.get(ISFA_AM.URN).toString(), counter));
       sliver.addProperty(RDF.type, MessageBusOntologyModel.classReservation);
       sliver.addProperty(MessageBusOntologyModel.partOf, slice.getURI());
       sliver.addProperty(MessageBusOntologyModel.reserveInstanceFrom, requiredReserouces.toString());
+      counter = counter + 1;
     }
     
     String serializedModel = MessageUtil.serializeModel(requestModel, IMessageBus.SERIALIZATION_TURTLE);
@@ -165,5 +168,12 @@ public class ProcessAllocate {
     result.put(ISFA_AM.VALUE, value);
   }
   
+  private static String setSliverURN(String SliceURN, int i){
+	  String sliverURN = "";
+	  String sliver = "sliver";
+	  URN urn = new URN(SliceURN);
+	  sliverURN = urn.getDomain() + "+" + sliver + "+" + i;
+	  return sliverURN;
+  }
   }
 
