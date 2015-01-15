@@ -89,7 +89,6 @@ public class ProcessAllocate {
     }
     int counter = 1;
     for (final Object requiredReserouces : (List<String>) allocateParameter.get(ISFA_AM.RequiredResources)){
-      //Resource sliver = requestModel.createResource(allocateParameter.get(ISFA_AM.URN).toString() + random.nextInt());
       Resource sliver = requestModel.createResource(setSliverURN(allocateParameter.get(ISFA_AM.URN).toString(), counter));
       sliver.addProperty(RDF.type, MessageBusOntologyModel.classReservation);
       sliver.addProperty(MessageBusOntologyModel.partOf, slice.getURI());
@@ -172,7 +171,9 @@ public class ProcessAllocate {
 	  String sliverURN = "";
 	  String sliver = "sliver";
 	  URN urn = new URN(SliceURN);
-	  sliverURN = urn.getDomain() + "+" + sliver + "+" + i;
+	  urn.setType(sliver);
+	  urn.setSubject(Integer.toString(i));
+	  sliverURN = urn.toString();
 	  return sliverURN;
   }
   }
