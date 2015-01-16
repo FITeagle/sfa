@@ -10,6 +10,7 @@ import java.util.zip.Deflater;
 import javax.jms.JMSException;
 
 import org.apache.commons.codec.binary.Base64;
+import org.fiteagle.api.core.IGeni;
 import org.fiteagle.api.core.MessageUtil;
 import org.fiteagle.north.sfa.ISFA;
 import org.fiteagle.north.sfa.allocate.ProcessAllocate;
@@ -240,17 +241,17 @@ public class SFA_AM implements ISFA_AM {
     @SuppressWarnings("unchecked")
     final Map<String, ?> param2 = (Map<String, ?>) param;
     
-    if (param2.containsKey("geni_query")) {
-      this.query = param2.get("geni_query").toString();
+    if (param2.containsKey(IGeni.GENI_QUERY)) {
+      this.query = param2.get(IGeni.GENI_QUERY).toString();
     } else {
       this.query = "";
     }
     
-    if (param2.containsKey("geni_compressed")) {
-      this.delegate.setCompressed((Boolean) param2.get("geni_compressed"));
+    if (param2.containsKey(IGeni.GENI_COMPRESSED)) {
+      this.delegate.setCompressed((Boolean) param2.get(IGeni.GENI_COMPRESSED));
     }
-    if (param2.containsKey("geni_available")) {
-      this.delegate.setAvailable((Boolean) param2.get("geni_available"));
+    if (param2.containsKey(IGeni.GENI_AVAILABLE)) {
+      this.delegate.setAvailable((Boolean) param2.get(IGeni.GENI_AVAILABLE));
     }
     
     // added for later use.
@@ -267,14 +268,14 @@ public class SFA_AM implements ISFA_AM {
     final List<Map<String, ?>> param2 = (List<Map<String, ?>>) param;
     if(param2.size() > 0){
     for (Map<String, ?> credential : param2) {
-      if (credential.containsKey("geni_type")) {
-        this.delegate.setGeniType((String) credential.get("geni_type"));
+      if (credential.containsKey(IGeni.GENI_TYPE)) {
+        this.delegate.setGeniType((String) credential.get(IGeni.GENI_TYPE));
       }
-      if (credential.containsKey("geni_version")) {
-        this.delegate.setGeinVersion((String) credential.get("geni_version"));
+      if (credential.containsKey(IGeni.GENI_VERSION)) {
+        this.delegate.setGeinVersion((String) credential.get(IGeni.GENI_VERSION));
       }
-      if (credential.containsKey("geni_value")) {
-        this.delegate.setGeniValue((String) credential.get("geni_value"));
+      if (credential.containsKey(IGeni.GENI_VALUE)) {
+        this.delegate.setGeniValue((String) credential.get(IGeni.GENI_VALUE));
       }
     }
     }else{
@@ -308,7 +309,7 @@ public class SFA_AM implements ISFA_AM {
     HashMap<String, Object> value = describeProcessor.getValue(credList, options, URNS);
 
     if(this.delegate.getCompressed())
-      value.put(ISFA_AM.GENI_RSPEC,compress((String)value.get(ISFA_AM.GENI_RSPEC)));
+      value.put(IGeni.GENI_RSPEC,compress((String)value.get(IGeni.GENI_RSPEC)));
     this.addCode(result);
     this.addOutput(result);
     result.put(ISFA_AM.VALUE,value);
@@ -318,13 +319,13 @@ public class SFA_AM implements ISFA_AM {
   private void parseDescribeOptions(Object options) {
     HashMap<String,Object> optionsMap  = (HashMap<String,Object>) options;
 
-    boolean compressed = (boolean) optionsMap.get("geni_compressed");
+    boolean compressed = (boolean) optionsMap.get(IGeni.GENI_COMPRESSED);
     if(compressed)
       this.delegate.setCompressed(true);
 
-    HashMap<String, Object> geni_rspec_version = (HashMap<String, Object>) optionsMap.get("geni_rspec_version");
-    String geni_rspec_version_type = (String) geni_rspec_version.get("type");
-    String geni_rspec_version_version = (String) geni_rspec_version.get("version");
+    HashMap<String, Object> geni_rspec_version = (HashMap<String, Object>) optionsMap.get(IGeni.GENI_RSPEC_VERSION);
+    String geni_rspec_version_type = (String) geni_rspec_version.get(ISFA_AM.TYPE);
+    String geni_rspec_version_version = (String) geni_rspec_version.get(ISFA_AM.VERSION);
 
   }
 
@@ -354,13 +355,13 @@ public class SFA_AM implements ISFA_AM {
   }
 
   private void addAPIVersion(final HashMap<String, Object> result) {
-    result.put(ISFA_AM.GENI_API, SFA_AM.API_VERSION);
+    result.put(IGeni.GENI_API, SFA_AM.API_VERSION);
   }
   
   private void addValue(final HashMap<String, Object> result) {
     
     final Map<String, Object> value = new HashMap<>();
-    value.put(ISFA_AM.GENI_API, SFA_AM.API_VERSION);
+    value.put(IGeni.GENI_API, SFA_AM.API_VERSION);
     
     String testbedDescription;
 
@@ -383,19 +384,19 @@ public class SFA_AM implements ISFA_AM {
   private void addSupportedRequestRspecInfo(Map<String, Object> value, String[] extensions) {
     final Map<String, String> apiVersions = new HashMap<>();
     apiVersions.put(ISFA_AM.VERSION_3, ISFA_AM.API_VERSION);
-    value.put(ISFA_AM.GENI_API_VERSION, apiVersions);
+    value.put(IGeni.GENI_API_VERSION, apiVersions);
 
     final List<Map<String, Object>> reqRSpecs = new LinkedList<>();
     final Map<String, Object> typeA = new HashMap<>();
     typeA.put(ISFA_AM.TYPE, ISFA_AM.OPEN_MULTINET);
     typeA.put(ISFA_AM.VERSION, ISFA_AM.VERSION_1);
-    typeA.put(ISFA_AM.GENI_NAMESPACE, ISFA_AM.NAMESPACE);
-    typeA.put(ISFA_AM.SCHEMA, ISFA_AM.GENI_REQUEST_RSPEC_SCHEMA);
+    typeA.put(IGeni.GENI_NAMESPACE, ISFA_AM.NAMESPACE);
+    typeA.put(ISFA_AM.SCHEMA, IGeni.GENI_REQUEST_RSPEC_SCHEMA);
 
-    typeA.put(ISFA_AM.GENI_EXTENSIONS, extensions);
+    typeA.put(IGeni.GENI_EXTENSIONS, extensions);
 
     reqRSpecs.add(typeA);
-    value.put(ISFA_AM.GENI_REQUEST_VERSION, reqRSpecs);
+    value.put(IGeni.GENI_REQUEST_VERSION, reqRSpecs);
   }
 
   private String[] getSupportedExtensions() {
@@ -417,20 +418,20 @@ public class SFA_AM implements ISFA_AM {
     final Map<String, Object> adTypeA = new HashMap<>();
     adTypeA.put(ISFA_AM.TYPE, ISFA_AM.OPEN_MULTINET);
     adTypeA.put(ISFA_AM.VERSION, ISFA_AM.VERSION_1);
-    adTypeA.put(ISFA_AM.SCHEMA, ISFA_AM.GENI_AD_RSPEC_SCHEMA);
-    adTypeA.put(ISFA_AM.GENI_NAMESPACE, ISFA_AM.NAMESPACE);
-    adTypeA.put(ISFA_AM.GENI_EXTENSIONS, extensions);
+    adTypeA.put(ISFA_AM.SCHEMA, IGeni.GENI_AD_RSPEC_SCHEMA);
+    adTypeA.put(IGeni.GENI_NAMESPACE, ISFA_AM.NAMESPACE);
+    adTypeA.put(IGeni.GENI_EXTENSIONS, extensions);
     adRSpecs.add(adTypeA);
-    value.put(ISFA_AM.GENI_AD_VERSION, adRSpecs);
+    value.put(IGeni.GENI_AD_VERSION, adRSpecs);
   }
 
   private void addSupportedCredentialTypes(Map<String, Object> value) {
     final List<Map<String, Object>> credTypes = new LinkedList<>();
     final Map<String, Object> credTypeA = new HashMap<>();
-    credTypeA.put(ISFA_AM.GENI_TYPE, ISFA_AM.GENI_SFA);
-    credTypeA.put(ISFA_AM.GENI_VERSION, "1"); // should be 3 ?
+    credTypeA.put(IGeni.GENI_TYPE, IGeni.GENI_SFA);
+    credTypeA.put(IGeni.GENI_VERSION, "1"); // should be 3 ?
     credTypes.add(credTypeA);
-    value.put(ISFA_AM.GENI_CREDENTIAL_TYPES, credTypes);
+    value.put(IGeni.GENI_CREDENTIAL_TYPES, credTypes);
   }
 
   private void addOutput(final HashMap<String, Object> result) {
@@ -439,7 +440,7 @@ public class SFA_AM implements ISFA_AM {
   
   private void addCode(final HashMap<String, Object> result) {
     final Map<String, Integer> code = new HashMap<>();
-    code.put(ISFA_AM.GENI_CODE, this.delegate.getGeniCode());
+    code.put(IGeni.GENI_CODE, this.delegate.getGeniCode());
     code.put(ISFA_AM.AM_CODE, this.delegate.getAMCode());
     result.put(ISFA_AM.CODE, code);
   }

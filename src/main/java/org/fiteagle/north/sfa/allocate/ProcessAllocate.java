@@ -13,6 +13,7 @@ import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
 
+import org.fiteagle.api.core.IGeni;
 import org.fiteagle.api.core.IMessageBus;
 import org.fiteagle.api.core.MessageBusOntologyModel;
 import org.fiteagle.api.core.MessageUtil;
@@ -60,7 +61,7 @@ public class ProcessAllocate {
         final Map<String, ?> param2 = (Map<String, ?>) param;
         if (!param2.isEmpty()) {
           for (Map.Entry<String, ?> parameters : param2.entrySet()) {
-            if (parameters.getKey().toString().equals(ISFA_AM.GENI_END_TIME)) {
+            if (parameters.getKey().toString().equals(IGeni.GENI_END_TIME)) {
               allocateParameters.put(ISFA_AM.EndTime, parameters.getValue().toString());
               ProcessAllocate.LOGGER.log(Level.INFO, allocateParameters.get(ISFA_AM.EndTime).toString());
             }
@@ -92,7 +93,7 @@ public class ProcessAllocate {
       sliver.addProperty(RDF.type, MessageBusOntologyModel.classReservation);
       sliver.addProperty(MessageBusOntologyModel.partOf, slice.getURI());
       sliver.addProperty(MessageBusOntologyModel.reserveInstanceFrom, requiredReserouces.toString());
-      sliver.addProperty(MessageBusOntologyModel.hasState,"reserved");
+      sliver.addProperty(MessageBusOntologyModel.hasState,IGeni.GENI_ALLOCATED);
       counter = counter + 1;
     }
     
@@ -105,10 +106,7 @@ public class ProcessAllocate {
     while (iter.hasNext()) {
       Statement st = iter.next();
       Resource r = st.getSubject();
-      //sliverMap.put(r.getURI().toString(), "geni_allocated");
       sliverMap.put(r.getURI().toString(), st.getObject().toString());
-      //sliverMap.put(st.getSubject().getURI(),"geni_allocated");
-      //LOGGER.log(Level.INFO, "created sliver " + st.getSubject().getURI());
       LOGGER.log(Level.INFO, "created sliver " + r.getURI());
     }
   }
@@ -138,7 +136,7 @@ public class ProcessAllocate {
   public static void addAllocateValue(final HashMap<String, Object> result, final Map<String,String> slivers, final Map<String, Object> allocateParameters) {
     final Map<String, Object> value = new HashMap<>();
     
-    value.put(ISFA_AM.GENI_RSPEC, "should be the geni.rspec manifest"); // to be continued
+    value.put(IGeni.GENI_RSPEC, "should be the geni.rspec manifest"); // to be continued
     
     final List<Map<String, Object>> geniSlivers = new LinkedList<>();
     
@@ -151,27 +149,26 @@ public class ProcessAllocate {
     for (Map.Entry<String, String> sliver : slivers.entrySet()) {
       LOGGER.log(Level.INFO, "sliver in the list " + sliver.getKey());
       final Map<String, Object> sliverMap = new HashMap<>();
-      sliverMap.put(ISFA_AM.GENI_SLIVER_URN, sliver.getKey());
-      LOGGER.log(Level.INFO, "sliver in the map is " + sliverMap.get(ISFA_AM.GENI_SLIVER_URN));
+      sliverMap.put(IGeni.GENI_SLIVER_URN, sliver.getKey());
+      LOGGER.log(Level.INFO, "sliver in the map is " + sliverMap.get(IGeni.GENI_SLIVER_URN));
       if(allocateParameters.containsKey(ISFA_AM.EndTime)){
-        sliverMap.put(ISFA_AM.GENI_EXPIRES, allocateParameters.get(ISFA_AM.EndTime));
-        LOGGER.log(Level.INFO, "end time is " + sliverMap.get(ISFA_AM.GENI_EXPIRES));
+        sliverMap.put(IGeni.GENI_EXPIRES, allocateParameters.get(ISFA_AM.EndTime));
+        LOGGER.log(Level.INFO, "end time is " + sliverMap.get(IGeni.GENI_EXPIRES));
       } else {
-        sliverMap.put(ISFA_AM.GENI_EXPIRES, "");
+        sliverMap.put(IGeni.GENI_EXPIRES, "");
       }
-      sliverMap.put(ISFA_AM.GENI_ALLOCATION_STATUS, sliver.getValue());
-      LOGGER.log(Level.INFO, "geni allocation status is " + sliverMap.get(ISFA_AM.GENI_ALLOCATION_STATUS));
+      sliverMap.put(IGeni.GENI_ALLOCATION_STATUS, sliver.getValue());
+      LOGGER.log(Level.INFO, "geni allocation status is " + sliverMap.get(IGeni.GENI_ALLOCATION_STATUS));
       geniSlivers.add(sliverMap);
     }
-    value.put(ISFA_AM.GENI_SLIVERS, geniSlivers);
+    value.put(IGeni.GENI_SLIVERS, geniSlivers);
     result.put(ISFA_AM.VALUE, value);
   }
   
   private static String setSliverURN(String SliceURN, int i){
 	  String sliverURN = "";
-	  String sliver = "sliver";
 	  URN urn = new URN(SliceURN);
-	  urn.setType(sliver);
+	  urn.setType(ISFA_AM.Sliver);
 	  urn.setSubject(Integer.toString(i));
 	  sliverURN = urn.toString();
 	  return sliverURN;
