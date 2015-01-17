@@ -91,7 +91,7 @@ public class ProcessAllocate {
     for (final Object requiredReserouces : (List<String>) allocateParameter.get(ISFA_AM.RequiredResources)){
       Resource sliver = requestModel.createResource(setSliverURN(allocateParameter.get(ISFA_AM.URN).toString(), counter));
       sliver.addProperty(RDF.type, MessageBusOntologyModel.classReservation);
-      sliver.addProperty(MessageBusOntologyModel.partOf, slice.getURI());
+      sliver.addProperty(MessageBusOntologyModel.partOfGroup, slice.getURI());
       sliver.addProperty(MessageBusOntologyModel.reserveInstanceFrom, requiredReserouces.toString());
       sliver.addProperty(MessageBusOntologyModel.hasState,IGeni.GENI_ALLOCATED);
       counter = counter + 1;
