@@ -5,15 +5,9 @@ Slice-based Federation Architecture
 
 Requirements
 ------------
- 1. Successfully installed core/api module
- 2. Successfully installed core/tripletStoreAccessor module
- 3. Successfully deployed core/federationManager module
- 4. Successfully deployed core/resourceAdapterManager module
- 5. Successfully deployed core/reservation module
- 6. Successfully deployed core/orchestrator module
- 7. Successfully installed adapters/abstract module
- 8. Successfully deployed resource adapter module (e.g. Motor)
-
+ 1. Successfully deployed core modules
+ 2. Successfully deployed resource adapter module (e.g. Motor)
+ 3. Running SPARQL server
 
 Installation
 ------------

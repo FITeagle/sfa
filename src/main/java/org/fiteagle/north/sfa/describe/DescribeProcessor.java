@@ -2,6 +2,8 @@ package org.fiteagle.north.sfa.describe;
 
 import com.hp.hpl.jena.rdf.model.*;
 import com.hp.hpl.jena.vocabulary.RDF;
+
+import org.fiteagle.api.core.IGeni;
 import org.fiteagle.api.core.IMessageBus;
 import org.fiteagle.api.core.MessageBusOntologyModel;
 import org.fiteagle.api.core.MessageUtil;
@@ -10,6 +12,7 @@ import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
 import org.fiteagle.north.sfa.util.URN;
 
 import javax.jms.Message;
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -27,7 +30,7 @@ public class DescribeProcessor {
         Model requestModel = ModelFactory.createDefaultModel();
         for(URN u : urns){
             Resource resource = requestModel.createResource(u.toString());
-            if(u.getType().equals("slice")){
+            if(u.getType().equals(ISFA_AM.SLICE)){
                 resource.addProperty(RDF.type, MessageBusOntologyModel.classGroup);
             }
             if(u.getType().equals("sliver")){
@@ -56,10 +59,10 @@ public class DescribeProcessor {
         HashMap<String, Object> value = new HashMap<>();
         Map<String, String> descriptions = getDescriptions(urns);
         List<HashMap<String,Object>> slivers = new ArrayList<>();
-        value.put(ISFA_AM.GENI_RSPEC, "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" +
+        value.put(IGeni.GENI_RSPEC, "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" +
                 "<rspec type=\"manifest\" xmlns=\"http://www.geni.net/resources/rspec/3\"/>");
-        value.put(ISFA_AM.GENI_SLIVERS, slivers);
-        value.put(ISFA_AM.GENI_URN, urns.get(0).toString());
+        value.put(IGeni.GENI_SLIVERS, slivers);
+        value.put(IGeni.GENI_URN, urns.get(0).toString());
         return value;
     }
 }
