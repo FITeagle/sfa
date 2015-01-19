@@ -10,6 +10,7 @@ import java.util.zip.Deflater;
 import javax.jms.JMSException;
 import javax.xml.bind.JAXBException;
 
+
 //import info.openmultinet.ontology.exceptions.InvalidModelException;
 import org.apache.commons.codec.binary.Base64;
 import org.fiteagle.api.core.IGeni;
@@ -21,6 +22,8 @@ import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender.EmptyReplyException;
 import org.fiteagle.north.sfa.describe.DescribeProcessor;
 import org.fiteagle.north.sfa.provision.ProcessProvision;
 import org.fiteagle.north.sfa.util.URN;
+
+import com.hp.hpl.jena.rdf.model.Model;
 
 public class SFA_AM implements ISFA_AM {
   private static final int API_VERSION = 3;
@@ -143,7 +146,10 @@ public class SFA_AM implements ISFA_AM {
     
     Map<String, Object> provisionParameters = new HashMap<>();
     ProcessProvision.parseProvsionParameter(parameter, provisionParameters);
-    ProcessProvision.provisionInstances(provisionParameters);
+    Model provisionResponse = ProcessProvision.provisionInstances(provisionParameters);
+    ProcessProvision.addProvisionValue(result, provisionResponse);
+    this.addCode(result);
+    this.addOutput(result);
     
     return result;
   }
