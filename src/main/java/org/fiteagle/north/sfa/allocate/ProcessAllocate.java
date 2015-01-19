@@ -2,10 +2,8 @@ package org.fiteagle.north.sfa.allocate;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Map;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -84,9 +82,7 @@ public class ProcessAllocate {
     Model requestModel = ModelFactory.createDefaultModel();
     Resource slice = requestModel.createResource(allocateParameter.get(ISFA_AM.URN).toString());
     slice.addProperty(RDF.type, MessageBusOntologyModel.classGroup);
-    if(allocateParameter.containsKey(ISFA_AM.EndTime)){
-      slice.addProperty(MessageBusOntologyModel.endTime, allocateParameter.get(ISFA_AM.EndTime).toString());
-    }
+
     int counter = 1;
     for (final Object requiredReserouces : (List<String>) allocateParameter.get(ISFA_AM.RequiredResources)){
       Resource sliver = requestModel.createResource(setSliverURN(allocateParameter.get(ISFA_AM.URN).toString(), counter));
@@ -94,6 +90,12 @@ public class ProcessAllocate {
       sliver.addProperty(MessageBusOntologyModel.partOfGroup, slice.getURI());
       sliver.addProperty(MessageBusOntologyModel.reserveInstanceFrom, requiredReserouces.toString());
       sliver.addProperty(MessageBusOntologyModel.hasState,IGeni.GENI_ALLOCATED);
+      if(allocateParameter.containsKey(ISFA_AM.EndTime)){
+        sliver.addProperty(MessageBusOntologyModel.endTime, allocateParameter.get(ISFA_AM.EndTime).toString());
+      }else{
+        Date afterAdding2h = getDefaultExpirationTime();
+        sliver.addProperty(MessageBusOntologyModel.endTime, new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX").format(afterAdding2h));
+      }
       counter = counter + 1;
     }
     
@@ -110,7 +112,13 @@ public class ProcessAllocate {
       LOGGER.log(Level.INFO, "created sliver " + r.getURI());
     }
   }
-  
+
+  private static Date getDefaultExpirationTime() {
+    Date date = new Date();
+    long t=date.getTime();
+    return new Date(t + (120 * 60000));
+  }
+
   private static void parseRSpec(String request, String requiredAttribute, List<String> requiredResources) {
     try {
       DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();

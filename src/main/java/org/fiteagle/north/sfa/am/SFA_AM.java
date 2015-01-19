@@ -8,11 +8,12 @@ import java.util.logging.Logger;
 import java.util.zip.Deflater;
 
 import javax.jms.JMSException;
+import javax.xml.bind.JAXBException;
 
+//import info.openmultinet.ontology.exceptions.InvalidModelException;
 import org.apache.commons.codec.binary.Base64;
 import org.fiteagle.api.core.IGeni;
 import org.fiteagle.api.core.MessageUtil;
-import org.fiteagle.north.sfa.ISFA;
 import org.fiteagle.north.sfa.allocate.ProcessAllocate;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_Delegate_Default;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
@@ -96,6 +97,14 @@ public class SFA_AM implements ISFA_AM {
       handleException(exceptionBody,e.getMessage(),GENI_CodeEnum.ERROR);
       result = exceptionBody;
     }catch (UnsupportedEncodingException e) {
+      HashMap<String, Object> exceptionBody = new HashMap<>();
+      handleException(exceptionBody, e.getMessage(), GENI_CodeEnum.ERROR);
+      result = exceptionBody;
+//    } catch (InvalidModelException e) {
+//      HashMap<String, Object> exceptionBody = new HashMap<>();
+//      handleException(exceptionBody, e.getMessage(), GENI_CodeEnum.ERROR);
+//      result = exceptionBody;
+    } catch (JAXBException e) {
       HashMap<String, Object> exceptionBody = new HashMap<>();
       handleException(exceptionBody, e.getMessage(), GENI_CodeEnum.ERROR);
       result = exceptionBody;
@@ -294,7 +303,7 @@ public class SFA_AM implements ISFA_AM {
   }
 
   @Override
-  public Object describe(List<?> parameter) throws UnsupportedEncodingException {
+  public Object describe(List<?> parameter) throws UnsupportedEncodingException, JAXBException { // , InvalidModelException {
     LOGGER.log(Level.ALL,"Describe called");
     final HashMap<String, Object> result = new HashMap<>();
     Object URNList = parameter.get(0);
