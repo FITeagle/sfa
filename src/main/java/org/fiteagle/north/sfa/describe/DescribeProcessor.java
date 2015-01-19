@@ -30,6 +30,9 @@ public class DescribeProcessor {
             if(u.getType().equals("slice")){
                 resource.addProperty(RDF.type, MessageBusOntologyModel.classGroup);
             }
+            if(u.getType().equals("sliver")){
+                resource.addProperty(RDF.type, MessageBusOntologyModel.classReservation);
+            }
         }
         String serializedModel = MessageUtil.serializeModel(requestModel, IMessageBus.SERIALIZATION_TURTLE);
         LOGGER.log(Level.INFO, "send getValue request ...");
@@ -51,6 +54,7 @@ public class DescribeProcessor {
     //TODO remove ugly RSPEC string!
     public HashMap<String, Object> getValue(Object credList, Object options, List<URN> urns) {
         HashMap<String, Object> value = new HashMap<>();
+        Map<String, String> descriptions = getDescriptions(urns);
         List<HashMap<String,Object>> slivers = new ArrayList<>();
         value.put(ISFA_AM.GENI_RSPEC, "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" +
                 "<rspec type=\"manifest\" xmlns=\"http://www.geni.net/resources/rspec/3\"/>");

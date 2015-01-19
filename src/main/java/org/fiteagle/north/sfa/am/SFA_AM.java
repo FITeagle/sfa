@@ -300,7 +300,7 @@ public class SFA_AM implements ISFA_AM {
     Object credList = parameter.get(1);
     Object options  = parameter.get(2);
     List<URN> URNS =parseURNList(URNList);
-    
+
     parseCredentialsParameters(credList);
     parseDescribeOptions(options);
 
