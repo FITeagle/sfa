@@ -26,35 +26,6 @@ public class ProcessProvision {
   
   private final static Logger LOGGER = Logger.getLogger(ProcessProvision.class.getName());
   
-  @SuppressWarnings("unchecked")
-  public static void parseProvsionParameter(final List<?> parameter, final HashMap<String, Object> provisionParameters) {
-    
-    LOGGER.log(Level.INFO, " parsing provision parameter ");
-    System.out.println(parameter.size());
-    
-    for (final Object param : parameter) {
-      if (param instanceof Map<?, ?>) {
-        LOGGER.log(Level.INFO, "parameter is a map");
-        final Map<String, ?> param2 = (Map<String, ?>) param;
-        if (!param2.isEmpty()) {
-          for (Map.Entry<String, ?> parameters : param2.entrySet()) {
-            provisionParameters.put(parameters.getKey(), parameters.getValue().toString());
-            LOGGER.log(Level.INFO, "parameters in map " + parameters.getKey() + " " + parameters.getValue().toString());
-          }
-        }
-      }
-      if (param instanceof List<?>) {
-    	  LOGGER.log(Level.INFO, "parameter is a list");
-        final List<Object> param2 = (List<Object>) param;
-        if (!param2.isEmpty()) {
-          provisionParameters.put(ISFA_AM.URN, param2);
-          for (Object parametersString : (List<Object>) provisionParameters.get(ISFA_AM.URN)) {
-        	  LOGGER.log(Level.INFO, "provision urns are " + parametersString);
-          }
-        }
-      }
-    }
-  }
   
   @SuppressWarnings("unchecked")
 	public static Model provisionInstances(
@@ -84,7 +55,7 @@ public class ProcessProvision {
 				.sendRDFRequest(serializedModel, IMessageBus.TYPE_CONFIGURE,
 						IMessageBus.TARGET_ORCHESTRATOR);
 		LOGGER.log(Level.INFO,
-				"provision reply received." + provisionResponse.getGraph());
+				"provision reply received.");
 		return provisionResponse;
 	}
   
