@@ -27,7 +27,7 @@ public class ProcessProvision {
   private final static Logger LOGGER = Logger.getLogger(ProcessProvision.class.getName());
   
   @SuppressWarnings("unchecked")
-  public static void parseProvsionParameter(final List<?> parameter, Map<String, Object> provisionParameters) {
+  public static void parseProvsionParameter(final List<?> parameter, final HashMap<String, Object> provisionParameters) {
     
     LOGGER.log(Level.INFO, " parsing provision parameter ");
     System.out.println(parameter.size());
@@ -39,15 +39,17 @@ public class ProcessProvision {
         if (!param2.isEmpty()) {
           for (Map.Entry<String, ?> parameters : param2.entrySet()) {
             provisionParameters.put(parameters.getKey(), parameters.getValue().toString());
+            LOGGER.log(Level.INFO, "parameters in map " + parameters.getKey() + " " + parameters.getValue().toString());
           }
         }
       }
       if (param instanceof List<?>) {
-        final List<String> param2 = (List<String>) param;
+    	  LOGGER.log(Level.INFO, "parameter is a list");
+        final List<Object> param2 = (List<Object>) param;
         if (!param2.isEmpty()) {
           provisionParameters.put(ISFA_AM.URN, param2);
-          for (String parametersString : (List<String>) provisionParameters.get(ISFA_AM.URN)) {
-            System.out.println("provision urns are " + parametersString);
+          for (Object parametersString : (List<Object>) provisionParameters.get(ISFA_AM.URN)) {
+        	  LOGGER.log(Level.INFO, "provision urns are " + parametersString);
           }
         }
       }
@@ -55,26 +57,34 @@ public class ProcessProvision {
   }
   
   @SuppressWarnings("unchecked")
-  public static Model provisionInstances(Map<String, Object> provisionParameters) {
-    Model requestModel = ModelFactory.createDefaultModel();
-    
-    for (final String urn : (List<String>) provisionParameters.get(ISFA_AM.URN)) {
-      Resource reservation = requestModel.createResource(urn);
-      URN checkURN = new URN(urn);
-      if(checkURN.getType().equals(ISFA_AM.SLICE)){
-    	  reservation.addProperty(RDF.type, MessageBusOntologyModel.classGroup);
-      }
-      if(checkURN.getType().equals(ISFA_AM.Sliver)){
-    	  reservation.addProperty(RDF.type, MessageBusOntologyModel.classReservation);
-      }
-    }
-    
-    String serializedModel = MessageUtil.serializeModel(requestModel, IMessageBus.SERIALIZATION_TURTLE);
-    LOGGER.log(Level.INFO, "send provision request ...");
-    Model provisionResponse = SFA_AM_MDBSender.getInstance().sendRDFRequest(serializedModel, IMessageBus.TYPE_CONFIGURE, IMessageBus.TARGET_ORCHESTRATOR);
-    LOGGER.log(Level.INFO, "provision reply received." + provisionResponse.getGraph());
-    return provisionResponse;
-  }
+	public static Model provisionInstances(
+			final HashMap<String, Object> provisionParameters) {
+
+		LOGGER.log(Level.INFO, "create provision model ");
+		Model requestModel = ModelFactory.createDefaultModel();
+		for (Object urn : (List<Object>) provisionParameters.get(ISFA_AM.URN)) {
+			Resource reservation = requestModel.createResource(urn.toString());
+			URN checkURN = new URN(urn.toString());
+			if (checkURN.getType().equals(ISFA_AM.SLICE)) {
+				reservation.addProperty(RDF.type,
+						MessageBusOntologyModel.classGroup);
+			}
+			if (checkURN.getType().equals(ISFA_AM.Sliver)) {
+				reservation.addProperty(RDF.type,
+						MessageBusOntologyModel.classReservation);
+			}
+		}
+
+		String serializedModel = MessageUtil.serializeModel(requestModel,
+				IMessageBus.SERIALIZATION_TURTLE);
+		LOGGER.log(Level.INFO, "send provision request ...");
+		Model provisionResponse = SFA_AM_MDBSender.getInstance()
+				.sendRDFRequest(serializedModel, IMessageBus.TYPE_CONFIGURE,
+						IMessageBus.TARGET_ORCHESTRATOR);
+		LOGGER.log(Level.INFO,
+				"provision reply received." + provisionResponse.getGraph());
+		return provisionResponse;
+	}
   
   public static void addProvisionValue(final HashMap<String, Object> result, Model provisionResponse){
 	  
