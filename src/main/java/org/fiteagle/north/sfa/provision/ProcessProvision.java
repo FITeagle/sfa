@@ -58,21 +58,23 @@ public class ProcessProvision {
   
   @SuppressWarnings("unchecked")
 	public static Model provisionInstances(
-			final HashMap<String, Object> provisionParameters) {
+			List<URN> urns) {
 
 		LOGGER.log(Level.INFO, "create provision model ");
 		Model requestModel = ModelFactory.createDefaultModel();
-		for (Object urn : (List<Object>) provisionParameters.get(ISFA_AM.URN)) {
+		for (URN urn : urns) {
 			Resource reservation = requestModel.createResource(urn.toString());
-			URN checkURN = new URN(urn.toString());
-			if (checkURN.getType().equals(ISFA_AM.SLICE)) {
+
+			if (ISFA_AM.SLICE.equals(urn.getType())) {
 				reservation.addProperty(RDF.type,
 						MessageBusOntologyModel.classGroup);
+			}else{
+				if (ISFA_AM.Sliver.equals(urn.getType())) {
+					reservation.addProperty(RDF.type,
+							MessageBusOntologyModel.classReservation);
+				}
 			}
-			if (checkURN.getType().equals(ISFA_AM.Sliver)) {
-				reservation.addProperty(RDF.type,
-						MessageBusOntologyModel.classReservation);
-			}
+
 		}
 
 		String serializedModel = MessageUtil.serializeModel(requestModel,

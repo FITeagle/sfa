@@ -143,11 +143,15 @@ public class SFA_AM implements ISFA_AM {
   public Object provision(final List<?> parameter) {
     SFA_AM.LOGGER.log(Level.INFO, "provision...");
     final HashMap<String, Object> result = new HashMap<>();
-    
-    final HashMap<String, Object> provisionParameters = new HashMap<>();
-    ProcessProvision.parseProvsionParameter(parameter, provisionParameters);
+    List<URN> urns =parseURNList(parameter.get(0));
+    parseCredentialsParameters(parameter.get(1));
+
+    final HashMap<String, Object> provisionParameters = (HashMap<String, Object>) parameter.get(2);
+
+
+  //  ProcessProvision.parseProvsionParameter(parameter, provisionParameters);
     SFA_AM.LOGGER.log(Level.INFO, "provision parameters are parsed");
-    Model provisionResponse = ProcessProvision.provisionInstances(provisionParameters);
+    Model provisionResponse = ProcessProvision.provisionInstances(urns);
     ProcessProvision.addProvisionValue(result, provisionResponse);
     this.addCode(result);
     this.addOutput(result);
