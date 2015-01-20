@@ -11,6 +11,7 @@ import javax.jms.JMSException;
 import javax.xml.bind.JAXBException;
 
 
+
 //import info.openmultinet.ontology.exceptions.InvalidModelException;
 import org.apache.commons.codec.binary.Base64;
 import org.fiteagle.api.core.IGeni;
@@ -19,6 +20,7 @@ import org.fiteagle.north.sfa.allocate.ProcessAllocate;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_Delegate_Default;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender.EmptyReplyException;
+import org.fiteagle.north.sfa.delete.ProcessDelete;
 import org.fiteagle.north.sfa.describe.DescribeProcessor;
 import org.fiteagle.north.sfa.provision.ProcessProvision;
 import org.fiteagle.north.sfa.util.Credential;
@@ -177,7 +179,19 @@ public class SFA_AM implements ISFA_AM {
 
     @Override
     public Object delete(final List<?> parameter) {
+        
+        SFA_AM.LOGGER.log(Level.INFO, "delete...");
         final HashMap<String, Object> result = new HashMap<>();
+        List<URN> urns = parseURNList(parameter.get(0));
+        List<Credential> credentialList = parseCredentialsParameters(parameter.get(1));
+        checkCredentials(credentialList);
+        final HashMap<String, Object> deleteParameters = (HashMap<String, Object>) parameter.get(2);
+        SFA_AM.LOGGER.log(Level.INFO, "delete parameters are parsed");
+       
+        Model deleteResponse = ProcessDelete.deleteInstances(urns);
+        ProcessDelete.addDeleteValue(result, deleteResponse);
+        this.addCode(result);
+        this.addOutput(result);
         return result;
     }
 
