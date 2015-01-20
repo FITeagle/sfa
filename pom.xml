@@ -58,11 +58,11 @@
 			<artifactId>api</artifactId>
 			<version>0.1-SNAPSHOT</version>
 		</dependency>
-		<!--<dependency>-->
-			<!--<groupId>info.open-multinet</groupId>-->
-			<!--<artifactId>ontology</artifactId>-->
-			<!--<version>0.0.1-SNAPSHOT</version>-->
-		<!--</dependency>-->
+		<dependency>
+			<groupId>info.open-multinet</groupId>
+			<artifactId>ontology</artifactId>
+			<version>0.0.1-SNAPSHOT</version>
+		</dependency>
 <!-- 		<dependency> -->
 <!-- 			<groupId>org.jboss.spec.javax.servlet</groupId> -->
 <!-- 			<artifactId>jboss-servlet-api_3.0_spec</artifactId> -->
