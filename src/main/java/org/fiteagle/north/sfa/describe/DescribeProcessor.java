@@ -30,10 +30,10 @@ public class DescribeProcessor {
         Model requestModel = ModelFactory.createDefaultModel();
         for(URN u : urns){
             Resource resource = requestModel.createResource(u.toString());
-            if(u.getType().equals(ISFA_AM.SLICE)){
+            if(ISFA_AM.SLICE.equals(u.getType())){
                 resource.addProperty(RDF.type, MessageBusOntologyModel.classGroup);
             }
-            if(u.getType().equals("sliver")){
+            if(ISFA_AM.Sliver.equals(u.getType())){
                 resource.addProperty(RDF.type, MessageBusOntologyModel.classReservation);
             }
         }
