@@ -23,7 +23,7 @@ import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender.EmptyReplyException;
 import org.fiteagle.north.sfa.delete.ProcessDelete;
 import org.fiteagle.north.sfa.describe.DescribeProcessor;
 import org.fiteagle.north.sfa.provision.ProcessProvision;
-import org.fiteagle.north.sfa.util.Credential;
+import org.fiteagle.north.sfa.util.GENI_Credential;
 import org.fiteagle.north.sfa.util.URN;
 
 import com.hp.hpl.jena.rdf.model.Model;
@@ -153,7 +153,7 @@ public class SFA_AM implements ISFA_AM {
         SFA_AM.LOGGER.log(Level.INFO, "provision...");
         final HashMap<String, Object> result = new HashMap<>();
         List<URN> urns = parseURNList(parameter.get(0));
-        List<Credential> credentialList = parseCredentialsParameters(parameter.get(1));
+        List<GENI_Credential> credentialList = parseCredentialsParameters(parameter.get(1));
         checkCredentials(credentialList);
         final HashMap<String, Object> provisionParameters = (HashMap<String, Object>) parameter.get(2);
         SFA_AM.LOGGER.log(Level.INFO, "provision parameters are parsed");
@@ -183,7 +183,7 @@ public class SFA_AM implements ISFA_AM {
         SFA_AM.LOGGER.log(Level.INFO, "delete...");
         final HashMap<String, Object> result = new HashMap<>();
         List<URN> urns = parseURNList(parameter.get(0));
-        List<Credential> credentialList = parseCredentialsParameters(parameter.get(1));
+        List<GENI_Credential> credentialList = parseCredentialsParameters(parameter.get(1));
         checkCredentials(credentialList);
         final HashMap<String, Object> deleteParameters = (HashMap<String, Object>) parameter.get(2);
         SFA_AM.LOGGER.log(Level.INFO, "delete parameters are parsed");
@@ -298,14 +298,14 @@ public class SFA_AM implements ISFA_AM {
     }
 
     //TODO needs way more logic, needs refactoring
-    private List<Credential> parseCredentialsParameters(final Object param) {
+    private List<GENI_Credential> parseCredentialsParameters(final Object param) {
 
         @SuppressWarnings("unchecked")
         final List<Map<String, ?>> param2 = (List<Map<String, ?>>) param;
-        List<Credential> credentialList = new ArrayList<>(param2.size());
+        List<GENI_Credential> credentialList = new ArrayList<>(param2.size());
         if (param2.size() > 0) {
             for (Map<String, ?> map : param2) {
-                Credential credential = new Credential(map);
+                GENI_Credential credential = new GENI_Credential(map);
                 credentialList.add(credential);
 
             }
@@ -334,7 +334,7 @@ public class SFA_AM implements ISFA_AM {
         Object options = parameter.get(2);
         List<URN> URNS = parseURNList(URNList);
 
-        List<Credential> credentialList = parseCredentialsParameters(credList);
+        List<GENI_Credential> credentialList = parseCredentialsParameters(credList);
         checkCredentials(credentialList);
 
         parseDescribeOptions(options);
@@ -350,9 +350,9 @@ public class SFA_AM implements ISFA_AM {
         return result;
     }
 
-    private void checkCredentials(List<Credential> credentialList) {
+    private void checkCredentials(List<GENI_Credential> credentialList) {
 
-        for (Credential credential : credentialList) {
+        for (GENI_Credential credential : credentialList) {
             if(credential.get_geni_type() == null || credential.get_geni_version() ==null || credential.get_geni_value() == null){
                 throw new ForbiddenException("Operation forbidden, Credentials not valid");
             }

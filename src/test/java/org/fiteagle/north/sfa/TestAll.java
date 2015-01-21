@@ -68,7 +68,7 @@ public class TestAll {
 		this.testMethodCall(this.handler, inputString, expected);
 	}
 
-	@Test
+	//@Test
 	public void testGetCredentials() throws SAXException, IOException {
 		final String inputString = "<?xml version='1.0'?><methodCall><methodName>GetCredential</methodName><params></params></methodCall>";
 
@@ -77,7 +77,7 @@ public class TestAll {
 		this.testMethodCall(this.handler, inputString, expected);
 	}
 
-	@Test
+	//@Test
 	public void testGetRegister() throws SAXException, IOException {
 		final String inputString = "<?xml version='1.0'?><methodCall><methodName>Register</methodName><params></params></methodCall>";
 

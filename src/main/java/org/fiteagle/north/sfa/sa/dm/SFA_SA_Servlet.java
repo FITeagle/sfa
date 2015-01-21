@@ -18,7 +18,6 @@ public class SFA_SA_Servlet extends AbstractSFA_Servlet {
 
 	public SFA_SA_Servlet() {
 		super();
-		this.handler = new SFA_XMLRPC_Handler(new SFA_SA(
-				new SFA_SA_Delegate_Default()));
+		this.handler = new SFA_XMLRPC_Handler(new SFA_SA());
 	}
 }

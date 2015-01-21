@@ -84,15 +84,10 @@ public class SFA_XMLRPC_Handler implements ISFA_XMLRPC_InvocationHandler {
 				+ certInfo);
 
 		// todo: move this hack to the manager (i.e. construct dummy answers)
-		if ("GetCredential".equals(methodName)) {
-			return this
-					.returnDummyValue(SFA_XMLRPC_Handler.DUMMY_RESPONSE_FILE_GET_CRED);
-		} else if ("Status".equals(methodName)) {
+
+		if ("Status".equals(methodName)) {
 			return this
 					.returnDummyValue(SFA_XMLRPC_Handler.DUMMY_RESPONSE_FILE_SLICE_BAD);
-		} else if ("Register".equals(methodName)) {
-			return this
-					.returnDummyValue(SFA_XMLRPC_Handler.DUMMY_RESPONSE_FILE_REGISTER);
 		}
 		
 		Object result = this.manager.handle(methodName, parameter, this.path, this.cert);
