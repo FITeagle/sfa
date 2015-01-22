@@ -42,8 +42,9 @@ public class SFA_AM implements ISFA_AM {
     @Override
     public Object handle(final String methodName, final List<?> parameter, final String path, final X509Certificate cert) {
         Object result;
+
         this.delegate = new SFA_AM_Delegate_Default();
-        ;
+        SFA_AM.LOGGER.log(Level.INFO, System.getProperty("jboss.server.config.dir") + System.getProperty("file.separator") + "jetty-ssl.keystore");
         SFA_AM.LOGGER.log(Level.INFO, "Working on method: " + methodName);
         try {
 
@@ -85,32 +86,33 @@ public class SFA_AM implements ISFA_AM {
             }
         } catch (BadArgumentsException e) {
             HashMap<String, Object> exceptionBody = new HashMap<>();
-            handleException(exceptionBody, e.getMessage(), GENI_CodeEnum.BADARGS);
+            handleException(exceptionBody, e, GENI_CodeEnum.BADARGS);
             result = exceptionBody;
         } catch (JMSException e) {
             HashMap<String, Object> exceptionBody = new HashMap<>();
-            handleException(exceptionBody, e.getMessage(), GENI_CodeEnum.SERVERERROR);
+            handleException(exceptionBody, e, GENI_CodeEnum.SERVERERROR);
             result = exceptionBody;
         } catch (EmptyReplyException e) {
             HashMap<String, Object> exceptionBody = new HashMap<>();
-            handleException(exceptionBody, e.getMessage(), GENI_CodeEnum.SEARCHFAILED);
+            handleException(exceptionBody, e, GENI_CodeEnum.SEARCHFAILED);
             result = exceptionBody;
         } catch (MessageUtil.TimeoutException e) {
             HashMap<String, Object> exceptionBody = new HashMap<>();
-            handleException(exceptionBody, e.getMessage(), GENI_CodeEnum.TIMEDOUT);
+            handleException(exceptionBody, e, GENI_CodeEnum.TIMEDOUT);
             result = exceptionBody;
         }catch (ForbiddenException e){
             HashMap<String, Object> exceptionBody = new HashMap<>();
-            handleException(exceptionBody, e.getMessage(), GENI_CodeEnum.FORBIDDEN);
+            handleException(exceptionBody, e, GENI_CodeEnum.FORBIDDEN);
             result = exceptionBody;
 
         } catch (RuntimeException e) {
+
             HashMap<String, Object> exceptionBody = new HashMap<>();
-            handleException(exceptionBody, e.getMessage(), GENI_CodeEnum.ERROR);
+            handleException(exceptionBody, e, GENI_CodeEnum.ERROR);
             result = exceptionBody;
         } catch (UnsupportedEncodingException e) {
             HashMap<String, Object> exceptionBody = new HashMap<>();
-            handleException(exceptionBody, e.getMessage(), GENI_CodeEnum.ERROR);
+            handleException(exceptionBody, e, GENI_CodeEnum.ERROR);
             result = exceptionBody;
 //    } catch (InvalidModelException e) {
 //      HashMap<String, Object> exceptionBody = new HashMap<>();
@@ -118,7 +120,7 @@ public class SFA_AM implements ISFA_AM {
 //      result = exceptionBody;
         } catch (JAXBException e) {
             HashMap<String, Object> exceptionBody = new HashMap<>();
-            handleException(exceptionBody, e.getMessage(), GENI_CodeEnum.ERROR);
+            handleException(exceptionBody, e, GENI_CodeEnum.ERROR);
             result = exceptionBody;
         }
 
@@ -389,11 +391,11 @@ public class SFA_AM implements ISFA_AM {
         return returnList;
     }
 
-    private void handleException(HashMap<String, Object> result, String mes, GENI_CodeEnum errorCode) {
-        LOGGER.log(Level.WARNING, mes);
+    private void handleException(HashMap<String, Object> result, Exception e, GENI_CodeEnum errorCode) {
+        LOGGER.log(Level.WARNING, e.getMessage(),e);
 
         this.delegate.setGeniCode(errorCode.getValue());
-        this.delegate.setOutput(mes);
+        this.delegate.setOutput(e.getMessage());
         this.addCode(result);
         this.addOutput(result);
 

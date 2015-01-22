@@ -10,6 +10,7 @@ import org.fiteagle.north.sfa.dm.SFA_XMLRPC_Handler;
 import org.junit.Assert;
 import org.junit.Before;
 
+import org.junit.Test;
 import redstone.xmlrpc.XmlRpcException;
 
 public class SFA_XMLRPC_HandlerTest {
@@ -34,7 +35,7 @@ public class SFA_XMLRPC_HandlerTest {
 		Assert.assertTrue(result.contains("geni_api"));
 	}
 
-//	@Test
+	//@Test
 	public void testListResourcesViaAM() throws XmlRpcException, IOException {
 		this.inputStream = this.getClass().getResourceAsStream(
 				"/dummy-request-listresources-xmlrpc.xml");
