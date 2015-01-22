@@ -1,10 +1,13 @@
 package org.fiteagle.north.sfa.delete;
 
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.fiteagle.api.core.IGeni;
 import org.fiteagle.api.core.IMessageBus;
 import org.fiteagle.api.core.MessageBusOntologyModel;
 import org.fiteagle.api.core.MessageUtil;
@@ -15,6 +18,8 @@ import org.fiteagle.north.sfa.util.URN;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.Statement;
+import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.vocabulary.RDF;
 
 
@@ -44,8 +49,34 @@ public class ProcessDelete {
 		
 	}
 	
-	public static void addDeleteValue(final HashMap<String, Object> result, Model provisionResponse){
+	public static void addDeleteValue(final HashMap<String, Object> result, Model deleteResponse){
 		
+		  final List<Map<String, Object>> value = new LinkedList<>();
+		  
+		  StmtIterator stmtIterator = deleteResponse.listStatements(null, RDF.type, MessageBusOntologyModel.classReservation);
+		    while (stmtIterator.hasNext()) {
+		      Statement statement = stmtIterator.next();
+		      Resource reservation = statement.getSubject();
+		      
+		      /**
+		       * defines a loop depending on the slivers number.
+		       * In the loop, Map is created for each sliver containing 
+		       * sliver urn, experires and allocateion_status.
+		       * The created maps should be added to geniSlivers list.
+		       */ 
+		      final Map<String, Object> sliverMap = new HashMap<>();
+		      sliverMap.put(IGeni.GENI_SLIVER_URN, reservation.getURI());
+		      if(reservation.hasProperty(MessageBusOntologyModel.endTime)){
+		    	  sliverMap.put(IGeni.GENI_EXPIRES, reservation.getProperty(MessageBusOntologyModel.endTime).getLiteral().getString());
+		      } else {
+		    	  sliverMap.put(IGeni.GENI_EXPIRES, "");
+		      }
+		      sliverMap.put(IGeni.GENI_ALLOCATION_STATUS, reservation.getProperty(MessageBusOntologyModel.hasState).getLiteral().getString());
+		      
+		      value.add(sliverMap);
+		    }
+		    
+		    result.put(ISFA_AM.VALUE, value);
 	}
 
 }

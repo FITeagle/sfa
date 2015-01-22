@@ -27,8 +27,7 @@ public class ProcessProvision {
   private final static Logger LOGGER = Logger.getLogger(ProcessProvision.class.getName());
   
   
-  @SuppressWarnings("unchecked")
-	public static Model provisionInstances(
+  public static Model provisionInstances(
 			List<URN> urns) {
 
 		LOGGER.log(Level.INFO, "create provision model ");
@@ -55,7 +54,7 @@ public class ProcessProvision {
 				.sendRDFRequest(serializedModel, IMessageBus.TYPE_CONFIGURE,
 						IMessageBus.TARGET_ORCHESTRATOR);
 		LOGGER.log(Level.INFO,
-				"provision reply received.");
+				"provision is reply received.");
 		return provisionResponse;
 	}
   
