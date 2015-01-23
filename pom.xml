@@ -37,6 +37,10 @@
 
 	<repositories>
 		<repository>
+			<id>sonatype</id>
+			<url>https://oss.sonatype.org/content/groups/public/</url>
+		</repository>
+		<repository>
 			<id>fiteagle-repo</id>
 			<url>http://fiteagle.org/maven</url>
 		</repository>
@@ -119,8 +123,6 @@
 <!-- 	      <scope>provided</scope> -->
 <!-- 	    </dependency> -->
 
-
-		
 	</dependencies>
 
 	<build>
