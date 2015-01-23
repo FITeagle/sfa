@@ -3,12 +3,7 @@ package org.fiteagle.north.sfa.aaa;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.math.BigInteger;
-import java.security.KeyPair;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.PublicKey;
-import java.security.SecureRandom;
+import java.security.*;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
@@ -28,6 +23,7 @@ import org.bouncycastle.cert.X509CertificateHolder;
 import org.bouncycastle.cert.X509v3CertificateBuilder;
 import org.bouncycastle.cert.jcajce.JcaX509CertificateHolder;
 import org.bouncycastle.operator.ContentSigner;
+import org.bouncycastle.operator.OperatorCreationException;
 import org.bouncycastle.operator.jcajce.JcaContentSignerBuilder;
 
 import org.fiteagle.north.sfa.util.URN;
@@ -50,16 +46,17 @@ public class CertificateAuthority {
 
 	private KeyStoreManagement keyStoreManagement = KeyStoreManagement.getInstance();
 
-	public X509Certificate createCertificate( URN userURN,PublicKey publicKey)
+	public X509Certificate createCertificate( URN urn,PublicKey publicKey)
 			throws Exception {
-		X509Certificate caCert = keyStoreManagement.getCACert();
-		X500Name issuer = new JcaX509CertificateHolder(caCert).getSubject();
-		PrivateKey caPrivateKey = keyStoreManagement.getCAPrivateKey();
-		ContentSigner contentsigner = new JcaContentSignerBuilder(
-				"SHA1WithRSAEncryption").build(caPrivateKey);
-
-		X500Name subject = createX500Name(userURN);
+		CertficateAuthorityDelegate certficateAuthorityDelegate = new CertficateAuthorityDelegate(urn).invoke();
+		X500Name issuer = certficateAuthorityDelegate.getIssuer();
+		ContentSigner contentsigner = certficateAuthorityDelegate.getContentsigner();
+		X500Name subject = certficateAuthorityDelegate.getSubject();
 		SubjectPublicKeyInfo subjectsPublicKeyInfo = getPublicKey(publicKey);
+		return getX509Certificate(urn, issuer, contentsigner, subject, subjectsPublicKeyInfo);
+	}
+
+	private X509Certificate getX509Certificate(URN urn, X500Name issuer, ContentSigner contentsigner, X500Name subject, SubjectPublicKeyInfo subjectsPublicKeyInfo) throws IOException, CertificateException {
 		X509v3CertificateBuilder ca_gen = new X509v3CertificateBuilder(issuer,
 				new BigInteger(new SecureRandom().generateSeed(256)),
 				new Date(),
@@ -68,7 +65,7 @@ public class CertificateAuthority {
 		BasicConstraints ca_constraint = new BasicConstraints(false);
 		ca_gen.addExtension(X509Extension.basicConstraints, true, ca_constraint);
 		GeneralNames subjectAltName = new GeneralNames(new GeneralName(
-				GeneralName.uniformResourceIdentifier, userURN.toString()));
+				GeneralName.uniformResourceIdentifier, urn.toString()));
 
 		X509Extension extension = new X509Extension(false, new DEROctetString(
 				subjectAltName));
@@ -123,42 +120,39 @@ public class CertificateAuthority {
 		return createCertificate(null, pubkey);
 	}
 
-	public X509Certificate createCertificate(URN urn) throws Exception {
-	
-	
-		KeyManagement keyManager = KeyManagement.getInstance();
-		KeyPair keypair = keyManager.generateKeyPair();
-		X509Certificate caCert = keyStoreManagement.getCACert();
-		X500Name issuer = new JcaX509CertificateHolder(caCert).getSubject();
-		PrivateKey caPrivateKey = keyStoreManagement.getCAPrivateKey();
-		ContentSigner contentsigner = new JcaContentSignerBuilder(
-				"SHA1WithRSAEncryption").build(caPrivateKey);
 
-		X500Name subject = createX500Name(urn);
-		SubjectPublicKeyInfo subjectsPublicKeyInfo = getPublicKey(keypair.getPublic());
-		X509v3CertificateBuilder ca_gen = new X509v3CertificateBuilder(issuer,
-				new BigInteger(new SecureRandom().generateSeed(256)),
-				new Date(),
-				new Date(System.currentTimeMillis() + 31500000000L), subject,
-				subjectsPublicKeyInfo);
-		BasicConstraints ca_constraint = new BasicConstraints(false);
-		ca_gen.addExtension(X509Extension.basicConstraints, true, ca_constraint);
-		GeneralNames subjectAltName = new GeneralNames(new GeneralName(
-				GeneralName.uniformResourceIdentifier,urn.toString()));
 
-		X509Extension extension = new X509Extension(false, new DEROctetString(
-				subjectAltName));
-		ca_gen.addExtension(X509Extension.subjectAlternativeName, false,
-				extension.getParsedValue());
-		X509CertificateHolder holder = (X509CertificateHolder) ca_gen
-				.build(contentsigner);
-		CertificateFactory cf = CertificateFactory.getInstance("X.509");
-		return (X509Certificate) cf
-				.generateCertificate(new ByteArrayInputStream(holder
-						.getEncoded()));
+	private class CertficateAuthorityDelegate {
+		private URN userURN;
+		private X500Name issuer;
+		private ContentSigner contentsigner;
+		private X500Name subject;
+
+		public CertficateAuthorityDelegate(URN userURN) {
+			this.userURN = userURN;
+		}
+
+		public X500Name getIssuer() {
+			return issuer;
+		}
+
+		public ContentSigner getContentsigner() {
+			return contentsigner;
+		}
+
+		public X500Name getSubject() {
+			return subject;
+		}
+
+		public CertficateAuthorityDelegate invoke() throws KeyStoreException, NoSuchAlgorithmException, CertificateException, IOException, UnrecoverableEntryException, OperatorCreationException {
+			X509Certificate caCert = keyStoreManagement.getCACert();
+			issuer = new JcaX509CertificateHolder(caCert).getSubject();
+			PrivateKey caPrivateKey = keyStoreManagement.getCAPrivateKey();
+			contentsigner = new JcaContentSignerBuilder(
+					"SHA1WithRSAEncryption").build(caPrivateKey);
+
+			subject = createX500Name(userURN);
+			return this;
+		}
 	}
-
-
-
-
 }

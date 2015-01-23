@@ -1,5 +1,6 @@
 package org.fiteagle.north.sfa.sa;
 
+import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.util.List;
 
@@ -11,7 +12,7 @@ public interface ISFA_SA extends ISFA {
 	String METHOD_REGISTER = "REGISTER";
 	String METHOD_GET_VERSION = "GETVERSION";
 	Object getVersion(List<?> parameter);
-	Object getCredential(X509Certificate certificate);
+	Object getCredential(X509Certificate certificate) throws CertificateParsingException;
 	Object register(List<?> parameter);
 
 }

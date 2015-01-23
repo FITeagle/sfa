@@ -1,5 +1,6 @@
 package org.fiteagle.north.sfa.sa;
 
+import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
 import java.util.HashMap;
 import java.util.List;
@@ -7,6 +8,12 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import org.fiteagle.north.sfa.aaa.CertificateAuthority;
+import org.fiteagle.north.sfa.aaa.CredentialFactory;
+import org.fiteagle.north.sfa.aaa.X509Util;
+import org.fiteagle.north.sfa.aaa.jaxbClasses.Credential;
+import org.fiteagle.north.sfa.aaa.jaxbClasses.SignedCredential;
+import org.fiteagle.north.sfa.am.GENI_CodeEnum;
 import org.fiteagle.north.sfa.am.ISFA_AM;
 import org.fiteagle.north.sfa.util.URN;
 
@@ -25,21 +32,27 @@ public class SFA_SA implements ISFA_SA {
         Object result;
         this.delegate = null;
         SFA_SA.LOGGER.log(Level.INFO, "Working on method: " + methodName);
-        switch (methodName.toUpperCase()) {
-            case ISFA_AM.METHOD_GET_VERSION:
-                result = this.getVersion(parameter);
-                break;
-            case ISFA_SA.METHOD_GET_CREDENTIAL:
-                result = this.getCredential(cert);
-                break;
-            case ISFA_SA.METHOD_REGISTER:
-                result = this.register(parameter);
-                break;
-            default:
-                result = "Unimplemented method '" + methodName + "'";
-                break;
+        try {
+            switch (methodName.toUpperCase()) {
+                case ISFA_AM.METHOD_GET_VERSION:
+                    result = this.getVersion(parameter);
+                    break;
+                case ISFA_SA.METHOD_GET_CREDENTIAL:
+                    result = this.getCredential(cert);
+                    break;
+                case ISFA_SA.METHOD_REGISTER:
+                    result = this.register(parameter);
+                    break;
+                default:
+                    result = "Unimplemented method '" + methodName + "'";
+                    break;
+            }
+        }catch(CertificateParsingException e){
+            HashMap<String, Object> exceptionBody = new HashMap<>();
+            //handleException(exceptionBody, e, GENI_CodeEnum.BADARGS);
+            LOGGER.log(Level.WARNING,e.getMessage(),e);
+            result = exceptionBody;
         }
-
         return result;
 
     }
@@ -56,69 +69,15 @@ public class SFA_SA implements ISFA_SA {
     }
 
     @Override
-    public Object getCredential(X509Certificate certificate) {
+    public Object getCredential(X509Certificate certificate) throws CertificateParsingException {
         HashMap<String,Object> result = new HashMap<>();
-        String dummyCert = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n" +
-                "<signed-credential xmlns:ns2=\"http://www.w3.org/2000/09/xmldsig#\"><credential\n" +
-                "id=\"0bca5e6b-c885-48d9-9655-0d3a2242ed29\"\n" +
-                "xml:id=\"0bca5e6b-c885-48d9-9655-0d3a2242ed29\"><type>privilege</type><owner_gid>MIIELTCCAxWgAwIBAgKCAQDwlt4ioYoyJbXy9/YtXolvNWyJvXo44eBovP/xywjCYJbrNIW0RUTequCItZvmDH/UX6upGHQCDncGtMzdCAesPQW4afk9u/nq+lqqTgCFfjRFB/nSlWjiTDqWQOqQdU++MwTEIeOUCJWN/2joYd18+9mCCdhJNnSVugrPd2PNzQGzk5Cv5FvJMIxs3qjasFfKeCm9w5qer6sSDDGQ8TV/NFHEtBOZL/VPQ1h+CE792yBbHWz1vAX2KTWAtwlDimx8uN6RD2Jv2en3hzFrrOtMGfJUmMiluhbsq0XgaQWT5+NP/YHcaGbcSb2PiNa3MMc6cKqOaeQYW2VuKFidb4dUMA0GCSqGSIb3DQEBBQUAMFsxCzAJBgNVBAYTAkRFMQ8wDQYDVQQIDAZCZXJsaW4xDzANBgNVBAcMBkJlcmxpbjEMMAoGA1UECgwDVFVCMQswCQYDVQQLDAJBVjEPMA0GA1UEAwwGdGVzdENBMB4XDTE0MDYyNjE5MTkyMloXDTE1MDYyNjA5MTkyMlowFzEVMBMGA1UEAwwMdGVzdGluZzFAbWJwMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAsMo1u+YN4B4BwuvHACQAUwweAzo0tSi604m4qnA7A52PP0+4bo6ivKedQyVzPHot3h8+1FRzCgc4b+GnlIP4XHO0uAmZORNAze+lEKtj4wrbW1edVByEqDopNNybBHyE+bm7KBEL4LGyMqy9yCtXp8bWLSu2R4R9fsPpmYHNzONSFxNuIqDmA0hsqpqkJATuEMaruM1vqtV+oJiyMBLZz+EZLLdonoeMcGNGIG3VhzibGSCFnT684f7DKS0xnesB07yPE87qsSxoSg6RyzbuBKVxk1AWS7rD2rdRoxMURQl5Et5lZXZmo7R6Yn1dVl8PwaLl75aC60R+mKRpC2U8kwIDAQABoz8wPTAMBgNVHRMBAf8EAjAAMC0GA1UdEQQmMCSGInVybjpwdWJsaWNpZDpJRE4rbWJwK3VzZXIrdGVzdGluZzEwDQYJKoZIhvcNAQEFBQADggEBAKl2YmloEh5T2Y+a2RR/6eq+rIKGpEchjG5lnmrVM//Nb3AgBacchwMCbJHKAoua5h8DaXabbginEHet5lAF9J2fBVTka73Tbj32k6Zpgv3/gbzWTDrfJFD3ckWKGY7PwTN/j6QoZIY6ZeAQbeOBQJrHwNdrQmFcphSgmjGagT6ZHcZlt6A2zNCg8DRCDBe7YswnM2ADIqa3wOeI0gD7ycehEpanmXxTxQCcx8LPsJbGaadzAZ7OmpCoupR6Pv8pPoSoFnBsTNUKRFPgdSlP+AhIx37xVbrX7724LDctpfwZzddNHBMnxCdEe576w3tjfLzAf9gJQHFb+PQhHQNA8IE=</owner_gid><owner_urn>urn:publicid:IDN+mbp+user+testing1</owner_urn><target_urn>urn:publicid:IDN+mbp+authority+sa</target_urn><target_gid>MIID5TCCA06gAwIBAgIBEDANBgkqhkiG9w0BAQUFADCBijELMAkGA1UEBhMCREUxDzANBgNVBAgMBkJlcmxpbjEPMA0GA1UEBwwGQmVybGluMRkwFwYDVQQKDBBGcmF1bmhvZmVyIEZPS1VTMQ0wCwYDVQQLDAROR05JMS8wLQYDVQQDDCZjYS5maXRlYWdsZS1mdXNlY28uZm9rdXMuZnJhdW5ob2Zlci5kZTAeFw0xMzA2MDUxMzU2MTVaFw0xNDA2MDUxMzU2MTVaMHkxCzAJBgNVBAYTAkRFMQ8wDQYDVQQIDAZCZXJsaW4xGTAXBgNVBAoMEEZyYXVuaG9mZXIgRk9LVVMxDTALBgNVBAsMBE5HTkkxLzAtBgNVBAMMJnNhLmZpdGVhZ2xlLWZ1c2Vjby5mb2t1cy5mcmF1bmhvZmVyLmRlMIGfMA0GCSqGSIb3DQEBAQUAA4GNADCBiQKBgQDK/pW+TituO/99j7/QAtvkumjBv5WgB47WasPlscy+RjLvbclgfNSjfvJ4affzS3aEhyVhxJCxqF5N12dy6E1m/75hKccPgBFHe2C6UcSILN1UK6w3u4gmohlLIeiAGR8HcSduoJ1rnS9H6MUHtX6leVzwsjjxj5Kth8iv1ZJ3VQIDAQABo4IBaTCCAWUwDwYDVR0TAQH/BAUwAwEB/zAsBglghkgBhvhCAQ0EHxYdT3BlblNTTCBHZW5lcmF0ZWQgQ2VydGlmaWNhdGUwHQYDVR0OBBYEFOcb4ZyRC57cXrlYtX2kzQ2evFBCMIGpBgNVHSMEgaEwgZ6hgZCkgY0wgYoxCzAJBgNVBAYTAkRFMQ8wDQYDVQQIDAZCZXJsaW4xDzANBgNVBAcMBkJlcmxpbjEZMBcGA1UECgwQRnJhdW5ob2ZlciBGT0tVUzENMAsGA1UECwwETkdOSTEvMC0GA1UEAwwmY2EuZml0ZWFnbGUtZnVzZWNvLmZva3VzLmZyYXVuaG9mZXIuZGWCCQCbHKdifYh3XzBMBgNVHREERTBDhkF1cm46cHVibGljaWQ6SUROK2ZpdGVhZ2xlLWZ1c2Vjby5mb2t1cy5mcmF1bmhvZmVyLmRlK2F1dGhvcml0eStzYTALBgNVHQ8EBAMCBeAwDQYJKoZIhvcNAQEFBQADgYEAh+ToI9ce0dfEOCrWV4Ak6rE2rL71DN5vCbWi9N96x1KgUa5P2/bieWe3YlCXE4X0ilIWPaubKiYKkm5axcfA9K3YJ3v/2o9JO1y2xM41PJ523vtiRRUTNeSbNho8T8sI3bNe60n+7XGvrmfuazNJP3wJHoeGkZubff+rDMrzT5s=</target_gid><expires>2014-07-11T07:46:48.717+02:00</expires><privileges><privilege><name>*</name><can_delegate>false</can_delegate></privilege></privileges></credential><signatures><Signature\n" +
-                "xmlns=\"http://www.w3.org/2000/09/xmldsig#\">\n" +
-                "<SignedInfo>\n" +
-                "<CanonicalizationMethod\n" +
-                "Algorithm=\"http://www.w3.org/TR/2001/REC-xml-c14n-20010315\"></CanonicalizationMethod>\n" +
-                "<SignatureMethod\n" +
-                "Algorithm=\"http://www.w3.org/2000/09/xmldsig#rsa-sha1\"></SignatureMethod>\n" +
-                "<Reference URI=\"#0bca5e6b-c885-48d9-9655-0d3a2242ed29\">\n" +
-                "<Transforms>\n" +
-                "<Transform\n" +
-                "Algorithm=\"http://www.w3.org/2000/09/xmldsig#enveloped-signature\"></Transform>\n" +
-                "</Transforms>\n" +
-                "<DigestMethod\n" +
-                "Algorithm=\"http://www.w3.org/2000/09/xmldsig#sha1\"></DigestMethod>\n" +
-                "<DigestValue>m6MrZn9atEtrYsWxbFRMeewOSr0=</DigestValue>\n" +
-                "</Reference>\n" +
-                "</SignedInfo>\n" +
-                "<SignatureValue>\n" +
-                "gQBoekx8EDcX+Uonf93jJIpokdUD45Bl7fspT4oKVhs/Kl5kCR3RDeUfB82cths9W+ygHRCfrGoa\n" +
-                "DZtjyWLU8/xqfORLxsfD1W8CLe1ffu6NP0U61U7spDvTLrXS3jqRK/z6vP3gLotzM+OZjA8h1JAv\n" +
-                "FWaRcvf/79R9//lpoaA=\n" +
-                "</SignatureValue>\n" +
-                "<KeyInfo>\n" +
-                "<X509Data>\n" +
-                "<X509Certificate>MIID5TCCA06gAwIBAgIBEDANBgkqhkiG9w0BAQUFADCBijELMAkGA1UEBhMCREUxDzANBgNVBAgM\n" +
-                "BkJlcmxpbjEPMA0GA1UEBwwGQmVybGluMRkwFwYDVQQKDBBGcmF1bmhvZmVyIEZPS1VTMQ0wCwYD\n" +
-                "VQQLDAROR05JMS8wLQYDVQQDDCZjYS5maXRlYWdsZS1mdXNlY28uZm9rdXMuZnJhdW5ob2Zlci5k\n" +
-                "ZTAeFw0xMzA2MDUxMzU2MTVaFw0xNDA2MDUxMzU2MTVaMHkxCzAJBgNVBAYTAkRFMQ8wDQYDVQQI\n" +
-                "DAZCZXJsaW4xGTAXBgNVBAoMEEZyYXVuaG9mZXIgRk9LVVMxDTALBgNVBAsMBE5HTkkxLzAtBgNV\n" +
-                "BAMMJnNhLmZpdGVhZ2xlLWZ1c2Vjby5mb2t1cy5mcmF1bmhvZmVyLmRlMIGfMA0GCSqGSIb3DQEB\n" +
-                "AQUAA4GNADCBiQKBgQDK/pW+TituO/99j7/QAtvkumjBv5WgB47WasPlscy+RjLvbclgfNSjfvJ4\n" +
-                "affzS3aEhyVhxJCxqF5N12dy6E1m/75hKccPgBFHe2C6UcSILN1UK6w3u4gmohlLIeiAGR8HcSdu\n" +
-                "oJ1rnS9H6MUHtX6leVzwsjjxj5Kth8iv1ZJ3VQIDAQABo4IBaTCCAWUwDwYDVR0TAQH/BAUwAwEB\n" +
-                "/zAsBglghkgBhvhCAQ0EHxYdT3BlblNTTCBHZW5lcmF0ZWQgQ2VydGlmaWNhdGUwHQYDVR0OBBYE\n" +
-                "FOcb4ZyRC57cXrlYtX2kzQ2evFBCMIGpBgNVHSMEgaEwgZ6hgZCkgY0wgYoxCzAJBgNVBAYTAkRF\n" +
-                "MQ8wDQYDVQQIDAZCZXJsaW4xDzANBgNVBAcMBkJlcmxpbjEZMBcGA1UECgwQRnJhdW5ob2ZlciBG\n" +
-                "T0tVUzENMAsGA1UECwwETkdOSTEvMC0GA1UEAwwmY2EuZml0ZWFnbGUtZnVzZWNvLmZva3VzLmZy\n" +
-                "YXVuaG9mZXIuZGWCCQCbHKdifYh3XzBMBgNVHREERTBDhkF1cm46cHVibGljaWQ6SUROK2ZpdGVh\n" +
-                "Z2xlLWZ1c2Vjby5mb2t1cy5mcmF1bmhvZmVyLmRlK2F1dGhvcml0eStzYTALBgNVHQ8EBAMCBeAw\n" +
-                "DQYJKoZIhvcNAQEFBQADgYEAh+ToI9ce0dfEOCrWV4Ak6rE2rL71DN5vCbWi9N96x1KgUa5P2/bi\n" +
-                "eWe3YlCXE4X0ilIWPaubKiYKkm5axcfA9K3YJ3v/2o9JO1y2xM41PJ523vtiRRUTNeSbNho8T8sI\n" +
-                "3bNe60n+7XGvrmfuazNJP3wJHoeGkZubff+rDMrzT5s=</X509Certificate>\n" +
-                "</X509Data>\n" +
-                "<KeyValue>\n" +
-                "<RSAKeyValue>\n" +
-                "<Modulus>\n" +
-                "yv6Vvk4rbjv/fY+/0ALb5Lpowb+VoAeO1mrD5bHMvkYy723JYHzUo37yeGn380t2hIclYcSQsahe\n" +
-                "TddncuhNZv++YSnHD4ARR3tgulHEiCzdVCusN7uIJqIZSyHogBkfB3EnbqCda50vR+jFB7V+pXlc\n" +
-                "8LI48Y+SrYfIr9WSd1U=\n" +
-                "</Modulus>\n" +
-                "<Exponent>AQAB</Exponent>\n" +
-                "</RSAKeyValue>\n" +
-                "</KeyValue>\n" +
-                "</KeyInfo>\n" +
-                "</Signature></signatures></signed-credential>";
+        //TODO get urn from properties
+        URN sliceAuthorityURN = new URN("urn:publicid:IDN+localhost+authority+SA");
+        Credential credential =  CredentialFactory.newCredential(certificate, sliceAuthorityURN);
+        String signedCredential = CredentialFactory.signCredential(credential);
         String output = "";
         int code = 0;
-        result.put("value",dummyCert);
+        result.put("value",signedCredential);
         result.put("code",code);
         result.put("output",output);
         return result;
@@ -129,9 +88,15 @@ public class SFA_SA implements ISFA_SA {
         if(parameter.size()> 1 || parameter.size() < 1){
             throw new RuntimeException();
         }
+
+
         Map<String, String> inputMap = (Map<String, String>) parameter.get(0);
 
         URN desiredURN =  new URN(inputMap.get("urn"));
+
+
+        CertificateAuthority ca = CertificateAuthority.getInstance();
+        X509Certificate saCert = ca.getSliceAuthorityCertificate();
 
 
         HashMap<String,Object> result = new HashMap<>();
