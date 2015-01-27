@@ -1,5 +1,10 @@
 package org.fiteagle.north.sfa.allocate;
 
+import info.openmultinet.ontology.exceptions.InvalidModelException;
+import info.openmultinet.ontology.translators.geni.ManifestConverter;
+import info.openmultinet.ontology.vocabulary.Omn;
+import info.openmultinet.ontology.vocabulary.Omn_lifecycle;
+
 import java.io.IOException;
 import java.io.StringReader;
 import java.text.SimpleDateFormat;
@@ -7,6 +12,7 @@ import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.xml.bind.JAXBException;
 import javax.xml.parsers.DocumentBuilder;
 import javax.xml.parsers.DocumentBuilderFactory;
 import javax.xml.parsers.ParserConfigurationException;
@@ -16,6 +22,7 @@ import org.fiteagle.api.core.IMessageBus;
 import org.fiteagle.api.core.MessageBusOntologyModel;
 import org.fiteagle.api.core.MessageUtil;
 import org.fiteagle.north.sfa.am.ISFA_AM;
+import org.fiteagle.north.sfa.am.ReservationStateEnum;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
 import org.fiteagle.north.sfa.util.URN;
 import org.w3c.dom.Document;
@@ -24,6 +31,7 @@ import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import org.xml.sax.SAXException;
 
+import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
@@ -77,19 +85,19 @@ public class ProcessAllocate {
   }
   
   @SuppressWarnings("unchecked")
-  public static void reserveInstances(final Map<String, Object> allocateParameter, Map<String, String> sliverMap) {
+  public static Model reserveInstances(final Map<String, Object> allocateParameter) {
     
     Model requestModel = ModelFactory.createDefaultModel();
     Resource slice = requestModel.createResource(allocateParameter.get(ISFA_AM.URN).toString());
-    slice.addProperty(RDF.type, MessageBusOntologyModel.classGroup);
+    slice.addProperty(RDF.type, Omn.Group);
 
     int counter = 1;
     for (final Object requiredReserouces : (List<String>) allocateParameter.get(ISFA_AM.RequiredResources)){
       Resource sliver = requestModel.createResource(setSliverURN(allocateParameter.get(ISFA_AM.URN).toString(), counter));
-      sliver.addProperty(RDF.type, MessageBusOntologyModel.classReservation);
-      sliver.addProperty(MessageBusOntologyModel.partOfGroup, slice.getURI());
-      sliver.addProperty(MessageBusOntologyModel.reserveInstanceFrom, requiredReserouces.toString());
-      sliver.addProperty(MessageBusOntologyModel.hasState,IGeni.GENI_ALLOCATED);
+      sliver.addProperty(RDF.type, Omn.Reservation);
+      sliver.addProperty(Omn.isReservationOf, slice.getURI());
+      sliver.addProperty(Omn.isResourceOf, requiredReserouces.toString());
+      sliver.addProperty(Omn_lifecycle.hasReservationState, Omn_lifecycle.Allocated);
       if(allocateParameter.containsKey(ISFA_AM.EndTime)){
         sliver.addProperty(MessageBusOntologyModel.endTime, allocateParameter.get(ISFA_AM.EndTime).toString());
       }else{
@@ -104,13 +112,14 @@ public class ProcessAllocate {
     Model resultModel = SFA_AM_MDBSender.getInstance().sendRDFRequest(serializedModel, IMessageBus.TYPE_CREATE, IMessageBus.TARGET_RESERVATION);
     LOGGER.log(Level.INFO, "reservation reply received.");
     
-    StmtIterator iter = resultModel.listStatements();
-    while (iter.hasNext()) {
-      Statement st = iter.next();
-      Resource r = st.getSubject();
-      sliverMap.put(r.getURI().toString(), st.getObject().toString());
-      LOGGER.log(Level.INFO, "created sliver " + r.getURI());
-    }
+//    StmtIterator iter = resultModel.listStatements();
+//    while (iter.hasNext()) {
+//      Statement st = iter.next();
+//      Resource r = st.getSubject();
+//      sliverMap.put(r.getURI().toString(), st.getObject().toString());
+//      LOGGER.log(Level.INFO, "created sliver " + r.getURI());
+//    }
+    return resultModel;
   }
 
   private static Date getDefaultExpirationTime() {
@@ -141,34 +150,37 @@ public class ProcessAllocate {
     }
   }
   
-  public static void addAllocateValue(final HashMap<String, Object> result, final Map<String,String> slivers, final Map<String, Object> allocateParameters) {
+  public static void addAllocateValue(final HashMap<String, Object> result, final Map<String, Object> allocateParameters, Model allocateResponse) {
     final Map<String, Object> value = new HashMap<>();
     
-    value.put(IGeni.GENI_RSPEC, "should be the geni.rspec manifest"); // to be continued
+//    value.put(IGeni.GENI_RSPEC, "should be the geni.rspec manifest"); // to be continued
+    try {
+      value.put(IGeni.GENI_RSPEC, ManifestConverter.getRSpec(allocateResponse));
+    } catch (JAXBException | InvalidModelException e) {
+      // TODO Auto-generated catch block
+      e.printStackTrace();
+    }
     
     final List<Map<String, Object>> geniSlivers = new LinkedList<>();
     
-    /**
-     * defines a loop depending on the slivers number.
-     * In the loop, Map is created for each sliver containing 
-     * sliver urn, experires and status.
-     * The created maps should be added to geni_slivers list.
-     */    
-    for (Map.Entry<String, String> sliver : slivers.entrySet()) {
-      LOGGER.log(Level.INFO, "sliver in the list " + sliver.getKey());
+    StmtIterator iterator = allocateResponse.listStatements(null, RDF.type, Omn.Reservation);
+    while(iterator.hasNext()){
+      /**
+       * defines a loop depending on the slivers number.
+       * In the loop, Map is created for each sliver containing 
+       * sliver urn, experires and status.
+       * The created maps should be added to geni_slivers list.
+       */    
       final Map<String, Object> sliverMap = new HashMap<>();
-      sliverMap.put(IGeni.GENI_SLIVER_URN, sliver.getKey());
-      LOGGER.log(Level.INFO, "sliver in the map is " + sliverMap.get(IGeni.GENI_SLIVER_URN));
-      if(allocateParameters.containsKey(ISFA_AM.EndTime)){
-        sliverMap.put(IGeni.GENI_EXPIRES, allocateParameters.get(ISFA_AM.EndTime));
-        LOGGER.log(Level.INFO, "end time is " + sliverMap.get(IGeni.GENI_EXPIRES));
-      } else {
-        sliverMap.put(IGeni.GENI_EXPIRES, "");
-      }
-      sliverMap.put(IGeni.GENI_ALLOCATION_STATUS, sliver.getValue());
-      LOGGER.log(Level.INFO, "geni allocation status is " + sliverMap.get(IGeni.GENI_ALLOCATION_STATUS));
+      Statement statement = iterator.next();
+      Resource reservation = statement.getSubject();
+      
+      sliverMap.put(IGeni.GENI_SLIVER_URN, reservation.getURI());
+      sliverMap.put(IGeni.GENI_EXPIRES, reservation.getProperty(MessageBusOntologyModel.endTime).getLiteral().getString());
+      sliverMap.put(IGeni.GENI_ALLOCATION_STATUS, ReservationStateEnum.valueOf(reservation.getProperty(Omn_lifecycle.hasReservationState).getResource().getLocalName()));
       geniSlivers.add(sliverMap);
     }
+
     value.put(IGeni.GENI_SLIVERS, geniSlivers);
     result.put(ISFA_AM.VALUE, value);
   }
