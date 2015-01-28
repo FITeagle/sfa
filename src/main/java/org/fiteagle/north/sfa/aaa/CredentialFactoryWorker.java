@@ -21,53 +21,27 @@ public class CredentialFactoryWorker {
 
     private Credential credential;
     private X509Certificate userCertificate;
-    URN target;
+    private URN ownerURN ;
+
+    private URN targetURN;
     private X509Certificate targetCertificate;
 
     private Logger log = LoggerFactory.getLogger(this.getClass());
     private KeyStoreManagement keyStoreManagement;
 
     public CredentialFactoryWorker(
-            X509Certificate credentialCertificate, URN target) {
+            X509Certificate credentialCertificate,URN owner, X509Certificate targetCertificate, URN target) {
 
         this.keyStoreManagement = KeyStoreManagement.getInstance();
         this.userCertificate = credentialCertificate;
-        this.target = target;
+        this.ownerURN = owner;
+        this.targetURN = target;
+        this.targetCertificate = targetCertificate;
 
     }
 
-    private void setTargetCertificate() {
-        try {
-            targetCertificate = getTargetCertificate();
-        } catch (Exception e) {
-            log.error(e.getMessage(), e);
-            throw new RuntimeException(e.getMessage(), e);
-        }
-    }
-
-    private X509Certificate getTargetCertificate() throws Exception {
-
-        if (target.getType().equalsIgnoreCase("slice")) {
 
 
-            try {
-
-                return keyStoreManagement.getResourceCertificate(target
-                        .getSubjectAtDomain());
-            } catch (CertificateAuthority.CertificateNotFoundException e) {
-                X509Certificate groupCertificate = CertificateAuthority
-                        .getInstance().createCertificate(target,null);
-                keyStoreManagement.storeResourceCertificate(groupCertificate);
-                return groupCertificate;
-            }
-
-        }
-        if (target.getType().equalsIgnoreCase("authority")) {
-
-            return keyStoreManagement.getSliceAuthorityCert();
-        }
-        throw new RuntimeException();
-    }
 
     private void setId() {
         credential.setId(UUID.randomUUID().toString());
@@ -102,21 +76,8 @@ public class CredentialFactoryWorker {
 
     }
 
-    private void setOwnerURN() {
-        URN urn = getSubjectUrn();
-        credential.setOwnerURN(urn.toString());
 
-    }
 
-    private URN getSubjectUrn() {
-        try {
-            return X509Util.getURN(userCertificate);
-        } catch (CertificateParsingException e) {
-            log.error(e.getMessage(), e);
-            throw new RuntimeException(e.getMessage(), e);
-        }
-
-    }
 
     private void setTargetGID() {
         try {
@@ -129,9 +90,7 @@ public class CredentialFactoryWorker {
 
     }
 
-    private void setTargetURN() {
-        credential.setTargetURN(target.toString());
-    }
+
 
     private void setExpirationDate() {
 
@@ -175,7 +134,7 @@ public class CredentialFactoryWorker {
         this.keyStoreManagement = keyStoreManagement;
     }
 
-    public Credential getCredential() {
+    public Credential getCredential() throws Exception {
         credential = new Credential();
         setTargetCertificate();
         setId();
@@ -187,6 +146,18 @@ public class CredentialFactoryWorker {
         setExpirationDate();
         setPrivleges();
         return credential;
+    }
+
+    private void setTargetURN() {
+        credential.setTargetURN(targetURN.toString());
+    }
+
+    private void setOwnerURN() {
+        credential.setOwnerURN(ownerURN.toString());
+    }
+
+    private void setTargetCertificate() throws Exception {
+        credential.setTargetGid(X509Util.getCertificateBodyEncoded(targetCertificate));
     }
 
 }

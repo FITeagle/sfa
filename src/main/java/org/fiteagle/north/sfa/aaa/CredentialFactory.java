@@ -20,9 +20,9 @@ package org.fiteagle.north.sfa.aaa;
 public class CredentialFactory {
 
 
-    public static Credential newCredential(X509Certificate userCert, URN target) {
+    public static Credential newCredential(X509Certificate userCert, URN user, X509Certificate targetCert, URN target) throws Exception {
 
-        CredentialFactoryWorker worker = new CredentialFactoryWorker(userCert, target);
+        CredentialFactoryWorker worker = new CredentialFactoryWorker(userCert,user,targetCert, target);
 
         return worker.getCredential();
     }

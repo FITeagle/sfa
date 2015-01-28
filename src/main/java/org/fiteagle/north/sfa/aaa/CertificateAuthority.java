@@ -103,8 +103,13 @@ public class CertificateAuthority {
 		return x500Name;
 	}
 
+	public X509Certificate createSliceCertificate(URN sliceURN) throws Exception {
+		KeyManagement keyManagement = KeyManagement.getInstance();
+		PublicKey publicKey = keyManagement.generateKeyPair().getPublic();
+		return createCertificate(sliceURN,publicKey);
+	}
 
-	
+
 	public class EncodeCertificateException extends RuntimeException {
 		private static final long serialVersionUID = 1L;
 	}
