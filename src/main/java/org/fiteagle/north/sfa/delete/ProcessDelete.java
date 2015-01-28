@@ -1,5 +1,8 @@
 package org.fiteagle.north.sfa.delete;
 
+import info.openmultinet.ontology.vocabulary.Omn;
+import info.openmultinet.ontology.vocabulary.Omn_lifecycle;
+
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -12,6 +15,7 @@ import org.fiteagle.api.core.IMessageBus;
 import org.fiteagle.api.core.MessageBusOntologyModel;
 import org.fiteagle.api.core.MessageUtil;
 import org.fiteagle.north.sfa.am.ISFA_AM;
+import org.fiteagle.north.sfa.am.ReservationStateEnum;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
 import org.fiteagle.north.sfa.util.URN;
 
@@ -35,9 +39,9 @@ public class ProcessDelete {
 			Resource reservation = requestModel.createResource(urn.toString());
 
 			if (ISFA_AM.SLICE.equals(urn.getType())) {
-				reservation.addProperty(RDF.type, MessageBusOntologyModel.classGroup);
+				reservation.addProperty(RDF.type, Omn.Group);
 			} else if (ISFA_AM.Sliver.equals(urn.getType())) {
-				reservation.addProperty(RDF.type, MessageBusOntologyModel.classReservation);
+				reservation.addProperty(RDF.type, Omn.Reservation);
 					}
 			}
 
@@ -53,7 +57,7 @@ public class ProcessDelete {
 		
 		  final List<Map<String, Object>> value = new LinkedList<>();
 		  
-		  StmtIterator stmtIterator = deleteResponse.listStatements(null, RDF.type, MessageBusOntologyModel.classReservation);
+		  StmtIterator stmtIterator = deleteResponse.listStatements(null, RDF.type, Omn.Reservation);
 		    while (stmtIterator.hasNext()) {
 		      Statement statement = stmtIterator.next();
 		      Resource reservation = statement.getSubject();
@@ -66,12 +70,8 @@ public class ProcessDelete {
 		       */ 
 		      final Map<String, Object> sliverMap = new HashMap<>();
 		      sliverMap.put(IGeni.GENI_SLIVER_URN, reservation.getURI());
-		      if(reservation.hasProperty(MessageBusOntologyModel.endTime)){
-		    	  sliverMap.put(IGeni.GENI_EXPIRES, reservation.getProperty(MessageBusOntologyModel.endTime).getLiteral().getString());
-		      } else {
-		    	  sliverMap.put(IGeni.GENI_EXPIRES, "");
-		      }
-		      sliverMap.put(IGeni.GENI_ALLOCATION_STATUS, reservation.getProperty(MessageBusOntologyModel.hasState).getLiteral().getString());
+		    	sliverMap.put(IGeni.GENI_EXPIRES, reservation.getProperty(MessageBusOntologyModel.endTime).getLiteral().getString());
+		      sliverMap.put(IGeni.GENI_ALLOCATION_STATUS, ReservationStateEnum.valueOf(reservation.getProperty(Omn_lifecycle.hasReservationState).getResource().getLocalName()));
 		      
 		      value.add(sliverMap);
 		    }

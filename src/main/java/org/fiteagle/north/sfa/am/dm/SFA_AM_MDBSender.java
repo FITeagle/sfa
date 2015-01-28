@@ -76,9 +76,10 @@ public class SFA_AM_MDBSender {
   public List<String> getExtensions() {
     String query = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
         + "PREFIX omn: <http://open-multinet.info/ontology/omn#> "
+        + "PREFIX omnFederation: <http://open-multinet.info/ontology/omn-federation#> ."
         + "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> " + "CONSTRUCT { "
-        + "?resource omn:partOfFederation ?testbed. " + "?resource rdf:type ?type. }" + "FROM " + TRIPLET_STORE_URL
-        + "WHERE {" + "?resource omn:partOfFederation ?testbed. " + "?testbed a omn:Testbed. "
+        + "?resource omnFederation:partOfFederation ?testbed. " + "?resource rdf:type ?type. }" + "FROM " + TRIPLET_STORE_URL
+        + "WHERE {" + "?resource omnFederation:partOfFederation ?testbed. " + "?testbed a omnFederation:Federation. "
         + "OPTIONAL {?resource rdf:type ?type. } }";
     Model resultModel = sendSPARQLQueryRequest(query, IMessageBus.TARGET_RESOURCE_ADAPTER_MANAGER);
     
@@ -127,11 +128,12 @@ public class SFA_AM_MDBSender {
       query = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
           + "PREFIX omn: <http://open-multinet.info/ontology/omn#> "
           + "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> "
+          + "PREFIX omnFederation: <http://open-multinet.info/ontology/omn-federation#> ."
           + "PREFIX wgs: <http://www.w3.org/2003/01/geo/wgs84_pos#> " + "CONSTRUCT { "
-          + "?resource omn:partOfFederation ?testbed." + "?resource rdfs:label ?label. "
+          + "?resource omnFederation:partOfFederation ?testbed." + "?resource rdfs:label ?label. "
           + "?resource rdfs:comment ?comment." + "?resource rdf:type ?type. " + "?resource wgs:lat ?lat. "
           + "?resource wgs:long ?long. } " + "FROM " + TRIPLET_STORE_URL + "WHERE {"
-          + "?resource omn:partOfFederation ?testbed. " + "?testbed a omn:Testbed. "
+          + "?resource omnFederation:partOfFederation ?testbed. " + "?testbed a omnFederation:Federation. "
           + "OPTIONAL {?resource rdfs:label ?label. }" + "OPTIONAL {?resource rdfs:comment ?comment. }"
           + "OPTIONAL {?resource rdf:type ?type. }" + "OPTIONAL {?resource wgs:lat ?lat. }"
           + "OPTIONAL {?resource wgs:long ?long. } }";

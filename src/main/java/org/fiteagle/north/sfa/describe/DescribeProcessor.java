@@ -11,6 +11,9 @@ import org.fiteagle.north.sfa.am.ISFA_AM;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
 import org.fiteagle.north.sfa.util.URN;
 
+import info.openmultinet.ontology.vocabulary.Omn;
+import info.openmultinet.ontology.vocabulary.Omn_lifecycle;
+
 import javax.jms.Message;
 
 import java.util.ArrayList;
@@ -31,10 +34,10 @@ public class DescribeProcessor {
         for(URN u : urns){
             Resource resource = requestModel.createResource(u.toString());
             if(ISFA_AM.SLICE.equals(u.getType())){
-                resource.addProperty(RDF.type, MessageBusOntologyModel.classGroup);
+                resource.addProperty(RDF.type, Omn.Topology);
             }
             if(ISFA_AM.Sliver.equals(u.getType())){
-                resource.addProperty(RDF.type, MessageBusOntologyModel.classReservation);
+                resource.addProperty(RDF.type, Omn.Resource);
             }
         }
         String serializedModel = MessageUtil.serializeModel(requestModel, IMessageBus.SERIALIZATION_TURTLE);

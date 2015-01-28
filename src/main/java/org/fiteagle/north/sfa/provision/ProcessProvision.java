@@ -1,5 +1,10 @@
 package org.fiteagle.north.sfa.provision;
 
+import info.openmultinet.ontology.exceptions.InvalidModelException;
+import info.openmultinet.ontology.translators.geni.ManifestConverter;
+import info.openmultinet.ontology.vocabulary.Omn;
+import info.openmultinet.ontology.vocabulary.Omn_lifecycle;
+
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -7,11 +12,14 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
+import javax.xml.bind.JAXBException;
+
 import org.fiteagle.api.core.IGeni;
 import org.fiteagle.api.core.IMessageBus;
 import org.fiteagle.api.core.MessageBusOntologyModel;
 import org.fiteagle.api.core.MessageUtil;
 import org.fiteagle.north.sfa.am.ISFA_AM;
+import org.fiteagle.north.sfa.am.ReservationStateEnum;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
 import org.fiteagle.north.sfa.util.URN;
 
@@ -37,11 +45,11 @@ public class ProcessProvision {
 
 			if (ISFA_AM.SLICE.equals(urn.getType())) {
 				reservation.addProperty(RDF.type,
-						MessageBusOntologyModel.classGroup);
+						Omn.Group);
 			}else{
 				if (ISFA_AM.Sliver.equals(urn.getType())) {
 					reservation.addProperty(RDF.type,
-							MessageBusOntologyModel.classReservation);
+							Omn.Reservation);
 				}
 			}
 
@@ -54,17 +62,26 @@ public class ProcessProvision {
 				.sendRDFRequest(serializedModel, IMessageBus.TYPE_CONFIGURE,
 						IMessageBus.TARGET_ORCHESTRATOR);
 		LOGGER.log(Level.INFO,
-				"provision is reply received.");
+				"provision reply is received.");
 		return provisionResponse;
 	}
   
   public static void addProvisionValue(final HashMap<String, Object> result, Model provisionResponse){
 	  
 	  final Map<String, Object> value = new HashMap<>();
-	  value.put(IGeni.GENI_RSPEC,"should be geni_manifest");
+
+	  try {
+		value.put(IGeni.GENI_RSPEC, ManifestConverter.getRSpec(provisionResponse));
+	} catch (JAXBException | InvalidModelException e) {
+		// TODO Auto-generated catch block
+		e.printStackTrace();
+	}
+//	  value.put(IGeni.GENI_RSPEC, "RSPEC manifest");
+
+	  
 	  final List<Map<String, Object>> geniSlivers = new LinkedList<>();
 	  
-	  StmtIterator stmtIterator = provisionResponse.listStatements(null, RDF.type, MessageBusOntologyModel.classReservation);
+	  StmtIterator stmtIterator = provisionResponse.listStatements(null, RDF.type, Omn.Reservation);
 	    while (stmtIterator.hasNext()) {
 	      Statement statement = stmtIterator.next();
 	      Resource reservation = statement.getSubject();
@@ -77,12 +94,8 @@ public class ProcessProvision {
 	       */ 
 	      final Map<String, Object> sliverMap = new HashMap<>();
 	      sliverMap.put(IGeni.GENI_SLIVER_URN, reservation.getURI());
-	      if(reservation.hasProperty(MessageBusOntologyModel.endTime)){
-	    	  sliverMap.put(IGeni.GENI_EXPIRES, reservation.getProperty(MessageBusOntologyModel.endTime).getLiteral().getString());
-	      } else {
-	    	  sliverMap.put(IGeni.GENI_EXPIRES, "");
-	      }
-	      sliverMap.put(IGeni.GENI_ALLOCATION_STATUS, reservation.getProperty(MessageBusOntologyModel.hasState).getLiteral().getString());
+	      sliverMap.put(IGeni.GENI_EXPIRES, reservation.getProperty(MessageBusOntologyModel.endTime).getLiteral().getString());
+	      sliverMap.put(IGeni.GENI_ALLOCATION_STATUS, ReservationStateEnum.valueOf(reservation.getProperty(Omn_lifecycle.hasReservationState).getResource().getLocalName()));
 	      sliverMap.put(IGeni.GENI_OPERATIONAL_STATUS, "");
 	      sliverMap.put(IGeni.GENI_ERROR, "NO ERROR");
 	      

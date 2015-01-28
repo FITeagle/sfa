@@ -135,9 +135,9 @@ public class SFA_AM implements ISFA_AM {
         final Map<String, Object> allocateParameters = new HashMap<>();
         ProcessAllocate.parseAllocateParameter(parameter, allocateParameters);
 
-        final Map<String, String> sliverMap = new HashMap<>();
-        ProcessAllocate.reserveInstances(allocateParameters, sliverMap);
-        ProcessAllocate.addAllocateValue(result, sliverMap, allocateParameters);
+//        final Map<String, String> sliverMap = new HashMap<>();
+        Model allocateResponse = ProcessAllocate.reserveInstances(allocateParameters);
+        ProcessAllocate.addAllocateValue(result, allocateParameters, allocateResponse);
 
         this.addCode(result);
         this.addOutput(result);
