@@ -128,15 +128,17 @@ public class SFA_SA implements ISFA_SA {
         Model groupModel = createGroupModel(sliceURN, sliceCert);
 
         Model resultModel = sendGroup(groupModel);
-
         HashMap<String,Object> result = new HashMap<>();
+        if(resultModel != null) {
 
-        String output ="";
-        int code = 0;
 
-        result.put("output",output);
-        result.put("code", code);
-        result.put("value",  sliceCertString);
+            String output = "";
+            int code = 0;
+
+            result.put("output", output);
+            result.put("code", code);
+            result.put("value", sliceCertString);
+        }
         return result;
 
     }

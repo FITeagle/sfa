@@ -449,14 +449,14 @@ public class SFA_AM implements ISFA_AM {
     }
 
     private String[] getSupportedExtensions() {
-        List<String> extensionsMap = null;
+        List<String> extensionsMap = new LinkedList<>();
 
-        extensionsMap = SFA_AM_MDBSender.getInstance().getExtensions();
+      //  extensionsMap = SFA_AM_MDBSender.getInstance().getExtensions();
         final String[] extensions = new String[extensionsMap.size()];
 
         int i = 0;
         for (String namespace : extensionsMap) {
-            extensions[i] = namespace;
+           // extensions[i] = namespace;
             i++;
         }
         return extensions;
