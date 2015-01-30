@@ -14,6 +14,7 @@ import javax.jms.Message;
 import javax.jms.Topic;
 import javax.ws.rs.core.Response;
 
+import info.openmultinet.ontology.vocabulary.Omn_federation;
 import org.fiteagle.api.core.IMessageBus;
 import org.fiteagle.api.core.MessageUtil;
 
@@ -130,7 +131,7 @@ public class SFA_AM_MDBSender {
           + "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> "
           + "PREFIX omnFederation: <http://open-multinet.info/ontology/omn-federation#> ."
           + "PREFIX wgs: <http://www.w3.org/2003/01/geo/wgs84_pos#> " + "CONSTRUCT { "
-          + "?resource omnFederation:partOfFederation ?testbed." + "?resource rdfs:label ?label. "
+          + "?resource "+ Omn_federation.partOfFederation+" ?testbed." + "?resource rdfs:label ?label. "
           + "?resource rdfs:comment ?comment." + "?resource rdf:type ?type. " + "?resource wgs:lat ?lat. "
           + "?resource wgs:long ?long. } " + "FROM " + TRIPLET_STORE_URL + "WHERE {"
           + "?resource omnFederation:partOfFederation ?testbed. " + "?testbed a omnFederation:Federation. "
