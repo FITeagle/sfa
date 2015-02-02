@@ -14,15 +14,10 @@ import javax.jms.Message;
 import javax.jms.Topic;
 import javax.ws.rs.core.Response;
 
+import com.hp.hpl.jena.rdf.model.*;
 import info.openmultinet.ontology.vocabulary.Omn_federation;
 import org.fiteagle.api.core.IMessageBus;
 import org.fiteagle.api.core.MessageUtil;
-
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.RDFNode;
-import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.rdf.model.Statement;
-import com.hp.hpl.jena.rdf.model.StmtIterator;
 
 @Startup
 @Singleton
@@ -140,8 +135,11 @@ public class SFA_AM_MDBSender {
           + "OPTIONAL {?resource wgs:long ?long. } }";
       LOGGER.log(Level.INFO, "Using default query");
     }
-    
-    Model resultModel = sendSPARQLQueryRequest(query, IMessageBus.TARGET_RESOURCE_ADAPTER_MANAGER);
+
+    Model requestModel = ModelFactory.createDefaultModel();
+      String serializedModel = MessageUtil.serializeModel(requestModel, IMessageBus.SERIALIZATION_TURTLE);
+
+    Model resultModel = sendRDFRequest(serializedModel,IMessageBus.TYPE_GET, IMessageBus.TARGET_RESOURCE_ADAPTER_MANAGER);
     String resultString = MessageUtil.serializeModel(resultModel, IMessageBus.SERIALIZATION_RDFXML);
     
     LOGGER.log(Level.INFO, "result after serialization " + resultString);
