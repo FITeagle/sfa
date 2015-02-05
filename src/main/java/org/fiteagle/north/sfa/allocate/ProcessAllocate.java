@@ -96,8 +96,9 @@ public class ProcessAllocate {
         reservation.addProperty(Omn.isReservationOf, sliver);
         reservation.addProperty(Omn_lifecycle.hasReservationState, Omn_lifecycle.Allocated);
 
-      sliver.addProperty(Omn.isResourceOf, requiredResources.toString());
+        sliver.addProperty(Omn.isResourceOf, slice);
         slice.addProperty(Omn.hasResource, sliver);
+        sliver.addProperty(Omn_lifecycle.implementedBy,requestModel.createResource(requiredResources.toString()));
       if(allocateParameter.containsKey(ISFA_AM.EndTime)){
         reservation.addProperty(MessageBusOntologyModel.endTime, allocateParameter.get(ISFA_AM.EndTime).toString());
       }else{

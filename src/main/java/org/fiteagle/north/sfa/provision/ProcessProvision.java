@@ -1,5 +1,6 @@
 package org.fiteagle.north.sfa.provision;
 
+import com.hp.hpl.jena.ontology.Individual;
 import info.openmultinet.ontology.exceptions.InvalidModelException;
 import info.openmultinet.ontology.translators.geni.ManifestConverter;
 import info.openmultinet.ontology.vocabulary.Omn;
@@ -41,15 +42,16 @@ public class ProcessProvision {
 		LOGGER.log(Level.INFO, "create provision model ");
 		Model requestModel = ModelFactory.createDefaultModel();
 		for (URN urn : urns) {
-			Resource reservation = requestModel.createResource(urn.toString());
+
 
 			if (ISFA_AM.SLICE.equals(urn.getType())) {
-				reservation.addProperty(RDF.type,
-						Omn.Group);
+                Individual topology = Omn.Topology.createIndividual(urn.toString());
+                requestModel.add(topology.listProperties());
+
 			}else{
 				if (ISFA_AM.Sliver.equals(urn.getType())) {
-					reservation.addProperty(RDF.type,
-							Omn.Reservation);
+					Individual resource = Omn.Resource.createIndividual(urn.toString());
+                    requestModel.add(resource.listProperties());
 				}
 			}
 
