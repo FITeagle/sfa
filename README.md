@@ -1,4 +1,5 @@
 [![Build Status](https://travis-ci.org/FITeagle/sfa.svg?branch=master)](https://travis-ci.org/FITeagle/sfa)
+[![Coverage Status](https://coveralls.io/repos/FITeagle/sfa/badge.svg?branch=master)](https://coveralls.io/r/FITeagle/sfa?branch=master)
 
 Slice-based Federation Architecture
 ===================================
