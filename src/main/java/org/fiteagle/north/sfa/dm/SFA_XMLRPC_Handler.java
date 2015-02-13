@@ -83,13 +83,6 @@ public class SFA_XMLRPC_Handler implements ISFA_XMLRPC_InvocationHandler {
 		SFA_XMLRPC_Handler.LOGGER.log(Level.INFO, "Working with cert: "
 				+ certInfo);
 
-		// todo: move this hack to the manager (i.e. construct dummy answers)
-
-		if ("Status".equals(methodName)) {
-			return this
-					.returnDummyValue(SFA_XMLRPC_Handler.DUMMY_RESPONSE_FILE_SLICE_BAD);
-		}
-		
 		Object result = this.manager.handle(methodName, parameter, this.path, this.cert);
 		return result;
 	}

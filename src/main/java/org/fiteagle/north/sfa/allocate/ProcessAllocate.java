@@ -3,11 +3,13 @@ package org.fiteagle.north.sfa.allocate;
 import com.hp.hpl.jena.rdf.model.*;
 import info.openmultinet.ontology.exceptions.InvalidModelException;
 import info.openmultinet.ontology.translators.geni.ManifestConverter;
+import info.openmultinet.ontology.translators.geni.RequestConverter;
 import info.openmultinet.ontology.vocabulary.Omn;
 import info.openmultinet.ontology.vocabulary.Omn_lifecycle;
 
-import java.io.IOException;
-import java.io.StringReader;
+import java.io.*;
+import java.net.URLEncoder;
+import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.logging.Level;
@@ -40,7 +42,7 @@ public class ProcessAllocate {
   
   private final static Logger LOGGER = Logger.getLogger(ProcessAllocate.class.getName());
   
-  public static void parseAllocateParameter(final List<?> parameter, final Map<String,  Object> allocateParameters) {
+  public static void parseAllocateParameter(final List<?> parameter, final Map<String,  Object> allocateParameters) throws JAXBException, InvalidModelException {
     ProcessAllocate.LOGGER.log(Level.INFO, "parsing allocate parameter");
     System.out.println(parameter);
     System.out.println(parameter.size());
@@ -48,14 +50,14 @@ public class ProcessAllocate {
       if (param instanceof String) {
         String allocateParameter = (String) param;
         if (allocateParameter.startsWith(ISFA_AM.URN)) {
-          allocateParameters.put(ISFA_AM.URN, allocateParameter);
+          allocateParameters.put(ISFA_AM.URN, new URN(allocateParameter));
           ProcessAllocate.LOGGER.log(Level.INFO, allocateParameters.get(ISFA_AM.URN).toString());
         } else if (allocateParameter.contains(ISFA_AM.REQUEST)) {
           allocateParameters.put(ISFA_AM.REQUEST, allocateParameter);
           ProcessAllocate.LOGGER.log(Level.INFO, allocateParameters.get(ISFA_AM.REQUEST).toString());
-          final List<String> requiredResources = new LinkedList<>();
-          parseRSpec(allocateParameter, ISFA_AM.componentManagerId, requiredResources);
-          allocateParameters.put(ISFA_AM.RequiredResources, requiredResources);
+
+          Model model = parseRSpec(allocateParameter);
+          allocateParameters.put(ISFA_AM.RequiredResources, model);
         }
       }
       if (param instanceof Map<?, ?>) {
@@ -82,11 +84,15 @@ public class ProcessAllocate {
   
   @SuppressWarnings("unchecked")
   public static Model reserveInstances(final Map<String, Object> allocateParameter) {
-    
+    Model incoming = (Model) allocateParameter.get(ISFA_AM.RequiredResources);
     Model requestModel = ModelFactory.createDefaultModel();
-    Resource slice = requestModel.createResource(allocateParameter.get(ISFA_AM.URN).toString());
-    slice.addProperty(RDF.type, Omn.Topology);
+      URN sliceURN = (URN) allocateParameter.get(ISFA_AM.URN);
 
+      Resource topology = requestModel.createResource(Omn.Topology.getURI() + "/"+ sliceURN.getSubject());
+      topology.addProperty(RDF.type, Omn.Topology);
+      Model requestedResources = getRequestedResources(topology, incoming);
+     requestModel.add(requestedResources);
+ /*
     int counter = 1;
     for (final Object requiredResources : (List<String>) allocateParameter.get(ISFA_AM.RequiredResources)){
       Resource sliver = requestModel.createResource(setSliverURN(allocateParameter.get(ISFA_AM.URN).toString(), counter));
@@ -94,7 +100,7 @@ public class ProcessAllocate {
       Resource reservation = requestModel.createResource(Omn.Reservation.getURI()+UUID.randomUUID().toString());
         reservation.addProperty(RDF.type, Omn.Reservation);
         reservation.addProperty(Omn.isReservationOf, sliver);
-        reservation.addProperty(Omn_lifecycle.hasReservationState, Omn_lifecycle.Allocated);
+
 
         sliver.addProperty(Omn.isResourceOf, slice);
         slice.addProperty(Omn.hasResource, sliver);
@@ -107,7 +113,7 @@ public class ProcessAllocate {
       }
       counter = counter + 1;
     }
-    
+    */
     String serializedModel = MessageUtil.serializeModel(requestModel, IMessageBus.SERIALIZATION_TURTLE);
     LOGGER.log(Level.INFO, "send reservation request ...");
     Model resultModel = SFA_AM_MDBSender.getInstance().sendRDFRequest(serializedModel, IMessageBus.TYPE_CREATE, IMessageBus.TARGET_RESERVATION);
@@ -123,40 +129,50 @@ public class ProcessAllocate {
     return resultModel;
   }
 
-  private static Date getDefaultExpirationTime() {
-    Date date = new Date();
-    long t=date.getTime();
-    return new Date(t + (120 * 60000));
-  }
+    private static Model getRequestedResources(Resource topology, Model requestedModel) {
+        ResIterator resIterator = requestedModel.listResourcesWithProperty(Omn.isResourceOf);
+        Model requestedResourcesModel = ModelFactory.createDefaultModel();
+        while(resIterator.hasNext()){
+            Resource oldResource = resIterator.nextResource();
+            Resource oldType = oldResource.getProperty(RDF.type).getObject().asResource();
 
-  private static void parseRSpec(String request, String requiredAttribute, List<String> requiredResources) {
-    try {
-      DocumentBuilderFactory dbf = DocumentBuilderFactory.newInstance();
-      DocumentBuilder db;
-      db = dbf.newDocumentBuilder();
-      InputSource is = new InputSource();
-      is.setCharacterStream(new StringReader(request));
-      
-      Document doc = db.parse(is);
-      NodeList nodes = doc.getElementsByTagName(ISFA_AM.node);
-      
-      for (int i = 0; i < nodes.getLength(); i++) {
-        Element element = (Element) nodes.item(i);
-        requiredResources.add(element.getAttribute(requiredAttribute));
-        System.out.println("parsed element component manager id " + element.getAttribute(requiredAttribute));
-      }
-    } catch (ParserConfigurationException | SAXException | IOException e) {
-      // TODO Auto-generated catch block
-      e.printStackTrace();
+            Resource newResource = requestedResourcesModel.createResource(oldType.getURI() + "/" + oldResource.getLocalName());
+            // newResource.addProperty(RDF.type, oldType);
+            // newResource.addProperty(Omn_lifecycle.implementedBy, oldResource.getProperty(Omn_lifecycle.implementedBy).getObject().asResource());
+            // newResource.addProperty(Omn.isResourceOf, topology);
+            StmtIterator stmtIterator = oldResource.listProperties();
+            while(stmtIterator.hasNext()){
+                Statement statement = stmtIterator.nextStatement();
+                if(statement.getPredicate().equals(Omn.isResourceOf)){
+                    newResource.addProperty(statement.getPredicate(),topology);
+                }else{
+                    newResource.addProperty(statement.getPredicate(),statement.getObject());
+                }
+
+            }
+            topology.addProperty(Omn.hasResource, newResource);
+            requestedResourcesModel.add(topology.getProperty(Omn.hasResource));
+        }
+
+       return requestedResourcesModel;
     }
+
+
+
+  private static Model parseRSpec(String request) throws JAXBException, InvalidModelException {
+
+      InputStream is = new ByteArrayInputStream( request.getBytes(Charset.defaultCharset()) );
+      Model model = RequestConverter.getModel(is);
+      return  model;
   }
   
-  public static void addAllocateValue(final HashMap<String, Object> result, final Map<String, Object> allocateParameters, Model allocateResponse) {
+  public static void addAllocateValue(final HashMap<String, Object> result, final Map<String, Object> allocateParameters, Model allocateResponse) throws UnsupportedEncodingException {
     final Map<String, Object> value = new HashMap<>();
     
 
     try {
-      value.put(IGeni.GENI_RSPEC, ManifestConverter.getRSpec(allocateResponse));
+
+      value.put(IGeni.GENI_RSPEC, ManifestConverter.getRSpec(allocateResponse, "localhost"));
     } catch (JAXBException | InvalidModelException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
@@ -176,7 +192,7 @@ public class ProcessAllocate {
 
       Resource reservation = iterator.nextResource();
       
-      sliverMap.put(IGeni.GENI_SLIVER_URN, reservation.getProperty(Omn.isReservationOf).getResource().getURI());
+      sliverMap.put(IGeni.GENI_SLIVER_URN, ManifestConverter.generateSliverID("localhost",reservation.getProperty(Omn.isReservationOf).getResource().getURI()));
       sliverMap.put(IGeni.GENI_EXPIRES, reservation.getProperty(MessageBusOntologyModel.endTime).getLiteral().getString());
       sliverMap.put(IGeni.GENI_ALLOCATION_STATUS, ReservationStateEnum.valueOf(reservation.getProperty(Omn_lifecycle.hasReservationState).getResource().getLocalName()).getGeniState());
       geniSlivers.add(sliverMap);
@@ -185,8 +201,10 @@ public class ProcessAllocate {
     value.put(IGeni.GENI_SLIVERS, geniSlivers);
     result.put(ISFA_AM.VALUE, value);
   }
-  
-  private static String setSliverURN(String SliceURN, int i){
+
+
+
+    private static String setSliverURN(String SliceURN, int i){
 	  String sliverURN = "";
 	  URN urn = new URN(SliceURN);
 	  urn.setType(ISFA_AM.Sliver);

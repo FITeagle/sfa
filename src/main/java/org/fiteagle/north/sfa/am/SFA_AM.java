@@ -13,10 +13,12 @@ import javax.xml.bind.JAXBException;
 
 
 //import info.openmultinet.ontology.exceptions.InvalidModelException;
+import info.openmultinet.ontology.exceptions.InvalidModelException;
 import org.apache.commons.codec.binary.Base64;
 import org.fiteagle.api.core.IGeni;
 import org.fiteagle.api.core.MessageUtil;
 import org.fiteagle.north.sfa.allocate.ProcessAllocate;
+import org.fiteagle.north.sfa.am.Status.StatusProcessor;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_Delegate_Default;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender.EmptyReplyException;
@@ -122,13 +124,17 @@ public class SFA_AM implements ISFA_AM {
             HashMap<String, Object> exceptionBody = new HashMap<>();
             handleException(exceptionBody, e, GENI_CodeEnum.ERROR);
             result = exceptionBody;
+        } catch (InvalidModelException e) {
+            HashMap<String, Object> exceptionBody = new HashMap<>();
+            handleException(exceptionBody, e, GENI_CodeEnum.ERROR);
+            result = exceptionBody;
         }
 
         return result;
     }
 
     @Override
-    public Object allocate(final List<?> parameter) {
+    public Object allocate(final List<?> parameter) throws JAXBException, InvalidModelException, UnsupportedEncodingException {
         SFA_AM.LOGGER.log(Level.INFO, "allocate...");
         final HashMap<String, Object> result = new HashMap<>();
 
@@ -151,7 +157,7 @@ public class SFA_AM implements ISFA_AM {
     }
 
     @Override
-    public Object provision(final List<?> parameter) {
+    public Object provision(final List<?> parameter) throws UnsupportedEncodingException {
         SFA_AM.LOGGER.log(Level.INFO, "provision...");
         final HashMap<String, Object> result = new HashMap<>();
         List<URN> urns = parseURNList(parameter.get(0));
@@ -168,8 +174,19 @@ public class SFA_AM implements ISFA_AM {
     }
 
     @Override
-    public Object status(final List<?> parameter) {
+    public Object status(final List<?> parameter) throws UnsupportedEncodingException {
+        SFA_AM.LOGGER.log(Level.INFO, "status...");
         final HashMap<String, Object> result = new HashMap<>();
+        List<URN> urns = parseURNList(parameter.get(0));
+        List<GENI_Credential> credentialList = parseCredentialsParameters(parameter.get(1));
+        checkCredentials(credentialList);
+        final HashMap<String, Object> statusParameters = (HashMap<String, Object>) parameter.get(2);
+        StatusProcessor statusProcessor = new StatusProcessor();
+        Model statusResponse = statusProcessor.getStates(urns);
+        ProcessProvision.addProvisionValue(result, statusResponse);
+        this.addCode(result);
+        this.addOutput(result);
+
         return result;
     }
 

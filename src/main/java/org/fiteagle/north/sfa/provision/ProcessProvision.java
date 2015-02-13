@@ -6,6 +6,8 @@ import info.openmultinet.ontology.translators.geni.ManifestConverter;
 import info.openmultinet.ontology.vocabulary.Omn;
 import info.openmultinet.ontology.vocabulary.Omn_lifecycle;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -37,7 +39,7 @@ public class ProcessProvision {
   
   
   public static Model provisionInstances(
-			List<URN> urns) {
+			List<URN> urns) throws UnsupportedEncodingException {
 
 		LOGGER.log(Level.INFO, "create provision model ");
 		Model requestModel = ModelFactory.createDefaultModel();
@@ -45,12 +47,12 @@ public class ProcessProvision {
 
 
 			if (ISFA_AM.SLICE.equals(urn.getType())) {
-                Individual topology = Omn.Topology.createIndividual(urn.toString());
+                Individual topology = Omn.Topology.createIndividual(Omn.Topology.getURI()+"/"+urn.getSubject());
                 requestModel.add(topology.listProperties());
 
 			}else{
 				if (ISFA_AM.Sliver.equals(urn.getType())) {
-					Individual resource = Omn.Resource.createIndividual(urn.toString());
+					Individual resource = Omn.Resource.createIndividual(URLDecoder.decode(urn.getSubject(),"UTF-8"));
                     requestModel.add(resource.listProperties());
 				}
 			}
@@ -73,7 +75,7 @@ public class ProcessProvision {
 	  final Map<String, Object> value = new HashMap<>();
 
 	  try {
-		value.put(IGeni.GENI_RSPEC, ManifestConverter.getRSpec(provisionResponse));
+		value.put(IGeni.GENI_RSPEC, ManifestConverter.getRSpec(provisionResponse, "localhost"));
 	} catch (JAXBException | InvalidModelException e) {
 		// TODO Auto-generated catch block
 		e.printStackTrace();
@@ -95,9 +97,10 @@ public class ProcessProvision {
 	       * The created maps should be added to geniSlivers list.
 	       */ 
 	      final Map<String, Object> sliverMap = new HashMap<>();
-	      sliverMap.put(IGeni.GENI_SLIVER_URN, reservation.getURI());
+            Resource resource = provisionResponse.getResource(reservation.getProperty(Omn.isReservationOf).getObject().asResource().getURI());
+	      sliverMap.put(IGeni.GENI_SLIVER_URN, ManifestConverter.generateSliverID("localhost",resource.getURI()));
 	      sliverMap.put(IGeni.GENI_EXPIRES, reservation.getProperty(MessageBusOntologyModel.endTime).getLiteral().getString());
-	      sliverMap.put(IGeni.GENI_ALLOCATION_STATUS, ReservationStateEnum.valueOf(reservation.getProperty(Omn_lifecycle.hasReservationState).getResource().getLocalName()));
+	      sliverMap.put(IGeni.GENI_ALLOCATION_STATUS, ReservationStateEnum.valueOf(reservation.getProperty(Omn_lifecycle.hasReservationState).getResource().getLocalName()).getGeniState());
 	      sliverMap.put(IGeni.GENI_OPERATIONAL_STATUS, "");
 	      sliverMap.put(IGeni.GENI_ERROR, "NO ERROR");
 	      

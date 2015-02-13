@@ -145,7 +145,7 @@ public class SFA_SA implements ISFA_SA {
     private Model createGroupModel(URN sliceURN, X509Certificate sliceCert) throws Exception {
         Model groupModel = ModelFactory.createDefaultModel();
         //TODO change this to URN.toURI()
-        Resource resource = groupModel.createResource(sliceURN.toString());
+        Resource resource = groupModel.createResource(Omn.Topology.getURI() + "/"+ sliceURN.getSubject());
         resource.addProperty(RDF.type, Omn.Topology );
         resource.addProperty(Omn_lifecycle.hasAuthenticationInformation, X509Util.getCertificateBodyEncoded(sliceCert));
 

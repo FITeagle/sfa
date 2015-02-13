@@ -4,6 +4,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 //import info.openmultinet.ontology.exceptions.InvalidModelException;
+import info.openmultinet.ontology.exceptions.InvalidModelException;
 import org.fiteagle.north.sfa.ISFA;
 
 import javax.jms.JMSException;
@@ -53,13 +54,13 @@ public interface ISFA_AM extends ISFA {
 	
 	public abstract Object describe(List<?> parameter) throws UnsupportedEncodingException, JAXBException;// , InvalidModelException;
 	
-	public abstract Object allocate(List<?> parameter);
+	public abstract Object allocate(List<?> parameter) throws JAXBException, InvalidModelException, UnsupportedEncodingException;
 	
 	public abstract Object renew(List<?> parameter);
 	
-	public abstract Object provision(List<?> parameter);
+	public abstract Object provision(List<?> parameter) throws UnsupportedEncodingException;
 	
-	public abstract Object status(List<?> parameter);
+	public abstract Object status(List<?> parameter) throws UnsupportedEncodingException;
 	
 	public abstract Object performOperationalAction(List<?> parameter);
 	
