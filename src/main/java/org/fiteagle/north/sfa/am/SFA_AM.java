@@ -18,7 +18,7 @@ import org.apache.commons.codec.binary.Base64;
 import org.fiteagle.api.core.IGeni;
 import org.fiteagle.api.core.MessageUtil;
 import org.fiteagle.north.sfa.allocate.ProcessAllocate;
-import org.fiteagle.north.sfa.am.Status.StatusProcessor;
+import org.fiteagle.north.sfa.status.StatusProcessor;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_Delegate_Default;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender.EmptyReplyException;
@@ -183,7 +183,8 @@ public class SFA_AM implements ISFA_AM {
         final HashMap<String, Object> statusParameters = (HashMap<String, Object>) parameter.get(2);
         StatusProcessor statusProcessor = new StatusProcessor();
         Model statusResponse = statusProcessor.getStates(urns);
-        ProcessProvision.addProvisionValue(result, statusResponse);
+        statusProcessor.addStatusValue(result, statusResponse);
+
         this.addCode(result);
         this.addOutput(result);
 
