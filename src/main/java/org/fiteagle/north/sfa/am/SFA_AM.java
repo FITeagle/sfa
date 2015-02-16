@@ -18,6 +18,9 @@ import org.apache.commons.codec.binary.Base64;
 import org.fiteagle.api.core.IGeni;
 import org.fiteagle.api.core.MessageUtil;
 import org.fiteagle.north.sfa.allocate.ProcessAllocate;
+import org.fiteagle.north.sfa.exceptions.BadArgumentsException;
+import org.fiteagle.north.sfa.exceptions.ForbiddenException;
+import org.fiteagle.north.sfa.exceptions.SearchFailedException;
 import org.fiteagle.north.sfa.status.StatusProcessor;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_Delegate_Default;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
@@ -107,7 +110,12 @@ public class SFA_AM implements ISFA_AM {
             handleException(exceptionBody, e, GENI_CodeEnum.FORBIDDEN);
             result = exceptionBody;
 
-        } catch (RuntimeException e) {
+        }  catch (SearchFailedException e){
+        HashMap<String, Object> exceptionBody = new HashMap<>();
+        handleException(exceptionBody, e, GENI_CodeEnum.SEARCHFAILED);
+        result = exceptionBody;
+
+    } catch (RuntimeException e) {
 
             HashMap<String, Object> exceptionBody = new HashMap<>();
             handleException(exceptionBody, e, GENI_CodeEnum.ERROR);
@@ -513,29 +521,7 @@ public class SFA_AM implements ISFA_AM {
     }
 
 
-    private class BadArgumentsException extends RuntimeException {
-        private String message;
 
-        public BadArgumentsException(String message) {
-            this.message = message;
-        }
 
-        @Override
-        public String getMessage() {
-            return message;
-        }
-    }
 
-    private class ForbiddenException extends RuntimeException {
-        private String message;
-
-        public ForbiddenException(String message) {
-            this.message = message;
-        }
-
-        @Override
-        public String getMessage() {
-            return message;
-        }
-    }
 }

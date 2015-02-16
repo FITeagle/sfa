@@ -13,6 +13,7 @@ import org.fiteagle.api.core.MessageUtil;
 import org.fiteagle.north.sfa.am.ISFA_AM;
 import org.fiteagle.north.sfa.am.ReservationStateEnum;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
+import org.fiteagle.north.sfa.exceptions.SearchFailedException;
 import org.fiteagle.north.sfa.util.URN;
 
 import java.io.UnsupportedEncodingException;
@@ -65,6 +66,9 @@ public class StatusProcessor {
         final List<Map<String, Object>> geniSlivers = new LinkedList<>();
 
         StmtIterator stmtIterator = statusResponse.listStatements(null, RDF.type, Omn.Reservation);
+        if(!stmtIterator.hasNext()){
+            throw new SearchFailedException("Resource not found");
+        }
         while (stmtIterator.hasNext()) {
             Statement statement = stmtIterator.next();
             Resource reservation = statement.getSubject();
