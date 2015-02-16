@@ -3,6 +3,7 @@ package org.fiteagle.north.sfa.status;
 import com.hp.hpl.jena.ontology.Individual;
 import com.hp.hpl.jena.rdf.model.*;
 import com.hp.hpl.jena.vocabulary.RDF;
+import com.hp.hpl.jena.vocabulary.RDFS;
 import info.openmultinet.ontology.translators.geni.ManifestConverter;
 import info.openmultinet.ontology.vocabulary.Omn;
 import info.openmultinet.ontology.vocabulary.Omn_lifecycle;
@@ -78,12 +79,33 @@ public class StatusProcessor {
             sliverMap.put(IGeni.GENI_SLIVER_URN, ManifestConverter.generateSliverID("localhost",resource.getURI()));
             sliverMap.put(IGeni.GENI_EXPIRES, reservation.getProperty(MessageBusOntologyModel.endTime).getLiteral().getString());
             sliverMap.put(IGeni.GENI_ALLOCATION_STATUS, ReservationStateEnum.valueOf(reservation.getProperty(Omn_lifecycle.hasReservationState).getResource().getLocalName()).getGeniState());
-            sliverMap.put(IGeni.GENI_OPERATIONAL_STATUS, "");
+            sliverMap.put(IGeni.GENI_OPERATIONAL_STATUS, getGENI_OperationalState(resource.getProperty(Omn_lifecycle.hasState).getObject()));
             sliverMap.put(IGeni.GENI_ERROR, "NO ERROR");
 
             geniSlivers.add(sliverMap);
         }
         value.put(IGeni.GENI_SLIVERS, geniSlivers);
+
+        value.put(IGeni.GENI_URN, getSliceURN(statusResponse));
         result.put(ISFA_AM.VALUE, value);
+    }
+
+    private String getSliceURN(Model statusResponse) {
+        StmtIterator stmtIterator = statusResponse.listStatements(new SimpleSelector(null,Omn.hasResource, (Object)null));
+        Resource topology = stmtIterator.nextStatement().getSubject();
+        String localname = topology.getLocalName();
+        URN urn =  new URN("urn:publicid:IDN+localhost+slice+"+localname);
+        return urn.toString();
+
+    }
+
+    private String getGENI_OperationalState(RDFNode object) {
+        switch (object.asResource().getLocalName()){
+            case "Ready":
+                LOGGER.log(Level.INFO, "ready");
+                return "geni_ready";
+            default:
+                return "";
+        }
     }
 }
