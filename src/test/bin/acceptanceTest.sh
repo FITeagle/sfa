@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+
+TARGET=$(mktemp -d 2>/dev/null || mktemp -d -t "fiteagle")
+REPO="~/.m2/repository/org/fiteagle"
+
+echo "ARE YOU SURE TO DELETE '${TARGET}' and '${REPO}' and kill all java processes? Press 'Y'"
+read key
+if [ "Y" != "${key}" ]; then exit 1; fi
+
+killall java 2>/dev/null
+sleep 5
+killall -9 java 2>/dev/null
+
+rm -rf ${REPO};
+rm -rf ${TARGET};
+mkdir -p ${TARGET};
+cd ${TARGET}
+curl -fsSL fiteagle.org/bootstrap | bash -s init deployFT2 deployFT2sfa
+cd sfa
+./src/test/bin/runJfed.sh
+
+echo "You might now want to delete ${TARGET}."
