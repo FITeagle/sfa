@@ -14,8 +14,8 @@ Installation
 ------------
     mvn clean wildfly:deploy 
 
-API
----
+APIs
+----
 
     https://localhost:8443/sfa/api/am/v3
     https://localhost:8443/sfa/api/sa/v1
@@ -23,7 +23,11 @@ API
 Testing
 -------
 
-    ./src/test/bin/runJfed.sh
+### SFA acceptance tests
+   ./src/test/bin/runJfed.sh
+   
+### Complete clean setup and test
+   curl -fksSL https://raw.githubusercontent.com/FITeagle/sfa/master/src/test/bin/acceptanceTest.sh | bash -s
 
 Remark
 ------
