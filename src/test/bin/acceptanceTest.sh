@@ -4,9 +4,10 @@ TARGET=$(mktemp -d 2>/dev/null || mktemp -d -t "fiteagle")
 REPO="~/.m2/repository/org/fiteagle"
 
 echo "ARE YOU SURE TO DELETE '${TARGET}' and '${REPO}' and kill all java processes? Press 'Y'"
-read key
+if [ -z "${key}" ]; then read key; fi
 if [ "Y" != "${key}" ]; then exit 1; fi
 
+echo "Killing all java processes..."
 killall java 2>/dev/null
 sleep 5
 killall -9 java 2>/dev/null
