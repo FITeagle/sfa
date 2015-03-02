@@ -13,6 +13,6 @@ cache:
   - $HOME/.m2
 after_success:
   - mvn clean test jacoco:report coveralls:report
-  - apt-get install -y screen
+  - sudo apt-get install -y screen
   - key="Y" ./src/test/bin/acceptanceTest.sh
   
