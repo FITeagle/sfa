@@ -59,13 +59,7 @@ public class ProcessAllocate {
         }
       }
     }
-    
-    /*
-     * for (final Object param : parameter) { if (param instanceof String) { // considered to be slice_urn String param2
-     * = (String) param; this.delegate.setSliceURN(param2); } else if (param instanceof Map<?, ?>) { // considered to be
-     * options parameters. this.parseOptionsParameters(param); } else if(param instanceof List<?>){ // considered to be
-     * credentials parameters. this.parseCredentialsParameters(param); } }
-     */
+
   }
   
   @SuppressWarnings("unchecked")
@@ -78,40 +72,12 @@ public class ProcessAllocate {
       topology.addProperty(RDF.type, Omn.Topology);
       Model requestedResources = getRequestedResources(topology, incoming);
      requestModel.add(requestedResources);
- /*
-    int counter = 1;
-    for (final Object requiredResources : (List<String>) allocateParameter.get(ISFA_AM.RequiredResources)){
-      Resource sliver = requestModel.createResource(setSliverURN(allocateParameter.get(ISFA_AM.URN).toString(), counter));
-      sliver.addProperty(RDF.type, Omn.Resource);
-      Resource reservation = requestModel.createResource(Omn.Reservation.getURI()+UUID.randomUUID().toString());
-        reservation.addProperty(RDF.type, Omn.Reservation);
-        reservation.addProperty(Omn.isReservationOf, sliver);
 
-
-        sliver.addProperty(Omn.isResourceOf, slice);
-        slice.addProperty(Omn.hasResource, sliver);
-        sliver.addProperty(Omn_lifecycle.implementedBy,requestModel.createResource(requiredResources.toString()));
-      if(allocateParameter.containsKey(ISFA_AM.EndTime)){
-        reservation.addProperty(MessageBusOntologyModel.endTime, allocateParameter.get(ISFA_AM.EndTime).toString());
-      }else{
-        Date afterAdding2h = getDefaultExpirationTime();
-        reservation.addProperty(MessageBusOntologyModel.endTime, new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX").format(afterAdding2h));
-      }
-      counter = counter + 1;
-    }
-    */
     String serializedModel = MessageUtil.serializeModel(requestModel, IMessageBus.SERIALIZATION_TURTLE);
     LOGGER.log(Level.INFO, "send reservation request ...");
     Model resultModel = SFA_AM_MDBSender.getInstance().sendRDFRequest(serializedModel, IMessageBus.TYPE_CREATE, IMessageBus.TARGET_RESERVATION);
     LOGGER.log(Level.INFO, "reservation reply received.");
-    
-//    StmtIterator iter = resultModel.listStatements();
-//    while (iter.hasNext()) {
-//      Statement st = iter.next();
-//      Resource r = st.getSubject();
-//      sliverMap.put(r.getURI().toString(), st.getObject().toString());
-//      LOGGER.log(Level.INFO, "created sliver " + r.getURI());
-//    }
+
     return resultModel;
   }
 
@@ -123,9 +89,7 @@ public class ProcessAllocate {
             Resource oldType = oldResource.getProperty(RDF.type).getObject().asResource();
 
             Resource newResource = requestedResourcesModel.createResource(oldType.getURI() + "/" + oldResource.getLocalName());
-            // newResource.addProperty(RDF.type, oldType);
-            // newResource.addProperty(Omn_lifecycle.implementedBy, oldResource.getProperty(Omn_lifecycle.implementedBy).getObject().asResource());
-            // newResource.addProperty(Omn.isResourceOf, topology);
+
             StmtIterator stmtIterator = oldResource.listProperties();
             while(stmtIterator.hasNext()){
                 Statement statement = stmtIterator.nextStatement();
@@ -168,12 +132,7 @@ public class ProcessAllocate {
     
     ResIterator iterator = allocateResponse.listResourcesWithProperty(RDF.type,Omn.Reservation);
     while(iterator.hasNext()){
-      /**
-       * defines a loop depending on the slivers number.
-       * In the loop, Map is created for each sliver containing 
-       * sliver urn, experires and status.
-       * The created maps should be added to geni_slivers list.
-       */    
+
       final Map<String, Object> sliverMap = new HashMap<>();
 
       Resource reservation = iterator.nextResource();

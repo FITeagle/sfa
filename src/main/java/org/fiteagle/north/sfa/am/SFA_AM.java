@@ -13,11 +13,18 @@ import javax.xml.bind.JAXBException;
 
 
 //import info.openmultinet.ontology.exceptions.InvalidModelException;
+import com.hp.hpl.jena.rdf.model.ResIterator;
+import com.hp.hpl.jena.rdf.model.Resource;
 import info.openmultinet.ontology.exceptions.InvalidModelException;
+import info.openmultinet.ontology.translators.geni.AdvertisementConverter;
+import info.openmultinet.ontology.vocabulary.Omn;
+import info.openmultinet.ontology.vocabulary.Omn_lifecycle;
 import org.apache.commons.codec.binary.Base64;
 import org.fiteagle.api.core.IGeni;
+import org.fiteagle.api.core.IMessageBus;
 import org.fiteagle.api.core.MessageUtil;
 import org.fiteagle.north.sfa.am.allocate.ProcessAllocate;
+import org.fiteagle.north.sfa.am.listResources.ListResourcesProcessor;
 import org.fiteagle.north.sfa.exceptions.BadArgumentsException;
 import org.fiteagle.north.sfa.exceptions.ForbiddenException;
 import org.fiteagle.north.sfa.exceptions.SearchFailedException;
@@ -230,12 +237,27 @@ public class SFA_AM implements ISFA_AM {
     }
 
     @Override
-    public Object listResources(final List<?> parameter) throws JMSException, UnsupportedEncodingException {
+    public Object listResources(final List<?> parameter) throws JMSException, UnsupportedEncodingException, JAXBException, InvalidModelException {
         SFA_AM.LOGGER.log(Level.INFO, "listResources...");
-        final HashMap<String, Object> result = new HashMap<>();
 
+        HashMap<String, Object> result = new HashMap<>();
         this.parseListResourcesParameter(parameter);
-        addResources(result);
+        ListResourcesProcessor listResourcesProcessor = new ListResourcesProcessor(parameter);
+
+        Model topologyModel = listResourcesProcessor.listResources();
+        addManagerId(topologyModel);
+        String testbedResources = "";
+        if("3".equals(this.delegate.getRspecVersion()) && "geni".equals(this.delegate.getRspecType())){
+            AdvertisementConverter converter = new AdvertisementConverter();
+            testbedResources = converter.getRSpec(topologyModel);
+        }else if("omn".equals(this.delegate.getRspecType())){
+             testbedResources = MessageUtil.serializeModel(topologyModel, IMessageBus.SERIALIZATION_RDFXML);
+        }
+        if (this.delegate.getCompressed()) {
+            result.put(ISFA_AM.VALUE, compress(testbedResources));
+        } else {
+            result.put(ISFA_AM.VALUE, testbedResources);
+        }
 
         this.addCode(result);
         this.addOutput(result);
@@ -243,20 +265,15 @@ public class SFA_AM implements ISFA_AM {
         return result;
     }
 
-
-    private void addResources(final HashMap<String, Object> result) throws JMSException, UnsupportedEncodingException {
-
-
-        String testbedResources = SFA_AM_MDBSender.getInstance().getListRessources(this.query);
-
-        if (this.delegate.getCompressed()) {
-            result.put(ISFA_AM.VALUE, compress(testbedResources));
-        } else {
-            result.put(ISFA_AM.VALUE, testbedResources);
+    private void addManagerId(Model topologyModel) {
+        ResIterator resIterator = topologyModel.listResourcesWithProperty(Omn_lifecycle.parentOf);
+        Resource aggregateManager = topologyModel.createResource("urn:publicId:IDN+localhost+authority+am");
+        while(resIterator.hasNext()){
+            resIterator.nextResource().addProperty(Omn_lifecycle.parentTo,aggregateManager);
         }
 
-
     }
+
 
     public static String compress(String toCompress) throws UnsupportedEncodingException {
         byte[] output = null;
@@ -317,12 +334,14 @@ public class SFA_AM implements ISFA_AM {
             this.delegate.setAvailable((Boolean) param2.get(IGeni.GENI_AVAILABLE));
         }
 
-        // added for later use.
-    /*
-     * if(param2.get("geni_rspec_version") instanceof Map<?, ?>){ final Map<String, ?> geniRSpecVersion = (Map<String,
-     * ?>) param2.get("geni_rspec_version"); String type = (String) geniRSpecVersion.get("type"); String version =
-     * (String) geniRSpecVersion.get("version"); }
-     */
+
+
+     if(param2.get(IGeni.GENI_RSPEC_VERSION) instanceof Map<?, ?>){
+         final Map<String, ?> geniRSpecVersion = (Map<String, ?>) param2.get(IGeni.GENI_RSPEC_VERSION);
+         this.delegate.setRspecType((String) geniRSpecVersion.get("type"));
+         this.delegate.setRspecVersion( (String) geniRSpecVersion.get("version"));
+     }
+
     }
 
     //TODO needs way more logic, needs refactoring

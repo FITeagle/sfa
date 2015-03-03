@@ -48,7 +48,7 @@ public interface ISFA_AM extends ISFA {
 	String SLICE = "slice";
 
 	
-	public abstract Object listResources(List<?> parameter) throws JMSException, UnsupportedEncodingException;
+	public abstract Object listResources(List<?> parameter) throws JMSException, UnsupportedEncodingException, JAXBException, InvalidModelException;
 
 	public abstract Object getVersion(List<?> parameter);
 	
