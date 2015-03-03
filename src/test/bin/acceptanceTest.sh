@@ -16,6 +16,7 @@ rm -rf ${REPO};
 rm -rf ${TARGET};
 mkdir -p ${TARGET};
 cd ${TARGET}
+export WILDFLY_HOME="${TARGET}/server/wildfly"
 curl -fsSL fiteagle.org/bootstrap | bash -s init deployFT2 deployFT2sfa
 cd sfa
 ./src/test/bin/runJfed.sh
