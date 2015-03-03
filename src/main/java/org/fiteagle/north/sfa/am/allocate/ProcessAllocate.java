@@ -1,4 +1,4 @@
-package org.fiteagle.north.sfa.allocate;
+package org.fiteagle.north.sfa.am.allocate;
 
 import com.hp.hpl.jena.rdf.model.*;
 import info.openmultinet.ontology.exceptions.InvalidModelException;
@@ -8,33 +8,19 @@ import info.openmultinet.ontology.vocabulary.Omn;
 import info.openmultinet.ontology.vocabulary.Omn_lifecycle;
 
 import java.io.*;
-import java.net.URLEncoder;
 import java.nio.charset.Charset;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.xml.bind.JAXBException;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
-import org.fiteagle.api.core.IGeni;
-import org.fiteagle.api.core.IMessageBus;
-import org.fiteagle.api.core.MessageBusOntologyModel;
-import org.fiteagle.api.core.MessageUtil;
+import org.fiteagle.api.core.*;
 import org.fiteagle.north.sfa.am.ISFA_AM;
 import org.fiteagle.north.sfa.am.ReservationStateEnum;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
 import org.fiteagle.north.sfa.util.URN;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
-import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.vocabulary.RDF;
 
 
@@ -172,7 +158,7 @@ public class ProcessAllocate {
 
     try {
 
-      value.put(IGeni.GENI_RSPEC, ManifestConverter.getRSpec(allocateResponse, "localhost"));
+      value.put(IGeni.GENI_RSPEC, ManifestConverter.getRSpec(allocateResponse, IConfig.DEFAULT_HOSTNAME));
     } catch (JAXBException | InvalidModelException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
@@ -192,7 +178,7 @@ public class ProcessAllocate {
 
       Resource reservation = iterator.nextResource();
       
-      sliverMap.put(IGeni.GENI_SLIVER_URN, ManifestConverter.generateSliverID("localhost",reservation.getProperty(Omn.isReservationOf).getResource().getURI()));
+      sliverMap.put(IGeni.GENI_SLIVER_URN, ManifestConverter.generateSliverID(IConfig.DEFAULT_HOSTNAME,reservation.getProperty(Omn.isReservationOf).getResource().getURI()));
       sliverMap.put(IGeni.GENI_EXPIRES, reservation.getProperty(MessageBusOntologyModel.endTime).getLiteral().getString());
       sliverMap.put(IGeni.GENI_ALLOCATION_STATUS, ReservationStateEnum.valueOf(reservation.getProperty(Omn_lifecycle.hasReservationState).getResource().getLocalName()).getGeniState());
       geniSlivers.add(sliverMap);

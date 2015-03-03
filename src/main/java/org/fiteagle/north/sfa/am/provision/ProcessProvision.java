@@ -1,4 +1,4 @@
-package org.fiteagle.north.sfa.provision;
+package org.fiteagle.north.sfa.am.provision;
 
 import com.hp.hpl.jena.ontology.Individual;
 import info.openmultinet.ontology.exceptions.InvalidModelException;

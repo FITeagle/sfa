@@ -1,4 +1,4 @@
-package org.fiteagle.north.sfa.delete;
+package org.fiteagle.north.sfa.am.delete;
 
 import info.openmultinet.ontology.vocabulary.Omn;
 import info.openmultinet.ontology.vocabulary.Omn_lifecycle;
