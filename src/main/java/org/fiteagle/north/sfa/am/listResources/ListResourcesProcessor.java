@@ -27,6 +27,8 @@ public class ListResourcesProcessor {
     public Model listResources() throws UnsupportedEncodingException, JMSException {
         Model resourcesResult = getResources();
         Model topologyModel = ModelFactory.createDefaultModel();
+        topologyModel.setNsPrefixes(resourcesResult.getNsPrefixMap());
+        
         Resource topology = topologyModel.createResource(AnonId.create());
         topology.addProperty(RDF.type, Omn_lifecycle.Offering);
         topology.addProperty(RDF.type, Omn.Topology);
