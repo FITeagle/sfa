@@ -6,7 +6,7 @@ public enum GENI_CodeEnum {
 	BADARGS(1, "Bad Arguments: malformed arguments"),
 	ERROR(2, "Error (other)"),
 	FORBIDDEN(3, "Operation Forbidden: eg supplied credentials do not provide sufficient privileges (on given slice)"),
-	BADVERSION(4, "Bad Version (eg of RSpec)"),
+	BADVERSION(4, "Bad Version unknown RSpec type. RSpec type should be either omn or geni, RSpec version 3 "),
 	SERVERERROR(5, "Server Error"),
 	TOOBIG(6, "Too Big (eg request RSpec)"),
 	REFUSED(7, "Operation Refused"),

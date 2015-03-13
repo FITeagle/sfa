@@ -12,13 +12,16 @@ import javax.xml.bind.JAXBException;
 
 
 
+
 //import info.openmultinet.ontology.exceptions.InvalidModelException;
 import com.hp.hpl.jena.rdf.model.ResIterator;
 import com.hp.hpl.jena.rdf.model.Resource;
+
 import info.openmultinet.ontology.exceptions.InvalidModelException;
 import info.openmultinet.ontology.translators.geni.AdvertisementConverter;
 import info.openmultinet.ontology.vocabulary.Omn;
 import info.openmultinet.ontology.vocabulary.Omn_lifecycle;
+
 import org.apache.commons.codec.binary.Base64;
 import org.fiteagle.api.core.IGeni;
 import org.fiteagle.api.core.IMessageBus;
@@ -26,6 +29,7 @@ import org.fiteagle.api.core.MessageUtil;
 import org.fiteagle.north.sfa.am.allocate.ProcessAllocate;
 import org.fiteagle.north.sfa.am.listResources.ListResourcesProcessor;
 import org.fiteagle.north.sfa.exceptions.BadArgumentsException;
+import org.fiteagle.north.sfa.exceptions.BadVersionException;
 import org.fiteagle.north.sfa.exceptions.ForbiddenException;
 import org.fiteagle.north.sfa.exceptions.SearchFailedException;
 import org.fiteagle.north.sfa.am.status.StatusProcessor;
@@ -121,8 +125,13 @@ public class SFA_AM implements ISFA_AM {
         HashMap<String, Object> exceptionBody = new HashMap<>();
         handleException(exceptionBody, e, GENI_CodeEnum.SEARCHFAILED);
         result = exceptionBody;
-
-    } catch (RuntimeException e) {
+        }  catch(BadVersionException e){
+          HashMap<String, Object> exceptionBody = new HashMap<>();
+          handleException(exceptionBody, e, GENI_CodeEnum.BADVERSION);
+          result = exceptionBody;
+          }
+        
+        catch (RuntimeException e) {
 
             HashMap<String, Object> exceptionBody = new HashMap<>();
             handleException(exceptionBody, e, GENI_CodeEnum.ERROR);
@@ -143,7 +152,7 @@ public class SFA_AM implements ISFA_AM {
             HashMap<String, Object> exceptionBody = new HashMap<>();
             handleException(exceptionBody, e, GENI_CodeEnum.ERROR);
             result = exceptionBody;
-        }
+        } 
 
         return result;
     }
@@ -242,17 +251,22 @@ public class SFA_AM implements ISFA_AM {
 
         HashMap<String, Object> result = new HashMap<>();
         this.parseListResourcesParameter(parameter);
-        ListResourcesProcessor listResourcesProcessor = new ListResourcesProcessor(parameter);
-
-        Model topologyModel = listResourcesProcessor.listResources();
-        addManagerId(topologyModel);
-        String testbedResources = "";
-        if("3".equals(this.delegate.getRspecVersion()) && "geni".equals(this.delegate.getRspecType())){
+        
+        if(!(ISFA_AM.GENI.equals(this.delegate.getRspecType()) && ISFA_AM.VERSION_3.equals(this.delegate.getRspecVersion())) && !"omn".equals(this.delegate.getRspecType())){
+          throw new BadVersionException(GENI_CodeEnum.BADVERSION.getDescription());
+        } else {
+          ListResourcesProcessor listResourcesProcessor = new ListResourcesProcessor(parameter);
+          Model topologyModel = listResourcesProcessor.listResources();
+          addManagerId(topologyModel);
+          String testbedResources = "";
+          
+          if(ISFA_AM.VERSION_3.equals(this.delegate.getRspecVersion()) && ISFA_AM.GENI.equals(this.delegate.getRspecType())){
             AdvertisementConverter converter = new AdvertisementConverter();
             testbedResources = converter.getRSpec(topologyModel);
         }else if("omn".equals(this.delegate.getRspecType())){
              testbedResources = MessageUtil.serializeModel(topologyModel, IMessageBus.SERIALIZATION_RDFXML);
         }
+       
         if (this.delegate.getCompressed()) {
             result.put(ISFA_AM.VALUE, compress(testbedResources));
         } else {
@@ -263,6 +277,7 @@ public class SFA_AM implements ISFA_AM {
         this.addOutput(result);
 
         return result;
+        }
     }
 
     private void addManagerId(Model topologyModel) {
