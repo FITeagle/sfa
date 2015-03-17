@@ -86,9 +86,9 @@ public class ProcessAllocate {
         Model requestedResourcesModel = ModelFactory.createDefaultModel();
         while(resIterator.hasNext()){
             Resource oldResource = resIterator.nextResource();
-            Resource oldType = oldResource.getProperty(RDF.type).getObject().asResource();
+            Resource oldBase = oldResource.getProperty(Omn_lifecycle.implementedBy).getObject().asResource();
 
-            Resource newResource = requestedResourcesModel.createResource(oldType.getURI() + "/" + oldResource.getLocalName());
+            Resource newResource = requestedResourcesModel.createResource(oldBase.getURI() + "/" + oldResource.getLocalName());
 
             StmtIterator stmtIterator = oldResource.listProperties();
             while(stmtIterator.hasNext()){
