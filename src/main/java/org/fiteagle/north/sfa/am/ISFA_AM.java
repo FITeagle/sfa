@@ -53,7 +53,7 @@ public interface ISFA_AM extends ISFA {
 
 	public abstract Object getVersion(List<?> parameter);
 	
-	public abstract Object describe(List<?> parameter) throws UnsupportedEncodingException, JAXBException;// , InvalidModelException;
+	public abstract Object describe(List<?> parameter) throws UnsupportedEncodingException, JAXBException, InvalidModelException;// , InvalidModelException;
 	
 	public abstract Object allocate(List<?> parameter) throws JAXBException, InvalidModelException, UnsupportedEncodingException;
 	

@@ -68,7 +68,7 @@ public class ProcessAllocate {
     Model requestModel = ModelFactory.createDefaultModel();
       URN sliceURN = (URN) allocateParameter.get(ISFA_AM.URN);
 
-      Resource topology = requestModel.createResource(Omn.Topology.getURI() + "/"+ sliceURN.getSubject());
+      Resource topology = requestModel.createResource(IConfig.TOPOLOGY_NAMESPACE_VALUE+ sliceURN.getSubject());
       topology.addProperty(RDF.type, Omn.Topology);
       Model requestedResources = getRequestedResources(topology, incoming);
      requestModel.add(requestedResources);

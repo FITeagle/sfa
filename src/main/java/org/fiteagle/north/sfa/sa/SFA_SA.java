@@ -15,6 +15,7 @@ import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.vocabulary.RDF;
 import info.openmultinet.ontology.vocabulary.Omn;
 import info.openmultinet.ontology.vocabulary.Omn_lifecycle;
+import org.fiteagle.api.core.IConfig;
 import org.fiteagle.api.core.IMessageBus;
 import org.fiteagle.api.core.MessageBusOntologyModel;
 import org.fiteagle.api.core.MessageUtil;
@@ -145,7 +146,7 @@ public class SFA_SA implements ISFA_SA {
     private Model createGroupModel(URN sliceURN, X509Certificate sliceCert) throws Exception {
         Model groupModel = ModelFactory.createDefaultModel();
         //TODO change this to URN.toURI()
-        Resource resource = groupModel.createResource(Omn.Topology.getURI() + "/"+ sliceURN.getSubject());
+        Resource resource = groupModel.createResource(IConfig.TOPOLOGY_NAMESPACE_VALUE+ sliceURN.getSubject());
         resource.addProperty(RDF.type, Omn.Topology );
         resource.addProperty(Omn_lifecycle.hasAuthenticationInformation, X509Util.getCertificateBodyEncoded(sliceCert));
 

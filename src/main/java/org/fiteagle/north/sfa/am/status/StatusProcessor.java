@@ -6,10 +6,7 @@ import com.hp.hpl.jena.vocabulary.RDF;
 import info.openmultinet.ontology.translators.geni.ManifestConverter;
 import info.openmultinet.ontology.vocabulary.Omn;
 import info.openmultinet.ontology.vocabulary.Omn_lifecycle;
-import org.fiteagle.api.core.IGeni;
-import org.fiteagle.api.core.IMessageBus;
-import org.fiteagle.api.core.MessageBusOntologyModel;
-import org.fiteagle.api.core.MessageUtil;
+import org.fiteagle.api.core.*;
 import org.fiteagle.north.sfa.am.ISFA_AM;
 import org.fiteagle.north.sfa.am.ReservationStateEnum;
 import org.fiteagle.north.sfa.am.common.AbstractMethodProcessor;
@@ -39,7 +36,7 @@ public class StatusProcessor extends AbstractMethodProcessor {
                 Individual resource = Omn.Resource.createIndividual(URLDecoder.decode(urn.getSubject(), "UTF-8"));
                 requestModel.add(resource.listProperties());
             }else {
-                Individual topology = Omn.Topology.createIndividual(Omn.Topology.getURI()+"/"+urn.getSubject());
+                Individual topology = Omn.Topology.createIndividual(IConfig.TOPOLOGY_NAMESPACE_VALUE+urn.getSubject());
                 requestModel.add(topology.listProperties());
 
             }

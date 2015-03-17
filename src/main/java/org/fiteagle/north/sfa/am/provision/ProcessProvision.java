@@ -17,10 +17,7 @@ import java.util.logging.Logger;
 
 import javax.xml.bind.JAXBException;
 
-import org.fiteagle.api.core.IGeni;
-import org.fiteagle.api.core.IMessageBus;
-import org.fiteagle.api.core.MessageBusOntologyModel;
-import org.fiteagle.api.core.MessageUtil;
+import org.fiteagle.api.core.*;
 import org.fiteagle.north.sfa.am.ISFA_AM;
 import org.fiteagle.north.sfa.am.ReservationStateEnum;
 import org.fiteagle.north.sfa.am.common.AbstractMethodProcessor;
@@ -48,7 +45,7 @@ public class ProcessProvision extends AbstractMethodProcessor {
 
 
 			if (ISFA_AM.SLICE.equals(urn.getType())) {
-                Individual topology = Omn.Topology.createIndividual(Omn.Topology.getURI()+"/"+urn.getSubject());
+                Individual topology = Omn.Topology.createIndividual(IConfig.TOPOLOGY_NAMESPACE_VALUE+urn.getSubject());
                 requestModel.add(topology.listProperties());
 
 			}else{

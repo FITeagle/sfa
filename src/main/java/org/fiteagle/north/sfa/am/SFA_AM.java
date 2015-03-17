@@ -3,6 +3,7 @@ package org.fiteagle.north.sfa.am;
 import java.io.UnsupportedEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.*;
+import java.util.jar.Manifest;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.zip.Deflater;
@@ -19,10 +20,12 @@ import com.hp.hpl.jena.rdf.model.Resource;
 
 import info.openmultinet.ontology.exceptions.InvalidModelException;
 import info.openmultinet.ontology.translators.geni.AdvertisementConverter;
+import info.openmultinet.ontology.translators.geni.ManifestConverter;
 import info.openmultinet.ontology.vocabulary.Omn;
 import info.openmultinet.ontology.vocabulary.Omn_lifecycle;
 
 import org.apache.commons.codec.binary.Base64;
+import org.fiteagle.api.core.IConfig;
 import org.fiteagle.api.core.IGeni;
 import org.fiteagle.api.core.IMessageBus;
 import org.fiteagle.api.core.MessageUtil;
@@ -408,7 +411,7 @@ public class SFA_AM implements ISFA_AM {
     }
 
     @Override
-    public Object describe(List<?> parameter) throws UnsupportedEncodingException, JAXBException { // , InvalidModelException {
+    public Object describe(List<?> parameter) throws UnsupportedEncodingException, JAXBException, InvalidModelException { // , InvalidModelException {
         LOGGER.log(Level.ALL, "Describe called");
         final HashMap<String, Object> result = new HashMap<>();
         Object URNList = parameter.get(0);
@@ -422,8 +425,10 @@ public class SFA_AM implements ISFA_AM {
         parseDescribeOptions(options);
 
         DescribeProcessor describeProcessor = new DescribeProcessor();
-        HashMap<String, Object> value = describeProcessor.getValue(credList, options, URNS);
-
+        Model descriptions = describeProcessor.getDescriptions(URNS);
+        HashMap<String, Object> value = new HashMap<>();
+        describeProcessor.addSliverInformation(value,descriptions);
+        value.put(IGeni.GENI_RSPEC, ManifestConverter.getRSpec(descriptions, IConfig.DEFAULT_HOSTNAME));
         if (this.delegate.getCompressed())
             value.put(IGeni.GENI_RSPEC, compress((String) value.get(IGeni.GENI_RSPEC)));
         this.addCode(result);
