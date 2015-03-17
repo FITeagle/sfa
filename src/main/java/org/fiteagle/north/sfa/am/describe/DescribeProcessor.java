@@ -1,8 +1,10 @@
 package org.fiteagle.north.sfa.am.describe;
 
+import com.hp.hpl.jena.ontology.Individual;
 import com.hp.hpl.jena.rdf.model.*;
 import com.hp.hpl.jena.vocabulary.RDF;
 
+import org.fiteagle.api.core.IConfig;
 import org.fiteagle.api.core.IGeni;
 import org.fiteagle.api.core.IMessageBus;
 import org.fiteagle.api.core.MessageUtil;
@@ -13,6 +15,8 @@ import org.fiteagle.north.sfa.util.URN;
 
 import info.openmultinet.ontology.vocabulary.Omn;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -25,14 +29,16 @@ import java.util.logging.Logger;
 public class DescribeProcessor extends AbstractMethodProcessor {
     private final static Logger LOGGER = Logger.getLogger(DescribeProcessor.class.getName());
 
-    public Model getDescriptions(List<URN> urns){
+    public Model getDescriptions(List<URN> urns) throws UnsupportedEncodingException {
         Model requestModel = ModelFactory.createDefaultModel();
         for(URN u : urns){
-            Resource resource = requestModel.createResource(u.toString());
+
             if(ISFA_AM.SLICE.equals(u.getType())){
+                Resource resource = requestModel.createResource(IConfig.TOPOLOGY_NAMESPACE_VALUE+ u.getSubject());
                 resource.addProperty(RDF.type, Omn.Topology);
             }
             if(ISFA_AM.Sliver.equals(u.getType())){
+                Individual resource = Omn.Resource.createIndividual(URLDecoder.decode(u.getSubject(), "UTF-8"));
                 resource.addProperty(RDF.type, Omn.Resource);
             }
         }

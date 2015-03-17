@@ -18,6 +18,8 @@ import javax.xml.bind.JAXBException;
 import com.hp.hpl.jena.rdf.model.ResIterator;
 import com.hp.hpl.jena.rdf.model.Resource;
 
+import com.hp.hpl.jena.rdf.model.StmtIterator;
+import com.hp.hpl.jena.vocabulary.RDF;
 import info.openmultinet.ontology.exceptions.InvalidModelException;
 import info.openmultinet.ontology.translators.geni.AdvertisementConverter;
 import info.openmultinet.ontology.translators.geni.ManifestConverter;
@@ -411,7 +413,7 @@ public class SFA_AM implements ISFA_AM {
     }
 
     @Override
-    public Object describe(List<?> parameter) throws UnsupportedEncodingException, JAXBException, InvalidModelException { // , InvalidModelException {
+    public Object describe(List<?> parameter) throws UnsupportedEncodingException, JAXBException, InvalidModelException {
         LOGGER.log(Level.ALL, "Describe called");
         final HashMap<String, Object> result = new HashMap<>();
         Object URNList = parameter.get(0);
@@ -427,7 +429,10 @@ public class SFA_AM implements ISFA_AM {
         DescribeProcessor describeProcessor = new DescribeProcessor();
         Model descriptions = describeProcessor.getDescriptions(URNS);
         HashMap<String, Object> value = new HashMap<>();
-        describeProcessor.addSliverInformation(value,descriptions);
+        StmtIterator stmtIterator = descriptions.listStatements(null, RDF.type, Omn.Reservation);
+        if(stmtIterator.hasNext() || !(URNS.size() ==1 && "slice".equalsIgnoreCase(URNS.get(0).getType()) ))
+            describeProcessor.addSliverInformation(value,descriptions);
+
         value.put(IGeni.GENI_RSPEC, ManifestConverter.getRSpec(descriptions, IConfig.DEFAULT_HOSTNAME));
         if (this.delegate.getCompressed())
             value.put(IGeni.GENI_RSPEC, compress((String) value.get(IGeni.GENI_RSPEC)));
