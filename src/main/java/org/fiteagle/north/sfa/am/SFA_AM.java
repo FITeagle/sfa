@@ -25,6 +25,7 @@ import org.fiteagle.api.core.IMessageBus;
 import org.fiteagle.api.core.MessageUtil;
 import org.fiteagle.north.sfa.am.allocate.ProcessAllocate;
 import org.fiteagle.north.sfa.am.listResources.ListResourcesProcessor;
+import org.fiteagle.north.sfa.am.performOperationalAction.PerformOperationalActionHandler;
 import org.fiteagle.north.sfa.exceptions.BadArgumentsException;
 import org.fiteagle.north.sfa.exceptions.ForbiddenException;
 import org.fiteagle.north.sfa.exceptions.SearchFailedException;
@@ -180,8 +181,9 @@ public class SFA_AM implements ISFA_AM {
         checkCredentials(credentialList);
         final HashMap<String, Object> provisionParameters = (HashMap<String, Object>) parameter.get(2);
         SFA_AM.LOGGER.log(Level.INFO, "provision parameters are parsed");
-        Model provisionResponse = ProcessProvision.provisionInstances(urns);
-        ProcessProvision.addProvisionValue(result, provisionResponse);
+        ProcessProvision processProvision = new ProcessProvision();
+        Model provisionResponse = processProvision.provisionInstances(urns);
+        processProvision.addProvisionValue(result, provisionResponse);
         this.addCode(result);
         this.addOutput(result);
 
@@ -198,8 +200,9 @@ public class SFA_AM implements ISFA_AM {
         final HashMap<String, Object> statusParameters = (HashMap<String, Object>) parameter.get(2);
         StatusProcessor statusProcessor = new StatusProcessor();
         Model statusResponse = statusProcessor.getStates(urns);
-        statusProcessor.addStatusValue(result, statusResponse);
-
+        HashMap<String, Object> value = new HashMap<>();
+        statusProcessor.addSliverInformation(value, statusResponse);
+        result.put(ISFA_AM.VALUE, value);
         this.addCode(result);
         this.addOutput(result);
 
@@ -207,8 +210,25 @@ public class SFA_AM implements ISFA_AM {
     }
 
     @Override
-    public Object performOperationalAction(final List<?> parameter) {
+    public Object performOperationalAction(final List<?> parameter) throws UnsupportedEncodingException {
+        SFA_AM.LOGGER.log(Level.INFO, "status...");
         final HashMap<String, Object> result = new HashMap<>();
+        List<URN> urns = parseURNList(parameter.get(0));
+        List<GENI_Credential> credentialList = parseCredentialsParameters(parameter.get(1));
+        checkCredentials(credentialList);
+
+        String action = (String) parameter.get(2);
+        //TODO ignore options for now
+
+        PerformOperationalActionHandler performOperationalActionHandler = new PerformOperationalActionHandler(urns);
+        performOperationalActionHandler.setSender(SFA_AM_MDBSender.getInstance());
+        Model performResponse = performOperationalActionHandler.performAction(action);
+        //TODO make common methods abstract
+        HashMap<String, Object> value = new HashMap<>();
+        performOperationalActionHandler.addSliverInformation(value, performResponse);
+        result.put(ISFA_AM.VALUE, value);
+        this.addCode(result);
+        this.addOutput(result);
         return result;
     }
 

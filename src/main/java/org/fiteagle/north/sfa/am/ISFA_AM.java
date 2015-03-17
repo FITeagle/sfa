@@ -62,7 +62,7 @@ public interface ISFA_AM extends ISFA {
 	
 	public abstract Object status(List<?> parameter) throws UnsupportedEncodingException;
 	
-	public abstract Object performOperationalAction(List<?> parameter);
+	public abstract Object performOperationalAction(List<?> parameter) throws UnsupportedEncodingException;
 	
 	public abstract Object delete(List<?> parameter);
 	
