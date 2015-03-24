@@ -76,36 +76,9 @@ public class ProcessProvision extends AbstractMethodProcessor {
 		value.put(IGeni.GENI_RSPEC, ManifestConverter.getRSpec(provisionResponse, "localhost"));
 	} catch (JAXBException | InvalidModelException e) {
 		// TODO Auto-generated catch block
-		e.printStackTrace();
+		LOGGER.log(Level.SEVERE,e.toString());
 	}
-//	  value.put(IGeni.GENI_RSPEC, "RSPEC manifest");
-
       this.addSliverInformation(value,provisionResponse);
-	  
-//	  final List<Map<String, Object>> geniSlivers = new LinkedList<>();
-//
-//	  StmtIterator stmtIterator = provisionResponse.listStatements(null, RDF.type, Omn.Reservation);
-//	    while (stmtIterator.hasNext()) {
-//	      Statement statement = stmtIterator.next();
-//	      Resource reservation = statement.getSubject();
-//
-//	      /**
-//	       * defines a loop depending on the slivers number.
-//	       * In the loop, Map is created for each sliver containing
-//	       * sliver urn, experires, allocateion_status and operation_status.
-//	       * The created maps should be added to geniSlivers list.
-//	       */
-//	      final Map<String, Object> sliverMap = new HashMap<>();
-//            Resource resource = provisionResponse.getResource(reservation.getProperty(Omn.isReservationOf).getObject().asResource().getURI());
-//	      sliverMap.put(IGeni.GENI_SLIVER_URN, ManifestConverter.generateSliverID("localhost",resource.getURI()));
-//	      sliverMap.put(IGeni.GENI_EXPIRES, reservation.getProperty(MessageBusOntologyModel.endTime).getLiteral().getString());
-//	      sliverMap.put(IGeni.GENI_ALLOCATION_STATUS, ReservationStateEnum.valueOf(reservation.getProperty(Omn_lifecycle.hasReservationState).getResource().getLocalName()).getGeniState());
-//	      sliverMap.put(IGeni.GENI_OPERATIONAL_STATUS, "");
-//	      sliverMap.put(IGeni.GENI_ERROR, "NO ERROR");
-//
-//	      geniSlivers.add(sliverMap);
-//	    }
-	    //value.put(IGeni.GENI_SLIVERS, geniSlivers);
 	    result.put(ISFA_AM.VALUE, value);
   }
   

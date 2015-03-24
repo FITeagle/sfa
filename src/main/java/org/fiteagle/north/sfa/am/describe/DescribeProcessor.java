@@ -38,8 +38,9 @@ public class DescribeProcessor extends AbstractMethodProcessor {
                 resource.addProperty(RDF.type, Omn.Topology);
             }
             if(ISFA_AM.Sliver.equals(u.getType())){
-                Individual resource = Omn.Resource.createIndividual(URLDecoder.decode(u.getSubject(), "UTF-8"));
+                Resource resource =requestModel.createResource(URLDecoder.decode(u.getSubject(), "UTF-8"));
                 resource.addProperty(RDF.type, Omn.Resource);
+
             }
         }
         String serializedModel = MessageUtil.serializeModel(requestModel, IMessageBus.SERIALIZATION_TURTLE);

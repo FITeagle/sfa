@@ -69,6 +69,8 @@ public abstract class AbstractMethodProcessor {
             case "Ready":
                 LOGGER.log(Level.INFO, "ready");
                 return "geni_ready";
+            case "Uncompleted":
+                return "geni_pending_allocation";
             default:
                 return "";
         }

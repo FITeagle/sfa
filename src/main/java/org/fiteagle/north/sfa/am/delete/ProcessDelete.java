@@ -3,6 +3,8 @@ package org.fiteagle.north.sfa.am.delete;
 import info.openmultinet.ontology.vocabulary.Omn;
 import info.openmultinet.ontology.vocabulary.Omn_lifecycle;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -10,12 +12,10 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.fiteagle.api.core.IGeni;
-import org.fiteagle.api.core.IMessageBus;
-import org.fiteagle.api.core.MessageBusOntologyModel;
-import org.fiteagle.api.core.MessageUtil;
+import org.fiteagle.api.core.*;
 import org.fiteagle.north.sfa.am.ISFA_AM;
 import org.fiteagle.north.sfa.am.ReservationStateEnum;
+import org.fiteagle.north.sfa.am.common.AbstractMethodProcessor;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
 import org.fiteagle.north.sfa.util.URN;
 
@@ -27,23 +27,25 @@ import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.vocabulary.RDF;
 
 
-public class ProcessDelete {
+public class ProcessDelete extends AbstractMethodProcessor {
 	
 	private final static Logger LOGGER = Logger.getLogger(ProcessDelete.class.getName());
 	
-	public static Model deleteInstances(List<URN> urns) {
+	public  Model deleteInstances(List<URN> urns) throws UnsupportedEncodingException {
 		
 		LOGGER.log(Level.INFO, "create delete model ");
 		Model requestModel = ModelFactory.createDefaultModel();
 		for (URN urn : urns) {
-			Resource reservation = requestModel.createResource(urn.toString());
+
 
 			if (ISFA_AM.SLICE.equals(urn.getType())) {
-				reservation.addProperty(RDF.type, Omn.Group);
+                Resource resource = requestModel.createResource(IConfig.TOPOLOGY_NAMESPACE_VALUE+urn.getSubject());
+                resource.addProperty(RDF.type, Omn.Topology);
 			} else if (ISFA_AM.Sliver.equals(urn.getType())) {
-				reservation.addProperty(RDF.type, Omn.Reservation);
-					}
-			}
+                Resource resource =  requestModel.createResource(URLDecoder.decode(urn.getSubject(),"UTF-8"));
+                resource.addProperty(RDF.type, Omn.Resource);
+            }
+		}
 
 		String serializedModel = MessageUtil.serializeModel(requestModel, IMessageBus.SERIALIZATION_TURTLE);
 		LOGGER.log(Level.INFO, "send delete request ...");
@@ -53,7 +55,7 @@ public class ProcessDelete {
 		
 	}
 	
-	public static void addDeleteValue(final HashMap<String, Object> result, Model deleteResponse){
+	public  void addDeleteValue(final HashMap<String, Object> result, Model deleteResponse){
 		
 		  final List<Map<String, Object>> value = new LinkedList<>();
 		  

@@ -15,6 +15,8 @@ import javax.jms.Topic;
 import javax.ws.rs.core.Response;
 
 import com.hp.hpl.jena.rdf.model.*;
+import com.hp.hpl.jena.reasoner.Reasoner;
+import info.openmultinet.ontology.Parser;
 import info.openmultinet.ontology.vocabulary.Omn_federation;
 import org.fiteagle.api.core.IMessageBus;
 import org.fiteagle.api.core.MessageUtil;
@@ -33,9 +35,12 @@ public class SFA_AM_MDBSender {
   private final static String TRIPLET_STORE_URL = "<http://localhost:3030/fiteagle/query> ";
   
   private static SFA_AM_MDBSender instance;
-  
+
+   Reasoner reasoner;
   public SFA_AM_MDBSender() {
     instance = this;
+      reasoner  = Parser.createReasoner();
+
   }
   
   public static SFA_AM_MDBSender getInstance() {

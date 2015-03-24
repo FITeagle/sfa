@@ -247,7 +247,7 @@ public class SFA_AM implements ISFA_AM {
     }
 
     @Override
-    public Object delete(final List<?> parameter) {
+    public Object delete(final List<?> parameter) throws UnsupportedEncodingException {
         
         SFA_AM.LOGGER.log(Level.INFO, "delete...");
         final HashMap<String, Object> result = new HashMap<>();
@@ -256,9 +256,9 @@ public class SFA_AM implements ISFA_AM {
         checkCredentials(credentialList);
         final HashMap<String, Object> deleteParameters = (HashMap<String, Object>) parameter.get(2);
         SFA_AM.LOGGER.log(Level.INFO, "delete parameters are parsed");
-       
-        Model deleteResponse = ProcessDelete.deleteInstances(urns);
-        ProcessDelete.addDeleteValue(result, deleteResponse);
+       ProcessDelete processDelete = new ProcessDelete();
+        Model deleteResponse = processDelete.deleteInstances(urns);
+        processDelete.addDeleteValue(result, deleteResponse);
         this.addCode(result);
         this.addOutput(result);
         return result;

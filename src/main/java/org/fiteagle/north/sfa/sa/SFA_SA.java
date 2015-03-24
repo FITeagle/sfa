@@ -58,6 +58,8 @@ public class SFA_SA implements ISFA_SA {
                 case ISFA_SA.METHOD_REGISTER:
                     result = this.register(parameter);
                     break;
+                case ISFA_SA.METHOD_RENEW_SLICE:
+                    result = this.renewSlice(parameter);
                 default:
                     result = "Unimplemented method '" + methodName + "'";
                     break;
@@ -143,6 +145,14 @@ public class SFA_SA implements ISFA_SA {
         return result;
 
     }
+
+    @Override
+    public Object renewSlice(List<?> parameter) {
+        HashMap<String,Object> result = new HashMap<>();
+        return result;
+
+    }
+
     private Model createGroupModel(URN sliceURN, X509Certificate sliceCert) throws Exception {
         Model groupModel = ModelFactory.createDefaultModel();
         //TODO change this to URN.toURI()
