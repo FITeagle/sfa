@@ -4,15 +4,19 @@ import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.vocabulary.RDF;
+
 import info.openmultinet.ontology.vocabulary.Omn;
 import info.openmultinet.ontology.vocabulary.Omn_resource;
+
 import org.easymock.EasyMock;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
+import org.fiteagle.north.sfa.exceptions.SearchFailedException;
 import org.fiteagle.north.sfa.util.URN;
 import org.junit.Before;
 import org.junit.Test;
 
 import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -90,6 +94,14 @@ public class PerformOperationalActionHandlerTest {
         handler.setSender(sender);
         Model model = handler.performAction("<http://localhost/resource/motor-1> <http://open-multinet.info/ontology/omn#Status> <http://open-multinet.info/ontology/omn#Started>.");
         assertFalse(model.isEmpty());
+    }
+    
+    @Test (expected = SearchFailedException.class)
+    public void testAddSliverInformation() throws UnsupportedEncodingException {
+        Model returnModel = createSingleSliverReturnModel();
+        handler = new PerformOperationalActionHandler(urnList);
+        HashMap<String, Object> value = new HashMap<>();
+        handler.addSliverInformation(value, returnModel);
     }
 
     @Test

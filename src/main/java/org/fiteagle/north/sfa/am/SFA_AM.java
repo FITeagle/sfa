@@ -11,10 +11,6 @@ import java.util.zip.Deflater;
 import javax.jms.JMSException;
 import javax.xml.bind.JAXBException;
 
-
-
-
-
 //import info.openmultinet.ontology.exceptions.InvalidModelException;
 import com.hp.hpl.jena.rdf.model.ResIterator;
 import com.hp.hpl.jena.rdf.model.Resource;
@@ -32,7 +28,6 @@ import org.fiteagle.api.core.IConfig;
 import org.fiteagle.api.core.IGeni;
 import org.fiteagle.api.core.IMessageBus;
 import org.fiteagle.api.core.MessageUtil;
-import org.fiteagle.north.sfa.ISFA;
 import org.fiteagle.north.sfa.am.allocate.ProcessAllocate;
 import org.fiteagle.north.sfa.am.listResources.ListResourcesProcessor;
 import org.fiteagle.north.sfa.am.performOperationalAction.PerformOperationalActionHandler;
@@ -43,9 +38,10 @@ import org.fiteagle.north.sfa.exceptions.SearchFailedException;
 import org.fiteagle.north.sfa.am.status.StatusProcessor;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_Delegate_Default;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
-import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender.EmptyReplyException;
+import org.fiteagle.north.sfa.exceptions.EmptyReplyException;
 import org.fiteagle.north.sfa.am.delete.ProcessDelete;
 import org.fiteagle.north.sfa.am.describe.DescribeProcessor;
+import org.fiteagle.north.sfa.am.getVersion.ProcessGetVersion;
 import org.fiteagle.north.sfa.am.provision.ProcessProvision;
 import org.fiteagle.north.sfa.util.GENI_Credential;
 import org.fiteagle.north.sfa.util.URN;
@@ -53,7 +49,6 @@ import org.fiteagle.north.sfa.util.URN;
 import com.hp.hpl.jena.rdf.model.Model;
 
 public class SFA_AM implements ISFA_AM {
-    private static final int API_VERSION = 3;
     private final static Logger LOGGER = Logger.getLogger(SFA_AM.class.getName());
     private ISFA_AM_Delegate delegate;
 
@@ -412,8 +407,13 @@ public class SFA_AM implements ISFA_AM {
     @Override
     public Object getVersion(final List<?> parameter) {
         final HashMap<String, Object> result = new HashMap<>();
-        this.addAPIVersion(result);
-        this.addValue(result);
+        ProcessGetVersion processGetVersion = new ProcessGetVersion();
+        processGetVersion.setSender(SFA_AM_MDBSender.getInstance());
+        
+        Model testbedDescriptionModel = processGetVersion.getTestbedDescription();
+        String testbedDescription = processGetVersion.parseTestbedDescription(testbedDescriptionModel);
+        processGetVersion.addValue(result, testbedDescription);
+
         this.addCode(result);
         this.addOutput(result);
         return result;
@@ -500,85 +500,6 @@ public class SFA_AM implements ISFA_AM {
         result.put(ISFA_AM.VALUE, new HashMap<String, Object>());
     }
 
-    private void addAPIVersion(final HashMap<String, Object> result) {
-        result.put(IGeni.GENI_API, SFA_AM.API_VERSION);
-    }
-
-    private void addValue(final HashMap<String, Object> result) {
-
-        final Map<String, Object> value = new HashMap<>();
-        value.put(IGeni.GENI_API, SFA_AM.API_VERSION);
-
-        String testbedDescription;
-
-        testbedDescription = (String) SFA_AM_MDBSender.getInstance().getTestbedDescription();
-        value.put(ISFA_AM.OMN_TESTBED, testbedDescription);
-        System.out.println("omn_testbed " + value.get(ISFA_AM.OMN_TESTBED));
-
-        final String[] extensions = getSupportedExtensions();
-
-        addSupportedRequestRspecInfo(value, extensions);
-
-        addAdvertisementRspecInfo(value, extensions);
-
-        addSupportedCredentialTypes(value);
-        this.delegate.setGeniCode(0);
-        this.delegate.setOutput(ISFA_AM.SUCCESS);
-        result.put(ISFA_AM.VALUE, value);
-    }
-
-    private void addSupportedRequestRspecInfo(Map<String, Object> value, String[] extensions) {
-        final Map<String, String> apiVersions = new HashMap<>();
-        apiVersions.put(ISFA_AM.VERSION_3, ISFA_AM.API_VERSION);
-        value.put(IGeni.GENI_API_VERSION, apiVersions);
-
-        final List<Map<String, Object>> reqRSpecs = new LinkedList<>();
-        final Map<String, Object> typeA = new HashMap<>();
-        typeA.put(ISFA_AM.TYPE, ISFA_AM.OPEN_MULTINET);
-        typeA.put(ISFA_AM.VERSION, ISFA_AM.VERSION_1);
-        typeA.put(IGeni.GENI_NAMESPACE, ISFA_AM.NAMESPACE);
-        typeA.put(ISFA_AM.SCHEMA, IGeni.GENI_REQUEST_RSPEC_SCHEMA);
-
-        typeA.put(IGeni.GENI_EXTENSIONS, extensions);
-
-        reqRSpecs.add(typeA);
-        value.put(IGeni.GENI_REQUEST_VERSION, reqRSpecs);
-    }
-
-    private String[] getSupportedExtensions() {
-        List<String> extensionsMap = new LinkedList<>();
-
-      //  extensionsMap = SFA_AM_MDBSender.getInstance().getExtensions();
-        final String[] extensions = new String[extensionsMap.size()];
-
-        int i = 0;
-        for (String namespace : extensionsMap) {
-           // extensions[i] = namespace;
-            i++;
-        }
-        return extensions;
-    }
-
-    private void addAdvertisementRspecInfo(Map<String, Object> value, String[] extensions) {
-        final List<Map<String, Object>> adRSpecs = new LinkedList<>();
-        final Map<String, Object> adTypeA = new HashMap<>();
-        adTypeA.put(ISFA_AM.TYPE, ISFA_AM.OPEN_MULTINET);
-        adTypeA.put(ISFA_AM.VERSION, ISFA_AM.VERSION_1);
-        adTypeA.put(ISFA_AM.SCHEMA, IGeni.GENI_AD_RSPEC_SCHEMA);
-        adTypeA.put(IGeni.GENI_NAMESPACE, ISFA_AM.NAMESPACE);
-        adTypeA.put(IGeni.GENI_EXTENSIONS, extensions);
-        adRSpecs.add(adTypeA);
-        value.put(IGeni.GENI_AD_VERSION, adRSpecs);
-    }
-
-    private void addSupportedCredentialTypes(Map<String, Object> value) {
-        final List<Map<String, Object>> credTypes = new LinkedList<>();
-        final Map<String, Object> credTypeA = new HashMap<>();
-        credTypeA.put(IGeni.GENI_TYPE, IGeni.GENI_SFA);
-        credTypeA.put(IGeni.GENI_VERSION, "1"); // should be 3 ?
-        credTypes.add(credTypeA);
-        value.put(IGeni.GENI_CREDENTIAL_TYPES, credTypes);
-    }
 
     private void addOutput(final HashMap<String, Object> result) {
         result.put(ISFA_AM.OUTPUT, this.delegate.getOutput());
@@ -590,9 +511,5 @@ public class SFA_AM implements ISFA_AM {
         code.put(ISFA_AM.AM_CODE, this.delegate.getAMCode());
         result.put(ISFA_AM.CODE, code);
     }
-
-
-
-
 
 }

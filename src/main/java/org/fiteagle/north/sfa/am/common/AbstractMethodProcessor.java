@@ -11,7 +11,9 @@ import org.fiteagle.api.core.IGeni;
 import org.fiteagle.api.core.MessageBusOntologyModel;
 import org.fiteagle.north.sfa.ISFA;
 import org.fiteagle.north.sfa.am.ISFA_AM;
+import org.fiteagle.north.sfa.am.ISFA_AM_Delegate;
 import org.fiteagle.north.sfa.am.ReservationStateEnum;
+import org.fiteagle.north.sfa.am.dm.SFA_AM_Delegate_Default;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
 import org.fiteagle.north.sfa.exceptions.SearchFailedException;
 import org.fiteagle.north.sfa.util.URN;
@@ -30,6 +32,8 @@ public abstract class AbstractMethodProcessor {
     private final static Logger LOGGER = Logger.getLogger(AbstractMethodProcessor.class.getName());
     
     private SFA_AM_MDBSender sender;
+    
+    protected ISFA_AM_Delegate delegate = new SFA_AM_Delegate_Default();;
 
     public void addSliverInformation(Map<String, Object> value, Model response){
 

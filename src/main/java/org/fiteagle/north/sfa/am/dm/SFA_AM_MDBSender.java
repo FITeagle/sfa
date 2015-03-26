@@ -21,6 +21,8 @@ import info.openmultinet.ontology.vocabulary.Omn_federation;
 import org.fiteagle.api.core.IMessageBus;
 import org.fiteagle.api.core.MessageUtil;
 
+import org.fiteagle.north.sfa.exceptions.EmptyReplyException;;
+
 @Startup
 @Singleton
 public class SFA_AM_MDBSender {
@@ -108,41 +110,5 @@ public class SFA_AM_MDBSender {
     return namespaces;
   }
   
-  public String getTestbedDescription() throws EmptyReplyException {
-    Model resultModel = sendSPARQLQueryRequest("", IMessageBus.TARGET_FEDERATION_MANAGER);
-    StmtIterator iterator = resultModel.listStatements();
-    if (iterator.hasNext() == false) {
-      throw new EmptyReplyException("No testbed could be found");
-    }
-    
-    String resultString = MessageUtil.serializeModel(resultModel, IMessageBus.SERIALIZATION_RDFJSON);
-    LOGGER.log(Level.INFO, "result is " + resultString);
-    return resultString;
-  }
-  
-
-  
-
-/*  public class TimeoutException extends RuntimeException {
-    
-    private static final long serialVersionUID = -5630226460026376892L;
-    
-    public TimeoutException(String message) {
-      super("Timeout while waiting for a response: " + message);
-    }
-  }*/
-  
-  public class EmptyReplyException extends RuntimeException {
-    
-    private static final long serialVersionUID = 3084952835284992423L;
-    
-    public EmptyReplyException() {
-      super(" (Empty reply from repo)");
-    }
-    
-    public EmptyReplyException(String message) {
-      super(" (" + message + ")");
-    }
-  }
   
 }
