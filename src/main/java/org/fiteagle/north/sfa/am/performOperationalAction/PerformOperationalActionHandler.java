@@ -5,11 +5,15 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.vocabulary.RDF;
+
 import info.openmultinet.ontology.vocabulary.Omn;
 import info.openmultinet.ontology.vocabulary.Omn_lifecycle;
+
 import org.apache.jena.riot.RiotException;
+import org.fiteagle.api.core.IGeni;
 import org.fiteagle.api.core.IMessageBus;
 import org.fiteagle.api.core.MessageUtil;
+import org.fiteagle.north.sfa.am.ISFA_AM;
 import org.fiteagle.north.sfa.am.common.AbstractMethodProcessor;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
 import org.fiteagle.north.sfa.util.URN;
@@ -28,8 +32,6 @@ public class PerformOperationalActionHandler extends AbstractMethodProcessor {
     private final List<URN> urns;
 
 
-    private SFA_AM_MDBSender sender;
-
     public PerformOperationalActionHandler(List<URN> urns) {
         this.urns = urns;
     }
@@ -42,18 +44,18 @@ public class PerformOperationalActionHandler extends AbstractMethodProcessor {
             throw new IllegalArgumentException("illegal arguments");
         }
         for(URN urn : urns){
-            Resource resource = model.createResource(URLDecoder.decode(urn.getSubject(), "UTF-8"));
+            Resource resource = model.createResource(URLDecoder.decode(urn.getSubject(), ISFA_AM.UTF_8));
             resource.addProperty(RDF.type, Omn.Resource);
             switch (action) {
-                case "geni_start":
+                case IGeni.GENI_STATRT:
                     System.out.println("start");
                     resource.addProperty(Omn_lifecycle.hasState,Omn_lifecycle.Ready);
                     break;
-                case "geni_restart":
+                case IGeni.GENI_RESTART:
                     System.out.println("restart");
                     resource.addProperty(Omn_lifecycle.hasState,Omn_lifecycle.Ready);
                     break;
-                case "geni_stop":
+                case IGeni.GENI_STOP:
                     System.out.println("stop");
                     resource.addProperty(Omn_lifecycle.hasState,Omn_lifecycle.Stopping);
                     break;
@@ -79,15 +81,5 @@ public class PerformOperationalActionHandler extends AbstractMethodProcessor {
 
         return performOpActionResponse;
     }
-
-
-    public SFA_AM_MDBSender getSender() {
-        return sender;
-    }
-
-    public void setSender(SFA_AM_MDBSender sender) {
-        this.sender = sender;
-    }
-
 
 }

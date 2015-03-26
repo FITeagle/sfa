@@ -14,12 +14,13 @@ import javax.xml.bind.JAXBException;
 
 
 
+
 //import info.openmultinet.ontology.exceptions.InvalidModelException;
 import com.hp.hpl.jena.rdf.model.ResIterator;
 import com.hp.hpl.jena.rdf.model.Resource;
-
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.vocabulary.RDF;
+
 import info.openmultinet.ontology.exceptions.InvalidModelException;
 import info.openmultinet.ontology.translators.geni.AdvertisementConverter;
 import info.openmultinet.ontology.translators.geni.ManifestConverter;
@@ -31,6 +32,7 @@ import org.fiteagle.api.core.IConfig;
 import org.fiteagle.api.core.IGeni;
 import org.fiteagle.api.core.IMessageBus;
 import org.fiteagle.api.core.MessageUtil;
+import org.fiteagle.north.sfa.ISFA;
 import org.fiteagle.north.sfa.am.allocate.ProcessAllocate;
 import org.fiteagle.north.sfa.am.listResources.ListResourcesProcessor;
 import org.fiteagle.north.sfa.am.performOperationalAction.PerformOperationalActionHandler;
@@ -195,8 +197,10 @@ public class SFA_AM implements ISFA_AM {
         checkCredentials(credentialList);
         final HashMap<String, Object> provisionParameters = (HashMap<String, Object>) parameter.get(2);
         SFA_AM.LOGGER.log(Level.INFO, "provision parameters are parsed");
-        ProcessProvision processProvision = new ProcessProvision();
-        Model provisionResponse = processProvision.provisionInstances(urns);
+        ProcessProvision processProvision = new ProcessProvision(urns);
+        processProvision.setSender(SFA_AM_MDBSender.getInstance());
+        
+        Model provisionResponse = processProvision.provisionInstances();
         processProvision.addProvisionValue(result, provisionResponse);
         this.addCode(result);
         this.addOutput(result);
@@ -212,8 +216,10 @@ public class SFA_AM implements ISFA_AM {
         List<GENI_Credential> credentialList = parseCredentialsParameters(parameter.get(1));
         checkCredentials(credentialList);
         final HashMap<String, Object> statusParameters = (HashMap<String, Object>) parameter.get(2);
-        StatusProcessor statusProcessor = new StatusProcessor();
-        Model statusResponse = statusProcessor.getStates(urns);
+        StatusProcessor statusProcessor = new StatusProcessor(urns);
+        statusProcessor.setSender(SFA_AM_MDBSender.getInstance());
+        
+        Model statusResponse = statusProcessor.getStates();
         HashMap<String, Object> value = new HashMap<>();
         statusProcessor.addSliverInformation(value, statusResponse);
         result.put(ISFA_AM.VALUE, value);
@@ -225,7 +231,7 @@ public class SFA_AM implements ISFA_AM {
 
     @Override
     public Object performOperationalAction(final List<?> parameter) throws UnsupportedEncodingException {
-        SFA_AM.LOGGER.log(Level.INFO, "status...");
+        SFA_AM.LOGGER.log(Level.INFO, "performOperationalAction...");
         final HashMap<String, Object> result = new HashMap<>();
         List<URN> urns = parseURNList(parameter.get(0));
         List<GENI_Credential> credentialList = parseCredentialsParameters(parameter.get(1));
@@ -256,8 +262,9 @@ public class SFA_AM implements ISFA_AM {
         checkCredentials(credentialList);
         final HashMap<String, Object> deleteParameters = (HashMap<String, Object>) parameter.get(2);
         SFA_AM.LOGGER.log(Level.INFO, "delete parameters are parsed");
-       ProcessDelete processDelete = new ProcessDelete();
-        Model deleteResponse = processDelete.deleteInstances(urns);
+       ProcessDelete processDelete = new ProcessDelete(urns);
+       processDelete.setSender(SFA_AM_MDBSender.getInstance());
+        Model deleteResponse = processDelete.deleteInstances();
         processDelete.addDeleteValue(result, deleteResponse);
         this.addCode(result);
         this.addOutput(result);
@@ -320,7 +327,7 @@ public class SFA_AM implements ISFA_AM {
         String outputString = "";
 
 
-        byte[] input = toCompress.getBytes("UTF-8");
+        byte[] input = toCompress.getBytes(ISFA_AM.UTF_8);
         // Compress the bytes
         output = new byte[input.length];
         Deflater compresser = new Deflater();
@@ -378,8 +385,8 @@ public class SFA_AM implements ISFA_AM {
 
      if(param2.get(IGeni.GENI_RSPEC_VERSION) instanceof Map<?, ?>){
          final Map<String, ?> geniRSpecVersion = (Map<String, ?>) param2.get(IGeni.GENI_RSPEC_VERSION);
-         this.delegate.setRspecType((String) geniRSpecVersion.get("type"));
-         this.delegate.setRspecVersion( (String) geniRSpecVersion.get("version"));
+         this.delegate.setRspecType((String) geniRSpecVersion.get(ISFA_AM.TYPE));
+         this.delegate.setRspecVersion( (String) geniRSpecVersion.get(ISFA_AM.VERSION));
      }
 
     }
@@ -430,7 +437,7 @@ public class SFA_AM implements ISFA_AM {
         Model descriptions = describeProcessor.getDescriptions(URNS);
         HashMap<String, Object> value = new HashMap<>();
         StmtIterator stmtIterator = descriptions.listStatements(null, RDF.type, Omn.Reservation);
-        if(stmtIterator.hasNext() || !(URNS.size() ==1 && "slice".equalsIgnoreCase(URNS.get(0).getType()) ))
+        if(stmtIterator.hasNext() || !(URNS.size() ==1 && ISFA_AM.SLICE.equalsIgnoreCase(URNS.get(0).getType()) ))
             describeProcessor.addSliverInformation(value,descriptions);
 
         value.put(IGeni.GENI_RSPEC, ManifestConverter.getRSpec(descriptions, IConfig.DEFAULT_HOSTNAME));
@@ -516,7 +523,7 @@ public class SFA_AM implements ISFA_AM {
 
         addSupportedCredentialTypes(value);
         this.delegate.setGeniCode(0);
-        this.delegate.setOutput("SUCCESS");
+        this.delegate.setOutput(ISFA_AM.SUCCESS);
         result.put(ISFA_AM.VALUE, value);
     }
 

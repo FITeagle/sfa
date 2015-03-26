@@ -31,7 +31,13 @@ public class ProcessDelete extends AbstractMethodProcessor {
 	
 	private final static Logger LOGGER = Logger.getLogger(ProcessDelete.class.getName());
 	
-	public  Model deleteInstances(List<URN> urns) throws UnsupportedEncodingException {
+	private final List<URN> urns;
+	
+	public ProcessDelete(List<URN> urns){
+	  this.urns = urns;
+	}
+	
+	public  Model deleteInstances() throws UnsupportedEncodingException {
 		
 		LOGGER.log(Level.INFO, "create delete model ");
 		Model requestModel = ModelFactory.createDefaultModel();
@@ -42,14 +48,14 @@ public class ProcessDelete extends AbstractMethodProcessor {
                 Resource resource = requestModel.createResource(IConfig.TOPOLOGY_NAMESPACE_VALUE+urn.getSubject());
                 resource.addProperty(RDF.type, Omn.Topology);
 			} else if (ISFA_AM.Sliver.equals(urn.getType())) {
-                Resource resource =  requestModel.createResource(URLDecoder.decode(urn.getSubject(),"UTF-8"));
+                Resource resource =  requestModel.createResource(URLDecoder.decode(urn.getSubject(), ISFA_AM.UTF_8));
                 resource.addProperty(RDF.type, Omn.Resource);
             }
 		}
 
 		String serializedModel = MessageUtil.serializeModel(requestModel, IMessageBus.SERIALIZATION_TURTLE);
 		LOGGER.log(Level.INFO, "send delete request ...");
-		Model deleteResponse = SFA_AM_MDBSender.getInstance().sendRDFRequest(serializedModel, IMessageBus.TYPE_DELETE,IMessageBus.TARGET_ORCHESTRATOR);
+		Model deleteResponse = getSender().sendRDFRequest(serializedModel, IMessageBus.TYPE_DELETE,IMessageBus.TARGET_ORCHESTRATOR);
 		LOGGER.log(Level.INFO,"delete reply is received.");
 		return deleteResponse;
 		
