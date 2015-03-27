@@ -17,6 +17,7 @@ import org.fiteagle.north.sfa.am.ISFA_AM;
 import org.fiteagle.north.sfa.am.ReservationStateEnum;
 import org.fiteagle.north.sfa.am.common.AbstractMethodProcessor;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
+import org.fiteagle.north.sfa.util.GENI_Credential;
 import org.fiteagle.north.sfa.util.URN;
 
 import com.hp.hpl.jena.rdf.model.Model;
@@ -61,7 +62,7 @@ public class ProcessDelete extends AbstractMethodProcessor {
 		
 	}
 	
-	public  void addDeleteValue(final HashMap<String, Object> result, Model deleteResponse){
+	public void createResponse(final HashMap<String, Object> result, Model deleteResponse){
 		
 		  final List<Map<String, Object>> value = new LinkedList<>();
 		  
@@ -85,6 +86,13 @@ public class ProcessDelete extends AbstractMethodProcessor {
 		    }
 		    
 		    result.put(ISFA_AM.VALUE, value);
+        this.addCode(result);
+        this.addOutput(result);
 	}
+	
+  public void handleCredentials(final Object param) {
+    List<GENI_Credential> credentialList = this.parseCredentialsParameters(param);
+    this.checkCredentials(credentialList);
+  }
 
 }

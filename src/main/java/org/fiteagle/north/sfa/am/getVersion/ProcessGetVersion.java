@@ -25,7 +25,9 @@ public class ProcessGetVersion extends AbstractMethodProcessor {
   
   private static final int API_VERSION = 3;
   
+  
   public ProcessGetVersion() {
+    
   }
   
   public Model getTestbedDescription() {
@@ -43,7 +45,7 @@ public class ProcessGetVersion extends AbstractMethodProcessor {
     return testbedDescription;
   }
   
-  public void addValue(final HashMap<String, Object> result, String testbedDescription) {
+  public void createResponse(final HashMap<String, Object> result, String testbedDescription) {
     result.put(IGeni.GENI_API, API_VERSION);
     
     final Map<String, Object> value = new HashMap<>();
@@ -64,6 +66,8 @@ public class ProcessGetVersion extends AbstractMethodProcessor {
     this.delegate.setOutput(ISFA_AM.SUCCESS);
     
     result.put(ISFA_AM.VALUE, value);
+    this.addCode(result);
+    this.addOutput(result);
   }
   
   public String[] getSupportedExtensions() {

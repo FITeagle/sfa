@@ -2,15 +2,19 @@ package org.fiteagle.north.sfa.am.status;
 
 import com.hp.hpl.jena.ontology.Individual;
 import com.hp.hpl.jena.rdf.model.*;
+
 import info.openmultinet.ontology.vocabulary.Omn;
+
 import org.fiteagle.api.core.*;
 import org.fiteagle.north.sfa.am.ISFA_AM;
 import org.fiteagle.north.sfa.am.common.AbstractMethodProcessor;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
+import org.fiteagle.north.sfa.util.GENI_Credential;
 import org.fiteagle.north.sfa.util.URN;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.HashMap;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -50,4 +54,16 @@ public class StatusProcessor extends AbstractMethodProcessor {
         return statusResponse;
     }
 
+    public void createResponse(final HashMap<String, Object> result, Model statusResponse) {
+      HashMap<String, Object> value = new HashMap<>();
+      addSliverInformation(value, statusResponse);
+      result.put(ISFA_AM.VALUE, value);
+      this.addCode(result);
+      this.addOutput(result);
+    }
+    
+    public void handleCredentials(final Object param) {
+      List<GENI_Credential> credentialList = this.parseCredentialsParameters(param);
+      this.checkCredentials(credentialList);
+    }
 }

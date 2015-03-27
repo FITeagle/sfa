@@ -47,11 +47,11 @@ public class ProcessGetVersionTest {
   }
   
   @Test
-  public void addValueTest() {
+  public void createResponseTest() {
     final HashMap<String, Object> result = new HashMap<>();
     String testbedDescription = "testbed description";
     processGetVersion = new ProcessGetVersion();
-    processGetVersion.addValue(result, testbedDescription);
+    processGetVersion.createResponse(result, testbedDescription);
   }
   
   private Model createTestModel() {

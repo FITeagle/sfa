@@ -1,6 +1,7 @@
 package org.fiteagle.north.sfa.am.provision;
 
 import com.hp.hpl.jena.ontology.Individual;
+
 import info.openmultinet.ontology.exceptions.InvalidModelException;
 import info.openmultinet.ontology.translators.geni.ManifestConverter;
 import info.openmultinet.ontology.vocabulary.Omn;
@@ -22,6 +23,7 @@ import org.fiteagle.north.sfa.am.ISFA_AM;
 import org.fiteagle.north.sfa.am.ReservationStateEnum;
 import org.fiteagle.north.sfa.am.common.AbstractMethodProcessor;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
+import org.fiteagle.north.sfa.util.GENI_Credential;
 import org.fiteagle.north.sfa.util.URN;
 
 import com.hp.hpl.jena.rdf.model.Model;
@@ -71,7 +73,7 @@ public class ProcessProvision extends AbstractMethodProcessor {
 		return provisionResponse;
 	}
   
-  public void addProvisionValue(final HashMap<String, Object> result, Model provisionResponse){
+  public void createResponse(final HashMap<String, Object> result, Model provisionResponse){
 	  
 	  final Map<String, Object> value = new HashMap<>();
 
@@ -83,7 +85,13 @@ public class ProcessProvision extends AbstractMethodProcessor {
 	}
       this.addSliverInformation(value,provisionResponse);
 	    result.put(ISFA_AM.VALUE, value);
+	    this.addCode(result);
+      this.addOutput(result);
   }
   
+  public void handleCredentials(final Object param) {
+    List<GENI_Credential> credentialList = this.parseCredentialsParameters(param);
+    this.checkCredentials(credentialList);
+  }
   
 }

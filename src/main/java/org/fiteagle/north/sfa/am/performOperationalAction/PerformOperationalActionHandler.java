@@ -16,12 +16,14 @@ import org.fiteagle.api.core.MessageUtil;
 import org.fiteagle.north.sfa.am.ISFA_AM;
 import org.fiteagle.north.sfa.am.common.AbstractMethodProcessor;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
+import org.fiteagle.north.sfa.util.GENI_Credential;
 import org.fiteagle.north.sfa.util.URN;
 
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -81,5 +83,17 @@ public class PerformOperationalActionHandler extends AbstractMethodProcessor {
 
         return performOpActionResponse;
     }
+    
+    public void createResponse(final HashMap<String, Object> result, Model performResponse) {
+      HashMap<String, Object> value = new HashMap<>();
+      addSliverInformation(value, performResponse);
+      result.put(ISFA_AM.VALUE, value);
+      this.addCode(result);
+      this.addOutput(result);
+    }
 
+    public void handleCredentials(final Object param) {
+      List<GENI_Credential> credentialList = this.parseCredentialsParameters(param);
+      this.checkCredentials(credentialList);
+    }
 }

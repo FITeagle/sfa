@@ -188,18 +188,13 @@ public class SFA_AM implements ISFA_AM {
         SFA_AM.LOGGER.log(Level.INFO, "provision...");
         final HashMap<String, Object> result = new HashMap<>();
         List<URN> urns = parseURNList(parameter.get(0));
-        List<GENI_Credential> credentialList = parseCredentialsParameters(parameter.get(1));
-        checkCredentials(credentialList);
+        ProcessProvision processProvision = new ProcessProvision(urns);
+        processProvision.handleCredentials(parameter.get(1));
         final HashMap<String, Object> provisionParameters = (HashMap<String, Object>) parameter.get(2);
         SFA_AM.LOGGER.log(Level.INFO, "provision parameters are parsed");
-        ProcessProvision processProvision = new ProcessProvision(urns);
         processProvision.setSender(SFA_AM_MDBSender.getInstance());
-        
         Model provisionResponse = processProvision.provisionInstances();
-        processProvision.addProvisionValue(result, provisionResponse);
-        this.addCode(result);
-        this.addOutput(result);
-
+        processProvision.createResponse(result, provisionResponse);
         return result;
     }
 
@@ -208,19 +203,12 @@ public class SFA_AM implements ISFA_AM {
         SFA_AM.LOGGER.log(Level.INFO, "status...");
         final HashMap<String, Object> result = new HashMap<>();
         List<URN> urns = parseURNList(parameter.get(0));
-        List<GENI_Credential> credentialList = parseCredentialsParameters(parameter.get(1));
-        checkCredentials(credentialList);
-        final HashMap<String, Object> statusParameters = (HashMap<String, Object>) parameter.get(2);
         StatusProcessor statusProcessor = new StatusProcessor(urns);
+        statusProcessor.handleCredentials(parameter.get(1));
+        final HashMap<String, Object> statusParameters = (HashMap<String, Object>) parameter.get(2);
         statusProcessor.setSender(SFA_AM_MDBSender.getInstance());
-        
         Model statusResponse = statusProcessor.getStates();
-        HashMap<String, Object> value = new HashMap<>();
-        statusProcessor.addSliverInformation(value, statusResponse);
-        result.put(ISFA_AM.VALUE, value);
-        this.addCode(result);
-        this.addOutput(result);
-
+        statusProcessor.createResponse(result, statusResponse);
         return result;
     }
 
@@ -229,21 +217,14 @@ public class SFA_AM implements ISFA_AM {
         SFA_AM.LOGGER.log(Level.INFO, "performOperationalAction...");
         final HashMap<String, Object> result = new HashMap<>();
         List<URN> urns = parseURNList(parameter.get(0));
-        List<GENI_Credential> credentialList = parseCredentialsParameters(parameter.get(1));
-        checkCredentials(credentialList);
-
+        PerformOperationalActionHandler performOperationalActionHandler = new PerformOperationalActionHandler(urns);
+        performOperationalActionHandler.handleCredentials(parameter.get(1));
         String action = (String) parameter.get(2);
         //TODO ignore options for now
 
-        PerformOperationalActionHandler performOperationalActionHandler = new PerformOperationalActionHandler(urns);
         performOperationalActionHandler.setSender(SFA_AM_MDBSender.getInstance());
         Model performResponse = performOperationalActionHandler.performAction(action);
-        //TODO make common methods abstract
-        HashMap<String, Object> value = new HashMap<>();
-        performOperationalActionHandler.addSliverInformation(value, performResponse);
-        result.put(ISFA_AM.VALUE, value);
-        this.addCode(result);
-        this.addOutput(result);
+        performOperationalActionHandler.createResponse(result, performResponse);
         return result;
     }
 
@@ -253,16 +234,13 @@ public class SFA_AM implements ISFA_AM {
         SFA_AM.LOGGER.log(Level.INFO, "delete...");
         final HashMap<String, Object> result = new HashMap<>();
         List<URN> urns = parseURNList(parameter.get(0));
-        List<GENI_Credential> credentialList = parseCredentialsParameters(parameter.get(1));
-        checkCredentials(credentialList);
+        ProcessDelete processDelete = new ProcessDelete(urns);
+        processDelete.handleCredentials(parameter.get(1));
         final HashMap<String, Object> deleteParameters = (HashMap<String, Object>) parameter.get(2);
         SFA_AM.LOGGER.log(Level.INFO, "delete parameters are parsed");
-       ProcessDelete processDelete = new ProcessDelete(urns);
-       processDelete.setSender(SFA_AM_MDBSender.getInstance());
+        processDelete.setSender(SFA_AM_MDBSender.getInstance());
         Model deleteResponse = processDelete.deleteInstances();
-        processDelete.addDeleteValue(result, deleteResponse);
-        this.addCode(result);
-        this.addOutput(result);
+        processDelete.createResponse(result, deleteResponse);
         return result;
     }
 
@@ -272,51 +250,26 @@ public class SFA_AM implements ISFA_AM {
         return result;
     }
 
-    @Override
-    public Object listResources(final List<?> parameter) throws JMSException, UnsupportedEncodingException, JAXBException, InvalidModelException {
-        SFA_AM.LOGGER.log(Level.INFO, "listResources...");
-
-        HashMap<String, Object> result = new HashMap<>();
-        this.parseListResourcesParameter(parameter);
-        
-        if(!(ISFA_AM.GENI.equals(this.delegate.getRspecType()) && ISFA_AM.VERSION_3.equals(this.delegate.getRspecVersion())) && !"omn".equals(this.delegate.getRspecType())){
-          throw new BadVersionException(GENI_CodeEnum.BADVERSION.getDescription());
-        } else {
-          ListResourcesProcessor listResourcesProcessor = new ListResourcesProcessor(parameter);
-          Model topologyModel = listResourcesProcessor.listResources();
-          addManagerId(topologyModel);
-          String testbedResources = "";
-          
-          if(ISFA_AM.VERSION_3.equals(this.delegate.getRspecVersion()) && ISFA_AM.GENI.equals(this.delegate.getRspecType())){
-            AdvertisementConverter converter = new AdvertisementConverter();
-            testbedResources = converter.getRSpec(topologyModel);
-        }else if("omn".equals(this.delegate.getRspecType())){
-             testbedResources = MessageUtil.serializeModel(topologyModel, IMessageBus.SERIALIZATION_RDFXML);
+  @Override
+  public Object listResources(final List<?> parameter) throws JMSException, UnsupportedEncodingException, JAXBException, InvalidModelException {
+    SFA_AM.LOGGER.log(Level.INFO, "listResources...");
+    HashMap<String, Object> result = new HashMap<>();
+    ListResourcesProcessor listResourcesProcessor = new ListResourcesProcessor(parameter);
+    listResourcesProcessor.handleCredentials();
+    listResourcesProcessor.parseOptionsParameters();
+    if (listResourcesProcessor.checkSupportedVersions()) {
+      listResourcesProcessor.setSender(SFA_AM_MDBSender.getInstance());
+      Model topologyModel = listResourcesProcessor.listResources();
+      listResourcesProcessor.createResponse(result, topologyModel);
+      return result;
+      } else {
+        throw new BadVersionException(GENI_CodeEnum.BADVERSION.getDescription());
         }
-       
-        if (this.delegate.getCompressed()) {
-            result.put(ISFA_AM.VALUE, compress(testbedResources));
-        } else {
-            result.put(ISFA_AM.VALUE, testbedResources);
-        }
-
-        this.addCode(result);
-        this.addOutput(result);
-
-        return result;
-        }
-    }
-
-    private void addManagerId(Model topologyModel) {
-        ResIterator resIterator = topologyModel.listResourcesWithProperty(Omn_lifecycle.parentOf);
-        Resource aggregateManager = topologyModel.createResource("urn:publicId:IDN+localhost+authority+am");
-        while(resIterator.hasNext()){
-            resIterator.nextResource().addProperty(Omn_lifecycle.parentTo,aggregateManager);
-        }
-
-    }
+  }
 
 
+
+    //TODO remove after reconfiguring all methods
     public static String compress(String toCompress) throws UnsupportedEncodingException {
         byte[] output = null;
         String outputString = "";
@@ -334,55 +287,6 @@ public class SFA_AM implements ISFA_AM {
 
 
         return outputString;
-
-    }
-
-    private void parseListResourcesParameter(final List<?> parameter) {
-
-        //First Parameter is always credential
-        Object credential = parameter.get(0);
-        Object options = parameter.get(1);
-
-        if (credential instanceof List<?>) {
-            parseCredentialsParameters(credential);
-        } else {
-            throw new BadArgumentsException("Invalid Credentials");
-        }
-
-        if (options instanceof Map<?, ?>) {
-            this.parseOptionsParameters(options);
-        }
-      /*
-       * else if (param instanceof List<?>) { // tood: parse more //this.parseCredentialsParameters(param); }
-       */
-
-    }
-
-    private void parseOptionsParameters(final Object param) {
-
-        @SuppressWarnings("unchecked")
-        final Map<String, ?> param2 = (Map<String, ?>) param;
-
-        if (param2.containsKey(IGeni.GENI_QUERY)) {
-            this.query = param2.get(IGeni.GENI_QUERY).toString();
-        } else {
-            this.query = "";
-        }
-
-        if (param2.containsKey(IGeni.GENI_COMPRESSED)) {
-            this.delegate.setCompressed((Boolean) param2.get(IGeni.GENI_COMPRESSED));
-        }
-        if (param2.containsKey(IGeni.GENI_AVAILABLE)) {
-            this.delegate.setAvailable((Boolean) param2.get(IGeni.GENI_AVAILABLE));
-        }
-
-
-
-     if(param2.get(IGeni.GENI_RSPEC_VERSION) instanceof Map<?, ?>){
-         final Map<String, ?> geniRSpecVersion = (Map<String, ?>) param2.get(IGeni.GENI_RSPEC_VERSION);
-         this.delegate.setRspecType((String) geniRSpecVersion.get(ISFA_AM.TYPE));
-         this.delegate.setRspecVersion( (String) geniRSpecVersion.get(ISFA_AM.VERSION));
-     }
 
     }
 
@@ -412,10 +316,7 @@ public class SFA_AM implements ISFA_AM {
         
         Model testbedDescriptionModel = processGetVersion.getTestbedDescription();
         String testbedDescription = processGetVersion.parseTestbedDescription(testbedDescriptionModel);
-        processGetVersion.addValue(result, testbedDescription);
-
-        this.addCode(result);
-        this.addOutput(result);
+        processGetVersion.createResponse(result, testbedDescription);
         return result;
     }
 
@@ -449,6 +350,7 @@ public class SFA_AM implements ISFA_AM {
         return result;
     }
 
+    // TODO remove after reconfiguring all methods
     private void checkCredentials(List<GENI_Credential> credentialList) {
 
         for (GENI_Credential credential : credentialList) {
@@ -500,11 +402,12 @@ public class SFA_AM implements ISFA_AM {
         result.put(ISFA_AM.VALUE, new HashMap<String, Object>());
     }
 
-
+    //TODO remove after reconfiguring all methods
     private void addOutput(final HashMap<String, Object> result) {
         result.put(ISFA_AM.OUTPUT, this.delegate.getOutput());
     }
 
+    //TODO remove after reconfiguring all methods
     private void addCode(final HashMap<String, Object> result) {
         final Map<String, Integer> code = new HashMap<>();
         code.put(IGeni.GENI_CODE, this.delegate.getGeniCode());
