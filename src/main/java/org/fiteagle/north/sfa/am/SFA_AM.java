@@ -11,6 +11,7 @@ import java.util.zip.Deflater;
 import javax.jms.JMSException;
 import javax.xml.bind.JAXBException;
 
+
 //import info.openmultinet.ontology.exceptions.InvalidModelException;
 import com.hp.hpl.jena.rdf.model.ResIterator;
 import com.hp.hpl.jena.rdf.model.Resource;
@@ -36,6 +37,7 @@ import org.fiteagle.north.sfa.exceptions.BadVersionException;
 import org.fiteagle.north.sfa.exceptions.ForbiddenException;
 import org.fiteagle.north.sfa.exceptions.SearchFailedException;
 import org.fiteagle.north.sfa.am.status.StatusProcessor;
+import org.fiteagle.north.sfa.am.common.AbstractMethodProcessor;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_Delegate_Default;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
 import org.fiteagle.north.sfa.exceptions.EmptyReplyException;
@@ -104,57 +106,41 @@ public class SFA_AM implements ISFA_AM {
                     break;
             }
         } catch (BadArgumentsException e) {
-            HashMap<String, Object> exceptionBody = new HashMap<>();
-            handleException(exceptionBody, e, GENI_CodeEnum.BADARGS);
-            result = exceptionBody;
+          result = handleException(e, GENI_CodeEnum.BADARGS);
+          
         } catch (JMSException e) {
-            HashMap<String, Object> exceptionBody = new HashMap<>();
-            handleException(exceptionBody, e, GENI_CodeEnum.SERVERERROR);
-            result = exceptionBody;
+          result = handleException(e, GENI_CodeEnum.SERVERERROR);
+          
         } catch (EmptyReplyException e) {
-            HashMap<String, Object> exceptionBody = new HashMap<>();
-            handleException(exceptionBody, e, GENI_CodeEnum.SEARCHFAILED);
-            result = exceptionBody;
+          result = handleException(e, GENI_CodeEnum.SEARCHFAILED);
+          
         } catch (MessageUtil.TimeoutException e) {
-            HashMap<String, Object> exceptionBody = new HashMap<>();
-            handleException(exceptionBody, e, GENI_CodeEnum.TIMEDOUT);
-            result = exceptionBody;
-        }catch (ForbiddenException e){
-            HashMap<String, Object> exceptionBody = new HashMap<>();
-            handleException(exceptionBody, e, GENI_CodeEnum.FORBIDDEN);
-            result = exceptionBody;
-
-        }  catch (SearchFailedException e){
-        HashMap<String, Object> exceptionBody = new HashMap<>();
-        handleException(exceptionBody, e, GENI_CodeEnum.SEARCHFAILED);
-        result = exceptionBody;
-        }  catch(BadVersionException e){
-          HashMap<String, Object> exceptionBody = new HashMap<>();
-          handleException(exceptionBody, e, GENI_CodeEnum.BADVERSION);
-          result = exceptionBody;
-          }
+          result = handleException(e, GENI_CodeEnum.TIMEDOUT);
+          
+        } catch (ForbiddenException e){
+          result = handleException(e, GENI_CodeEnum.FORBIDDEN);
+          
+        } catch (SearchFailedException e){
+        result = handleException(e, GENI_CodeEnum.SEARCHFAILED);
         
-        catch (RuntimeException e) {
-
-            HashMap<String, Object> exceptionBody = new HashMap<>();
-            handleException(exceptionBody, e, GENI_CodeEnum.ERROR);
-            result = exceptionBody;
+        } catch(BadVersionException e){
+          result = handleException(e, GENI_CodeEnum.BADVERSION);
+          
+        } catch (RuntimeException e) {
+          result = handleException(e, GENI_CodeEnum.ERROR);
+          
         } catch (UnsupportedEncodingException e) {
-            HashMap<String, Object> exceptionBody = new HashMap<>();
-            handleException(exceptionBody, e, GENI_CodeEnum.ERROR);
-            result = exceptionBody;
+          result = handleException(e, GENI_CodeEnum.ERROR);
+          
 //    } catch (InvalidModelException e) {
 //      HashMap<String, Object> exceptionBody = new HashMap<>();
 //      handleException(exceptionBody, e.getMessage(), GENI_CodeEnum.ERROR);
 //      result = exceptionBody;
         } catch (JAXBException e) {
-            HashMap<String, Object> exceptionBody = new HashMap<>();
-            handleException(exceptionBody, e, GENI_CodeEnum.ERROR);
-            result = exceptionBody;
+          result = handleException(e, GENI_CodeEnum.ERROR);
+
         } catch (InvalidModelException e) {
-            HashMap<String, Object> exceptionBody = new HashMap<>();
-            handleException(exceptionBody, e, GENI_CodeEnum.ERROR);
-            result = exceptionBody;
+          result = handleException(e, GENI_CodeEnum.ERROR);
         } 
 
         return result;
@@ -269,7 +255,7 @@ public class SFA_AM implements ISFA_AM {
 
 
 
-    //TODO remove after reconfiguring all methods
+    //TODO remove after refactoring all methods
     public static String compress(String toCompress) throws UnsupportedEncodingException {
         byte[] output = null;
         String outputString = "";
@@ -350,7 +336,7 @@ public class SFA_AM implements ISFA_AM {
         return result;
     }
 
-    // TODO remove after reconfiguring all methods
+    // TODO remove after refactoring all methods
     private void checkCredentials(List<GENI_Credential> credentialList) {
 
         for (GENI_Credential credential : credentialList) {
@@ -390,24 +376,24 @@ public class SFA_AM implements ISFA_AM {
         return returnList;
     }
 
-    private void handleException(HashMap<String, Object> result, Exception e, GENI_CodeEnum errorCode) {
+    private HashMap<String, Object> handleException(Exception e, GENI_CodeEnum errorCode) {
         LOGGER.log(Level.WARNING, e.getMessage(),e);
-
-        this.delegate.setGeniCode(errorCode.getValue());
-        this.delegate.setOutput(e.getMessage());
-        this.addCode(result);
-        this.addOutput(result);
-
-
+        HashMap<String, Object> result = new HashMap<>();
+        AbstractMethodProcessor abstractMethodProcessor = new AbstractMethodProcessor();
+        abstractMethodProcessor.delegate.setGeniCode(errorCode.getValue());
+        abstractMethodProcessor.delegate.setOutput(e.getMessage());
+        abstractMethodProcessor.addCode(result);
+        abstractMethodProcessor.addOutput(result);
         result.put(ISFA_AM.VALUE, new HashMap<String, Object>());
+        return result;
     }
 
-    //TODO remove after reconfiguring all methods
+    //TODO remove after refactoring all methods
     private void addOutput(final HashMap<String, Object> result) {
         result.put(ISFA_AM.OUTPUT, this.delegate.getOutput());
     }
 
-    //TODO remove after reconfiguring all methods
+    //TODO remove after refactoring all methods
     private void addCode(final HashMap<String, Object> result) {
         final Map<String, Integer> code = new HashMap<>();
         code.put(IGeni.GENI_CODE, this.delegate.getGeniCode());

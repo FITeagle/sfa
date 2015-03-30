@@ -35,12 +35,16 @@ import java.util.zip.Deflater;
 /**
  * Created by dne on 16.03.15.
  */
-public abstract class AbstractMethodProcessor {
+public class AbstractMethodProcessor {
     private final static Logger LOGGER = Logger.getLogger(AbstractMethodProcessor.class.getName());
     
     private SFA_AM_MDBSender sender;
     
-    protected ISFA_AM_Delegate delegate = new SFA_AM_Delegate_Default();;
+    public ISFA_AM_Delegate delegate = new SFA_AM_Delegate_Default();
+    
+    public AbstractMethodProcessor() {
+      
+    }
     
     public void addSliverInformation(Map<String, Object> value, Model response){
 
