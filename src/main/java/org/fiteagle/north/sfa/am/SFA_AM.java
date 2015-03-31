@@ -34,6 +34,7 @@ import org.fiteagle.api.core.MessageUtil;
 import org.fiteagle.north.sfa.am.allocate.ProcessAllocate;
 import org.fiteagle.north.sfa.am.listResources.ListResourcesProcessor;
 import org.fiteagle.north.sfa.am.performOperationalAction.PerformOperationalActionHandler;
+import org.fiteagle.north.sfa.am.renew.RenewHandler;
 import org.fiteagle.north.sfa.exceptions.BadArgumentsException;
 import org.fiteagle.north.sfa.exceptions.BadVersionException;
 import org.fiteagle.north.sfa.exceptions.ForbiddenException;
@@ -181,8 +182,17 @@ public class SFA_AM implements ISFA_AM {
     }
 
     @Override
-    public Object renew(final List<?> parameter) {
+    public Object renew(final List<?> parameter) throws UnsupportedEncodingException {
         final HashMap<String, Object> result = new HashMap<>();
+        RenewHandler renewHandler = new RenewHandler();
+        renewHandler.setSender(SFA_AM_MDBSender.getInstance());
+        List<URN> urnList =  parseURNList(parameter.get(0));
+        String expirationTime =(String) parameter.get(2);
+        Model resultModel = renewHandler.renew(urnList,expirationTime,new HashMap<String, Object>());
+        List<Map<String, Object>> slivers = renewHandler.getSlivers(resultModel);
+        result.put(ISFA_AM.VALUE,slivers );
+        this.addCode(result);
+        this.addOutput(result);
         return result;
     }
 

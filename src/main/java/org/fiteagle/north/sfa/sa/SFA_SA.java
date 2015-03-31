@@ -3,15 +3,17 @@ package org.fiteagle.north.sfa.sa;
 import java.io.StringReader;
 import java.security.cert.CertificateParsingException;
 import java.security.cert.X509Certificate;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.text.ParsePosition;
+import java.text.SimpleDateFormat;
+import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.vocabulary.OWL;
 import com.hp.hpl.jena.vocabulary.RDF;
 import info.openmultinet.ontology.vocabulary.Omn;
 import info.openmultinet.ontology.vocabulary.Omn_lifecycle;
@@ -30,7 +32,11 @@ import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
 import org.fiteagle.north.sfa.util.URN;
 
 import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
 import javax.xml.bind.Unmarshaller;
+import javax.xml.datatype.DatatypeConfigurationException;
+import javax.xml.datatype.DatatypeFactory;
+import javax.xml.datatype.XMLGregorianCalendar;
 
 public class SFA_SA implements ISFA_SA {
 
@@ -60,6 +66,7 @@ public class SFA_SA implements ISFA_SA {
                     break;
                 case ISFA_SA.METHOD_RENEW_SLICE:
                     result = this.renewSlice(parameter);
+                    break;
                 default:
                     result = "Unimplemented method '" + methodName + "'";
                     break;
@@ -147,9 +154,38 @@ public class SFA_SA implements ISFA_SA {
     }
 
     @Override
-    public Object renewSlice(List<?> parameter) {
+    public Object renewSlice(List<?> parameter) throws JAXBException, DatatypeConfigurationException {
         HashMap<String,Object> result = new HashMap<>();
+        Map<String, String> inputMap = (Map<String, String>) parameter.get(0);
+        String credentialString = inputMap.get("credential");
+        SignedCredential signedCredential = CredentialFactory.buildCredential(credentialString);
+        URN sliceURN = new URN(signedCredential.getCredential().getTargetURN());
+
+        Credential newCredential = signedCredential.getCredential();
+        String expirationValue = inputMap.get("expiration");
+        ParsePosition parsePos = new ParsePosition(0);
+        Date newDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX").parse(expirationValue,parsePos);
+        GregorianCalendar gregorianCalendar =
+                (GregorianCalendar)GregorianCalendar.getInstance();
+        gregorianCalendar.setTime(newDate);
+        XMLGregorianCalendar xmlval = DatatypeFactory.newInstance().newXMLGregorianCalendar(gregorianCalendar);
+
+        newCredential.setExpires(xmlval);
+
+        String newCredentialString = CredentialFactory.signCredential(newCredential);
+
+        if(newCredentialString != null) {
+
+
+            String output = "";
+            int code = 0;
+
+            result.put("output", output);
+            result.put("code", code);
+            result.put("value", newCredentialString);
+        }
         return result;
+
 
     }
 
@@ -158,13 +194,15 @@ public class SFA_SA implements ISFA_SA {
         //TODO change this to URN.toURI()
         Resource resource = groupModel.createResource(IConfig.TOPOLOGY_NAMESPACE_VALUE+ sliceURN.getSubject());
         resource.addProperty(RDF.type, Omn.Topology );
-        resource.addProperty(Omn_lifecycle.hasAuthenticationInformation, X509Util.getCertificateBodyEncoded(sliceCert));
+        Property authInfo = groupModel.createProperty(Omn_lifecycle.hasAuthenticationInformation.getNameSpace(),Omn_lifecycle.hasAuthenticationInformation.getLocalName());
+        authInfo.addProperty(RDF.type, OWL.FunctionalProperty);
+        resource.addProperty(authInfo, X509Util.getCertificateBodyEncoded(sliceCert));
 
         return groupModel;
     }
     private Model sendGroup(Model groupModel) {
         String serializedModel = MessageUtil.serializeModel(groupModel,IMessageBus.SERIALIZATION_TURTLE);
-        Model resultModel = SFA_AM_MDBSender.getInstance().sendRDFRequest(serializedModel, IMessageBus.TYPE_CREATE, IMessageBus.TARGET_ORCHESTRATOR);
+        Model resultModel = SFA_AM_MDBSender.getInstance().sendRDFRequest(serializedModel, IMessageBus.TYPE_CREATE, IMessageBus.TARGET_RESERVATION);
         return resultModel;
     }
 

@@ -9,6 +9,7 @@ import org.fiteagle.api.core.IGeni;
 import org.fiteagle.api.core.MessageBusOntologyModel;
 import org.fiteagle.north.sfa.am.ISFA_AM;
 import org.fiteagle.north.sfa.am.ReservationStateEnum;
+import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
 import org.fiteagle.north.sfa.exceptions.SearchFailedException;
 import org.fiteagle.north.sfa.util.URN;
 
@@ -25,8 +26,22 @@ import java.util.logging.Logger;
 public abstract class AbstractMethodProcessor {
     private final static Logger LOGGER = Logger.getLogger(AbstractMethodProcessor.class.getName());
 
+    public SFA_AM_MDBSender getSender() {
+        return sender;
+    }
+
+    private SFA_AM_MDBSender sender;
+
     public void addSliverInformation(Map<String, Object> value, Model response){
 
+        final List<Map<String, Object>> geniSlivers = getSlivers(response);
+        value.put(IGeni.GENI_SLIVERS, geniSlivers);
+
+        value.put(IGeni.GENI_URN, getSliceURN(response));
+
+    }
+
+    public List<Map<String, Object>> getSlivers(Model response) {
         final List<Map<String, Object>> geniSlivers = new LinkedList<>();
 
         StmtIterator stmtIterator = response.listStatements(null, RDF.type, Omn.Reservation);
@@ -46,11 +61,7 @@ public abstract class AbstractMethodProcessor {
             sliverMap.put(IGeni.GENI_ERROR, "NO ERROR");
 
             geniSlivers.add(sliverMap);
-        }
-        value.put(IGeni.GENI_SLIVERS, geniSlivers);
-
-        value.put(IGeni.GENI_URN, getSliceURN(response));
-
+        } return geniSlivers;
     }
 
     private String getSliceURN(Model statusResponse) {
@@ -74,5 +85,9 @@ public abstract class AbstractMethodProcessor {
             default:
                 return "";
         }
+    }
+
+    public void setSender(SFA_AM_MDBSender sender) {
+        this.sender = sender;
     }
 }

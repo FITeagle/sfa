@@ -57,7 +57,7 @@ public interface ISFA_AM extends ISFA {
 	
 	public abstract Object allocate(List<?> parameter) throws JAXBException, InvalidModelException, UnsupportedEncodingException;
 	
-	public abstract Object renew(List<?> parameter);
+	public abstract Object renew(List<?> parameter) throws UnsupportedEncodingException;
 	
 	public abstract Object provision(List<?> parameter) throws UnsupportedEncodingException;
 	

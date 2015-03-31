@@ -28,7 +28,7 @@ public class PerformOperationalActionHandler extends AbstractMethodProcessor {
     private final List<URN> urns;
 
 
-    private SFA_AM_MDBSender sender;
+
 
     public PerformOperationalActionHandler(List<URN> urns) {
         this.urns = urns;
@@ -73,21 +73,12 @@ public class PerformOperationalActionHandler extends AbstractMethodProcessor {
         String serializedModel = MessageUtil.serializeModel(model,
                 IMessageBus.SERIALIZATION_TURTLE);
 
-        Model performOpActionResponse = getSender()
-                .sendRDFRequest(serializedModel, IMessageBus.TYPE_CONFIGURE,
+        Model performOpActionResponse =this.getSender().sendRDFRequest(serializedModel, IMessageBus.TYPE_CONFIGURE,
                         IMessageBus.TARGET_ORCHESTRATOR);
 
         return performOpActionResponse;
     }
 
-
-    public SFA_AM_MDBSender getSender() {
-        return sender;
-    }
-
-    public void setSender(SFA_AM_MDBSender sender) {
-        this.sender = sender;
-    }
 
 
 }

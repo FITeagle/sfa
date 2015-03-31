@@ -11,6 +11,7 @@ import java.util.List;
 import org.fiteagle.north.sfa.ISFA;
 
 import javax.xml.bind.JAXBException;
+import javax.xml.datatype.DatatypeConfigurationException;
 
 public interface ISFA_SA extends ISFA {
 
@@ -23,5 +24,5 @@ public interface ISFA_SA extends ISFA {
 	Object getCredential(X509Certificate certificate) throws Exception;
 	Object register(List<?> parameter) throws Exception;
 
-    Object renewSlice(List<?> parameter);
+    Object renewSlice(List<?> parameter) throws JAXBException, DatatypeConfigurationException;
 }
