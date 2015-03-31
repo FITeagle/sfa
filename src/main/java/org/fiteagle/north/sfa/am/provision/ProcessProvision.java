@@ -37,11 +37,8 @@ public class ProcessProvision extends AbstractMethodProcessor {
   
   private final static Logger LOGGER = Logger.getLogger(ProcessProvision.class.getName());
   
-  private final List<URN> urns;
-  
-  
-  public ProcessProvision(List<URN> urns) {
-    this.urns = urns;
+  public ProcessProvision(final List<?> parameter) {
+    this.parameter = parameter;
   }
   
   public  Model provisionInstances() throws UnsupportedEncodingException {
@@ -87,11 +84,6 @@ public class ProcessProvision extends AbstractMethodProcessor {
 	    result.put(ISFA_AM.VALUE, value);
 	    this.addCode(result);
       this.addOutput(result);
-  }
-  
-  public void handleCredentials(final Object param) {
-    List<GENI_Credential> credentialList = this.parseCredentialsParameters(param);
-    this.checkCredentials(credentialList);
   }
   
 }

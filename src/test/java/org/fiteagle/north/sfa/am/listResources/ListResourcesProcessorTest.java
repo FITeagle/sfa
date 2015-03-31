@@ -14,6 +14,7 @@ import javax.jms.JMSException;
 import javax.xml.bind.JAXBException;
 
 import org.easymock.EasyMock;
+import org.fiteagle.north.sfa.am.common.CommonTestMethods;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
 import org.fiteagle.north.sfa.exceptions.BadArgumentsException;
 import org.junit.Before;
@@ -24,42 +25,32 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.vocabulary.RDF;
 
-public class ListResourcesProcessorTest {
+public class ListResourcesProcessorTest extends CommonTestMethods{
   
   ListResourcesProcessor listResourcesProcessor;
-  SFA_AM_MDBSender sender;
-  
-  @Before
-  public void initialize() {
-    sender = EasyMock.createMock(SFA_AM_MDBSender.class);
-  }
+ 
   
   @Test (expected = BadArgumentsException.class)
   public void handleCredentialsTest() {
-    List<Object> parameter = new LinkedList<>();
-    List<Map<String, ?>> dummyCredentials = new LinkedList<>();
-    parameter.add(dummyCredentials);
+    parameter.add(credentials);
     listResourcesProcessor = new ListResourcesProcessor(parameter);
-    listResourcesProcessor.handleCredentials();
+    listResourcesProcessor.handleCredentials(0);
   }
   
 
   @Test
   public void parseOptionsParametersTest() {
-    List<Object> parameter = new LinkedList<>();
     Map<String, ?> options = new HashMap<>();
-    parameter.add("asd");
+    parameter.add(credentials);
     parameter.add(options);
     listResourcesProcessor = new ListResourcesProcessor(parameter);
-    listResourcesProcessor.parseOptionsParameters();;
+    listResourcesProcessor.parseOptionsParameters();
   }
   
   @Test
   public void listResourcesTest() throws UnsupportedEncodingException, JMSException {
-    List<Object> parameter = new LinkedList<>();
-    Model returnModel = createTestModel();
-    EasyMock.expect(sender.sendRDFRequest(EasyMock.anyObject(String.class), EasyMock.anyObject(String.class), EasyMock.anyObject(String.class))).andReturn(returnModel);
-    EasyMock.replay(sender);
+    
+    this.prepareTest();
     listResourcesProcessor = new ListResourcesProcessor(parameter);
     listResourcesProcessor.setSender(sender);
     Model model = listResourcesProcessor.listResources();
@@ -69,7 +60,6 @@ public class ListResourcesProcessorTest {
   
   @Test
   public void createResponseTest() throws UnsupportedEncodingException, JAXBException, InvalidModelException{
-    List<Object> parameter = new LinkedList<>();
     Model returnModel = createTestModel();
     listResourcesProcessor = new ListResourcesProcessor(parameter);
     HashMap<String, Object> result = new HashMap<>();

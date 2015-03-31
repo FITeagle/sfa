@@ -10,7 +10,6 @@ import info.openmultinet.ontology.vocabulary.Omn_lifecycle;
 import org.apache.commons.codec.binary.Base64;
 import org.fiteagle.api.core.IGeni;
 import org.fiteagle.api.core.MessageBusOntologyModel;
-import org.fiteagle.north.sfa.ISFA;
 import org.fiteagle.north.sfa.am.ISFA_AM;
 import org.fiteagle.north.sfa.am.ISFA_AM_Delegate;
 import org.fiteagle.north.sfa.am.ReservationStateEnum;
@@ -41,6 +40,10 @@ public class AbstractMethodProcessor {
     private SFA_AM_MDBSender sender;
     
     public ISFA_AM_Delegate delegate = new SFA_AM_Delegate_Default();
+    
+    protected List<?> parameter;
+    
+    protected List<URN> urns;
     
     public AbstractMethodProcessor() {
       
@@ -134,7 +137,10 @@ public class AbstractMethodProcessor {
         result.put(ISFA_AM.CODE, code);
     }
     
-    
+    public void handleCredentials(int index) {
+      List<GENI_Credential> credentialList = this.parseCredentialsParameters(this.parameter.get(index));
+      this.checkCredentials(credentialList);
+    }
     
     public List<GENI_Credential> parseCredentialsParameters(final Object param) {
 
@@ -163,8 +169,26 @@ public class AbstractMethodProcessor {
           this.delegate.setGeinVersion((String) credential.get_geni_version());
           this.delegate.setGeniValue((String) credential.get_geni_value());
       }
-
   }
     
+    public List<?> getParameter(){
+      return this.parameter;
+    }
     
+    public void parseURNList() {
+      List<String> URNS = (ArrayList<String>) parameter.get(0);
+      if (URNS == null || URNS.size() == 0) {
+          throw new BadArgumentsException("URN must not be null");
+      }
+      List<URN> returnList = new ArrayList<>();
+      for (String s : URNS) {
+          URN u = new URN(s);
+          returnList.add(u);
+      }
+      setURNlist(returnList);
+  }
+    
+    private void setURNlist(List<URN> returnList) {
+      this.urns = returnList;
+    }
 }

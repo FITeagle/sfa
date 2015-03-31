@@ -30,19 +30,18 @@ import java.util.List;
  * Created by dne on 12.03.15.
  */
 public class PerformOperationalActionHandler extends AbstractMethodProcessor {
-
-    private final List<URN> urns;
-
-
-    public PerformOperationalActionHandler(List<URN> urns) {
-        this.urns = urns;
+  
+  String action;
+  
+  public PerformOperationalActionHandler(final List<?> parameter) {
+      this.parameter = parameter;
     }
 
 
-    public Model performAction(String action) throws UnsupportedEncodingException {
+    public Model performAction() throws UnsupportedEncodingException {
         Model model = ModelFactory.createDefaultModel();
 
-        if (this.urns == null || action == null) {
+        if (this.urns == null || this.action == null) {
             throw new IllegalArgumentException("illegal arguments");
         }
         for(URN urn : urns){
@@ -91,9 +90,11 @@ public class PerformOperationalActionHandler extends AbstractMethodProcessor {
       this.addCode(result);
       this.addOutput(result);
     }
-
-    public void handleCredentials(final Object param) {
-      List<GENI_Credential> credentialList = this.parseCredentialsParameters(param);
-      this.checkCredentials(credentialList);
+    
+    public void parseAction(){
+      if(parameter.get(2) == null){
+        throw new IllegalArgumentException("action parameter shouldn't be null");
+      }
+      this.action = (String) parameter.get(2);
     }
 }

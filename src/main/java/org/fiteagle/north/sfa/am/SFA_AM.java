@@ -173,10 +173,9 @@ public class SFA_AM implements ISFA_AM {
     public Object provision(final List<?> parameter) throws UnsupportedEncodingException {
         SFA_AM.LOGGER.log(Level.INFO, "provision...");
         final HashMap<String, Object> result = new HashMap<>();
-        List<URN> urns = parseURNList(parameter.get(0));
-        ProcessProvision processProvision = new ProcessProvision(urns);
-        processProvision.handleCredentials(parameter.get(1));
-        final HashMap<String, Object> provisionParameters = (HashMap<String, Object>) parameter.get(2);
+        ProcessProvision processProvision = new ProcessProvision(parameter);
+        processProvision.parseURNList();
+        processProvision.handleCredentials(1);
         SFA_AM.LOGGER.log(Level.INFO, "provision parameters are parsed");
         processProvision.setSender(SFA_AM_MDBSender.getInstance());
         Model provisionResponse = processProvision.provisionInstances();
@@ -188,10 +187,9 @@ public class SFA_AM implements ISFA_AM {
     public Object status(final List<?> parameter) throws UnsupportedEncodingException {
         SFA_AM.LOGGER.log(Level.INFO, "status...");
         final HashMap<String, Object> result = new HashMap<>();
-        List<URN> urns = parseURNList(parameter.get(0));
-        StatusProcessor statusProcessor = new StatusProcessor(urns);
-        statusProcessor.handleCredentials(parameter.get(1));
-        final HashMap<String, Object> statusParameters = (HashMap<String, Object>) parameter.get(2);
+        StatusProcessor statusProcessor = new StatusProcessor(parameter);
+        statusProcessor.parseURNList();
+        statusProcessor.handleCredentials(1);
         statusProcessor.setSender(SFA_AM_MDBSender.getInstance());
         Model statusResponse = statusProcessor.getStates();
         statusProcessor.createResponse(result, statusResponse);
@@ -202,27 +200,24 @@ public class SFA_AM implements ISFA_AM {
     public Object performOperationalAction(final List<?> parameter) throws UnsupportedEncodingException {
         SFA_AM.LOGGER.log(Level.INFO, "performOperationalAction...");
         final HashMap<String, Object> result = new HashMap<>();
-        List<URN> urns = parseURNList(parameter.get(0));
-        PerformOperationalActionHandler performOperationalActionHandler = new PerformOperationalActionHandler(urns);
-        performOperationalActionHandler.handleCredentials(parameter.get(1));
-        String action = (String) parameter.get(2);
+        PerformOperationalActionHandler performOperationalActionHandler = new PerformOperationalActionHandler(parameter);
+        performOperationalActionHandler.parseURNList();
+        performOperationalActionHandler.handleCredentials(1);
+        performOperationalActionHandler.parseAction();
         //TODO ignore options for now
-
         performOperationalActionHandler.setSender(SFA_AM_MDBSender.getInstance());
-        Model performResponse = performOperationalActionHandler.performAction(action);
+        Model performResponse = performOperationalActionHandler.performAction();
         performOperationalActionHandler.createResponse(result, performResponse);
         return result;
     }
 
     @Override
     public Object delete(final List<?> parameter) throws UnsupportedEncodingException {
-        
         SFA_AM.LOGGER.log(Level.INFO, "delete...");
         final HashMap<String, Object> result = new HashMap<>();
-        List<URN> urns = parseURNList(parameter.get(0));
-        ProcessDelete processDelete = new ProcessDelete(urns);
-        processDelete.handleCredentials(parameter.get(1));
-        final HashMap<String, Object> deleteParameters = (HashMap<String, Object>) parameter.get(2);
+        ProcessDelete processDelete = new ProcessDelete(parameter);
+        processDelete.parseURNList();
+        processDelete.handleCredentials(1);
         SFA_AM.LOGGER.log(Level.INFO, "delete parameters are parsed");
         processDelete.setSender(SFA_AM_MDBSender.getInstance());
         Model deleteResponse = processDelete.deleteInstances();
@@ -241,7 +236,7 @@ public class SFA_AM implements ISFA_AM {
     SFA_AM.LOGGER.log(Level.INFO, "listResources...");
     HashMap<String, Object> result = new HashMap<>();
     ListResourcesProcessor listResourcesProcessor = new ListResourcesProcessor(parameter);
-    listResourcesProcessor.handleCredentials();
+    listResourcesProcessor.handleCredentials(0);
     listResourcesProcessor.parseOptionsParameters();
     if (listResourcesProcessor.checkSupportedVersions()) {
       listResourcesProcessor.setSender(SFA_AM_MDBSender.getInstance());
@@ -297,9 +292,8 @@ public class SFA_AM implements ISFA_AM {
     @Override
     public Object getVersion(final List<?> parameter) {
         final HashMap<String, Object> result = new HashMap<>();
-        ProcessGetVersion processGetVersion = new ProcessGetVersion();
+        ProcessGetVersion processGetVersion = new ProcessGetVersion(parameter);
         processGetVersion.setSender(SFA_AM_MDBSender.getInstance());
-        
         Model testbedDescriptionModel = processGetVersion.getTestbedDescription();
         String testbedDescription = processGetVersion.parseTestbedDescription(testbedDescriptionModel);
         processGetVersion.createResponse(result, testbedDescription);

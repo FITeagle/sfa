@@ -1,51 +1,52 @@
 package org.fiteagle.north.sfa.am.status;
 
 import static org.junit.Assert.assertFalse;
-import info.openmultinet.ontology.vocabulary.Omn;
 
 import java.io.UnsupportedEncodingException;
-import java.util.LinkedList;
-import java.util.List;
-
-import org.easymock.EasyMock;
-import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
-import org.fiteagle.north.sfa.util.URN;
-import org.junit.Before;
+import java.util.HashMap;
+import org.fiteagle.north.sfa.am.common.CommonTestMethods;
+import org.fiteagle.north.sfa.exceptions.BadArgumentsException;
+import org.fiteagle.north.sfa.exceptions.SearchFailedException;
 import org.junit.Test;
 
 import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.vocabulary.RDF;
 
-public class StatusProcessorTest {
+
+public class StatusProcessorTest extends CommonTestMethods{
   
   StatusProcessor statusProcessor;
-  List<URN> urns;
-  URN test_urn;
-  SFA_AM_MDBSender sender;
   
-  @Before
-  public void initialize(){
-    urns = new LinkedList<>();
-    test_urn = new URN("urn:publicid:IDN+localhost+sliver+test");
-    sender = EasyMock.createMock(SFA_AM_MDBSender.class);
+  @Test (expected = BadArgumentsException.class)
+  public void handleCredentialsTest(){
+
+    this.prepareParameters();
+    statusProcessor = new StatusProcessor(parameter);
+    statusProcessor.handleCredentials(1);
   }
   
   @Test
   public void testGetStates() throws UnsupportedEncodingException{
-    Model returnModel = ModelFactory.createDefaultModel();
-    Resource resource = returnModel.createResource("http://test");
-    resource.addProperty(RDF.type, Omn.Resource);
-    
-    EasyMock.expect(sender.sendRDFRequest(EasyMock.anyObject(String.class), EasyMock.anyObject(String.class), EasyMock.anyObject(String.class))).andReturn(returnModel);
-    EasyMock.replay(sender);
-    urns.add(test_urn);
-    statusProcessor = new StatusProcessor(urns);
+
+    this.prepareTest();
+    this.prepareParameters();
+    statusProcessor = new StatusProcessor(parameter);
+    statusProcessor.parseURNList();
     statusProcessor.setSender(sender);
     Model model = statusProcessor.getStates();
     assertFalse(model.isEmpty());
+  }
+  
+  @Test (expected = SearchFailedException.class)
+  public void createResponseTest() throws UnsupportedEncodingException{
     
+    this.prepareTest();
+    this.prepareParameters();
+    statusProcessor = new StatusProcessor(parameter);
+    statusProcessor.parseURNList();
+    statusProcessor.setSender(sender);
+    Model model = statusProcessor.getStates();
+    final HashMap<String, Object> result = new HashMap<>();
+    statusProcessor.createResponse(result, model);
   }
   
 }

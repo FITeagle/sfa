@@ -30,18 +30,11 @@ import java.util.Map;
  * Created by dne on 03.03.15.
  */
 public class ListResourcesProcessor extends AbstractMethodProcessor{
-
-  private final List<?> parameter;
   
     public ListResourcesProcessor(final List<?> parameter) {
         this.parameter = parameter;
     }
-    
-    public void handleCredentials() {
-      List<GENI_Credential> credentialList = this.parseCredentialsParameters(this.parameter.get(0));
-      this.checkCredentials(credentialList);
-    }
-    
+        
     public Model listResources() throws UnsupportedEncodingException, JMSException {
         Model resourcesResult = getResources();
         Model topologyModel = ModelFactory.createDefaultModel();
