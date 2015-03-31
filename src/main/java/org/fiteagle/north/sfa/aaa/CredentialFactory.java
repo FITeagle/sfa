@@ -66,6 +66,14 @@ public class CredentialFactory {
 
     }
 
+    public static SignedCredential buildCredential(String credential) throws JAXBException {
+        JAXBContext context = JAXBContext.newInstance("org.fiteagle.north.sfa.aaa.jaxbClasses");
+        Unmarshaller unmarshaller = context.createUnmarshaller();
+        StringReader reader = new StringReader(credential);
+        SignedCredential sc = (SignedCredential) unmarshaller.unmarshal(reader);
+        return sc;
+    }
+
     private static class SFIFix{
 
         public static String removeNewlinesFromCertificateInsideSignature(String certificateString){

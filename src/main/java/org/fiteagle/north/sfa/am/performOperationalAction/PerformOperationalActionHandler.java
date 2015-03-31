@@ -76,13 +76,12 @@ public class PerformOperationalActionHandler extends AbstractMethodProcessor {
         String serializedModel = MessageUtil.serializeModel(model,
                 IMessageBus.SERIALIZATION_TURTLE);
 
-        Model performOpActionResponse = getSender()
-                .sendRDFRequest(serializedModel, IMessageBus.TYPE_CONFIGURE,
+        Model performOpActionResponse =this.getSender().sendRDFRequest(serializedModel, IMessageBus.TYPE_CONFIGURE,
                         IMessageBus.TARGET_ORCHESTRATOR);
 
         return performOpActionResponse;
     }
-    
+
     public void createResponse(final HashMap<String, Object> result, Model performResponse) {
       HashMap<String, Object> value = new HashMap<>();
       addSliverInformation(value, performResponse);
@@ -97,4 +96,5 @@ public class PerformOperationalActionHandler extends AbstractMethodProcessor {
       }
       this.action = (String) parameter.get(2);
     }
+
 }

@@ -13,10 +13,14 @@ import org.fiteagle.api.core.MessageBusOntologyModel;
 import org.fiteagle.north.sfa.am.ISFA_AM;
 import org.fiteagle.north.sfa.am.ISFA_AM_Delegate;
 import org.fiteagle.north.sfa.am.ReservationStateEnum;
+
+import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
+
 import org.fiteagle.north.sfa.am.dm.SFA_AM_Delegate_Default;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
 import org.fiteagle.north.sfa.exceptions.BadArgumentsException;
 import org.fiteagle.north.sfa.exceptions.ForbiddenException;
+
 import org.fiteagle.north.sfa.exceptions.SearchFailedException;
 import org.fiteagle.north.sfa.util.GENI_Credential;
 import org.fiteagle.north.sfa.util.URN;
@@ -36,7 +40,13 @@ import java.util.zip.Deflater;
  */
 public class AbstractMethodProcessor {
     private final static Logger LOGGER = Logger.getLogger(AbstractMethodProcessor.class.getName());
-    
+
+
+    public SFA_AM_MDBSender getSender() {
+        return sender;
+    }
+
+
     private SFA_AM_MDBSender sender;
     
     public ISFA_AM_Delegate delegate = new SFA_AM_Delegate_Default();
@@ -49,8 +59,17 @@ public class AbstractMethodProcessor {
       
     }
     
+
     public void addSliverInformation(Map<String, Object> value, Model response){
 
+        final List<Map<String, Object>> geniSlivers = getSlivers(response);
+        value.put(IGeni.GENI_SLIVERS, geniSlivers);
+
+        value.put(IGeni.GENI_URN, getSliceURN(response));
+
+    }
+
+    public List<Map<String, Object>> getSlivers(Model response) {
         final List<Map<String, Object>> geniSlivers = new LinkedList<>();
 
         StmtIterator stmtIterator = response.listStatements(null, RDF.type, Omn.Reservation);
@@ -70,11 +89,7 @@ public class AbstractMethodProcessor {
             sliverMap.put(IGeni.GENI_ERROR, ISFA_AM.NO_ERROR);
 
             geniSlivers.add(sliverMap);
-        }
-        value.put(IGeni.GENI_SLIVERS, geniSlivers);
-
-        value.put(IGeni.GENI_URN, getSliceURN(response));
-
+        } return geniSlivers;
     }
 
     private String getSliceURN(Model statusResponse) {
@@ -99,16 +114,13 @@ public class AbstractMethodProcessor {
                 return "";
         }
     }
-    
 
-    public SFA_AM_MDBSender getSender() {
-        return sender;
-    }
+
 
     public void setSender(SFA_AM_MDBSender sender) {
         this.sender = sender;
     }
-    
+
     public String compress(String toCompress) throws UnsupportedEncodingException {
       byte[] output = null;
       String outputString = "";
@@ -174,7 +186,7 @@ public class AbstractMethodProcessor {
     public List<?> getParameter(){
       return this.parameter;
     }
-    
+
     public void parseURNList() {
       List<String> URNS = (ArrayList<String>) parameter.get(0);
       if (URNS == null || URNS.size() == 0) {

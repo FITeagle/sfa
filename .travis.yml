@@ -17,11 +17,7 @@ after_success:
 - sudo apt-get install -y screen
 - key="Y" ./src/test/bin/acceptanceTest.sh
 - mvn deploy --settings .travis/settings.xml
-- curl -X POST -u $HTTP_USER:$HTTP_PASS -F "fileToUpload=@/home/travis/.m2/repository/org/fiteagle/north/sfa/0.1-SNAPSHOT/sfa-0.1-SNAPSHOT.war"
-  https://services.av.tu-berlin.de/travis-upload/upload.php
 env:
   global:
-  - secure: oEHn7Tjw0q/OaxC+yQz5e8Xgp9JRpUPAMkU7ukY20LjgWBApAkpSdpPSmd915HsjdVg8ukLFWGiOUqKfIQ+XgywPoKO9w/rWTDDBRwiXJJJQCKKdSNqUk1x/GNyeyG/wSySjYJHKySK6oOo8E1wqG9levKlR3q0Yk2c9YktcOcA=
-  - secure: Pnr8hndteKahVB4Ihg/iHEhvf55CGyubF30FKVrCJEH0TCLlVwkvsHh+IK/VAS7uufOEHz0lVPXwVWAkrYe3XUp+cx914PvJPSfY2MGzi+OO0ILDgkXZPtDvtD0St/fTiyRJ9z47z/6YAHpgnpeb79NtrnSoh0wMzjM0ffbMycU=
-  - secure: jvtu9hy87jZ1hfUpekbKWNf6nu0wHsD70sz/W5+q6ETP6sXsQIGZlxpAKWBVB6vwkdvtKAIJV7q+yDcRkr9wh/BFik3GjkuEP2EB+6ZN8VrT52l4zpJ/nF64W4+I/U9BkKifo09s2xoD0QLEp1EoYKx629R2BvNxihm9ygT69cs=
-  - secure: Uaw4d2irltWB2AVERO2GH93e3IekGRSb4sAV0uvj92mIl2PpwLgR9jssXyXk4VcubxQL+FRJbvzCWrF+/pgebzOYHEe6Hfz1CJLdqBwaaKtRJQP+K3xYQKUw1j36ANmqn1bTY94ISrQ6/yxYotiRJSokchtLrSgdD6B+vyf5Lm4=
+  - secure: cJKqqSjbU1LhU3E+zCm2f4LjMXwI2VoJN+6BUHd/x8ECzleYbE5abTASJvu4KaPdV/Wb9Vhgnvteu5gR2qt2vIVFaESjZyByJlOG9v3f+C+2XLI1SYm0Pl6/bHjteZSAV46m8H0JdQ8WUtxJABPBgofeHJrlXzn5AI2xaNnWjCg=
+  - secure: Q23H0M9uqZUt7UM9jtIyZhx6LyYA/MeynDF9P9WDMVM3f8uNmMCUdTwmBYoq/hnZ94ITBjnydScSu4e38kVxiTxIFn4bpPk7+Up8NhmU7WJt7mBiU64keoDmXxu/3T3fBNRPu7xsK7VLsVKghMadC1FTeqlmsRXQ+qOHlQkFK4s=
