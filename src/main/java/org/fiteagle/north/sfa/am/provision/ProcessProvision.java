@@ -1,6 +1,7 @@
 package org.fiteagle.north.sfa.am.provision;
 
 import com.hp.hpl.jena.ontology.Individual;
+
 import info.openmultinet.ontology.exceptions.InvalidModelException;
 import info.openmultinet.ontology.translators.geni.ManifestConverter;
 import info.openmultinet.ontology.vocabulary.Omn;
@@ -22,6 +23,7 @@ import org.fiteagle.north.sfa.am.ISFA_AM;
 import org.fiteagle.north.sfa.am.ReservationStateEnum;
 import org.fiteagle.north.sfa.am.common.AbstractMethodProcessor;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
+import org.fiteagle.north.sfa.util.GENI_Credential;
 import org.fiteagle.north.sfa.util.URN;
 
 import com.hp.hpl.jena.rdf.model.Model;
@@ -35,14 +37,18 @@ public class ProcessProvision extends AbstractMethodProcessor {
   
   private final static Logger LOGGER = Logger.getLogger(ProcessProvision.class.getName());
   
+  private final List<URN> urns;
   
-  public  Model provisionInstances(
-			List<URN> urns) throws UnsupportedEncodingException {
+  
+  public ProcessProvision(List<URN> urns) {
+    this.urns = urns;
+  }
+  
+  public  Model provisionInstances() throws UnsupportedEncodingException {
 
 		LOGGER.log(Level.INFO, "create provision model ");
 		Model requestModel = ModelFactory.createDefaultModel();
-		for (URN urn : urns) {
-
+		for (URN urn : this.urns) {
 
 			if (ISFA_AM.SLICE.equals(urn.getType())) {
                 Individual topology = Omn.Topology.createIndividual(IConfig.TOPOLOGY_NAMESPACE_VALUE+urn.getSubject());
@@ -50,7 +56,7 @@ public class ProcessProvision extends AbstractMethodProcessor {
 
 			}else{
 				if (ISFA_AM.Sliver.equals(urn.getType())) {
-					Individual resource = Omn.Resource.createIndividual(URLDecoder.decode(urn.getSubject(),"UTF-8"));
+					Individual resource = Omn.Resource.createIndividual(URLDecoder.decode(urn.getSubject(),ISFA_AM.UTF_8));
                     requestModel.add(resource.listProperties());
 				}
 			}
@@ -60,26 +66,32 @@ public class ProcessProvision extends AbstractMethodProcessor {
 		String serializedModel = MessageUtil.serializeModel(requestModel,
 				IMessageBus.SERIALIZATION_TURTLE);
 		LOGGER.log(Level.INFO, "send provision request ...");
-		Model provisionResponse = SFA_AM_MDBSender.getInstance()
-				.sendRDFRequest(serializedModel, IMessageBus.TYPE_CONFIGURE,
+		Model provisionResponse = getSender().sendRDFRequest(serializedModel, IMessageBus.TYPE_CONFIGURE,
 						IMessageBus.TARGET_ORCHESTRATOR);
 		LOGGER.log(Level.INFO,
 				"provision reply is received.");
 		return provisionResponse;
 	}
   
-  public  void addProvisionValue(final HashMap<String, Object> result, Model provisionResponse){
+  public void createResponse(final HashMap<String, Object> result, Model provisionResponse){
 	  
 	  final Map<String, Object> value = new HashMap<>();
 
 	  try {
-		value.put(IGeni.GENI_RSPEC, ManifestConverter.getRSpec(provisionResponse, "localhost"));
+		value.put(IGeni.GENI_RSPEC, ManifestConverter.getRSpec(provisionResponse, ISFA_AM.LOCALHOST));
 	} catch (JAXBException | InvalidModelException e) {
 		// TODO Auto-generated catch block
 		LOGGER.log(Level.SEVERE,e.toString());
 	}
       this.addSliverInformation(value,provisionResponse);
 	    result.put(ISFA_AM.VALUE, value);
+	    this.addCode(result);
+      this.addOutput(result);
+  }
+  
+  public void handleCredentials(final Object param) {
+    List<GENI_Credential> credentialList = this.parseCredentialsParameters(param);
+    this.checkCredentials(credentialList);
   }
   
 }

@@ -1,18 +1,27 @@
 language: java
 jdk:
-  - oraclejdk7
+- oraclejdk7
 script:
-  - travis_retry mvn clean install site
+- travis_retry mvn clean install site
 notifications:
-  slack: av-fitt:FmLx2wj2Td3cNfmrjaQXUXBO
+  slack:
+    secure: JmNq1sGb57RBYnQZFE+3EDN31ya+Jd1puzFFWzYt6z/MJPw+Ib+hlCdDbniu3CRZnxJWNndbHUA6DTjtxjT9fJxH8/nEwIjY46xXHVyDduqkmLfTydihDsS1AeHph51oeHaqWNVK5Z3in/qRCWIbjiADrKaHalF0Uz6QaCDuCNg=
   email:
-    - alexander.willner@tu-berlin.de
-    - fiteagle.dev@av.tu-berlin.de
+  - alexander.willner@tu-berlin.de
+  - fiteagle.dev@av.tu-berlin.de
 cache:
   directories:
   - $HOME/.m2
 after_success:
-  - mvn clean test jacoco:report coveralls:report
-  - sudo apt-get install -y screen
-  - key="Y" ./src/test/bin/acceptanceTest.sh
-  
+- mvn clean test jacoco:report coveralls:report
+- sudo apt-get install -y screen
+- key="Y" ./src/test/bin/acceptanceTest.sh
+- mvn deploy --settings .travis/settings.xml
+- curl -X POST -u $HTTP_USER:$HTTP_PASS -F "fileToUpload=@/home/travis/.m2/repository/org/fiteagle/north/sfa/0.1-SNAPSHOT/sfa-0.1-SNAPSHOT.war"
+  https://services.av.tu-berlin.de/travis-upload/upload.php
+env:
+  global:
+  - secure: oEHn7Tjw0q/OaxC+yQz5e8Xgp9JRpUPAMkU7ukY20LjgWBApAkpSdpPSmd915HsjdVg8ukLFWGiOUqKfIQ+XgywPoKO9w/rWTDDBRwiXJJJQCKKdSNqUk1x/GNyeyG/wSySjYJHKySK6oOo8E1wqG9levKlR3q0Yk2c9YktcOcA=
+  - secure: Pnr8hndteKahVB4Ihg/iHEhvf55CGyubF30FKVrCJEH0TCLlVwkvsHh+IK/VAS7uufOEHz0lVPXwVWAkrYe3XUp+cx914PvJPSfY2MGzi+OO0ILDgkXZPtDvtD0St/fTiyRJ9z47z/6YAHpgnpeb79NtrnSoh0wMzjM0ffbMycU=
+  - secure: jvtu9hy87jZ1hfUpekbKWNf6nu0wHsD70sz/W5+q6ETP6sXsQIGZlxpAKWBVB6vwkdvtKAIJV7q+yDcRkr9wh/BFik3GjkuEP2EB+6ZN8VrT52l4zpJ/nF64W4+I/U9BkKifo09s2xoD0QLEp1EoYKx629R2BvNxihm9ygT69cs=
+  - secure: Uaw4d2irltWB2AVERO2GH93e3IekGRSb4sAV0uvj92mIl2PpwLgR9jssXyXk4VcubxQL+FRJbvzCWrF+/pgebzOYHEe6Hfz1CJLdqBwaaKtRJQP+K3xYQKUw1j36ANmqn1bTY94ISrQ6/yxYotiRJSokchtLrSgdD6B+vyf5Lm4=

@@ -47,6 +47,12 @@ public interface ISFA_AM extends ISFA {
 	String Sliver = "sliver";
 	String SLICE = "slice";
 	String GENI= "geni";
+	String UTF_8 = "UTF-8";
+	String LOCALHOST = "localhost";
+	String READY = "Ready";
+	String UNCOMPLETED = "Uncompleted";
+	String NO_ERROR = "NO ERROR";
+	String SUCCESS = "SUCCESS";
 
 	
 	public abstract Object listResources(List<?> parameter) throws JMSException, UnsupportedEncodingException, JAXBException, InvalidModelException;
