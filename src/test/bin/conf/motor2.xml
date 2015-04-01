@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF xmlns:geo="http://www.w3.org/2003/01/geo/wgs84_pos#" xmlns:omn-lifecycle="http://open-multinet.info/ontology/omn-lifecycle#" xmlns:omn-resource="http://open-multinet.info/ontology/omn-resource#" xmlns:omn="http://open-multinet.info/ontology/omn#" xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
+  <rdf:Description rdf:about="http://open-multinet.info/example#request">
+    <rdf:type rdf:resource="http://open-multinet.info/ontology/omn-lifecycle#Request"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://open-multinet.info/example#request">
+    <omn:hasResource rdf:resource="http://open-multinet.info/example#motor1"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://open-multinet.info/example#motor1">
+    <rdf:type rdf:resource="http://open-multinet.info/ontology/omn-resource#Node"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://open-multinet.info/example#motor1">
+    <rdf:type rdf:resource="http://open-multinet.info/ontology/resource/motor#Motor"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://open-multinet.info/example#motor1">
+    <omn:isResourceOf rdf:resource="http://open-multinet.info/example#request"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://open-multinet.info/example#motor1">
+    <omn-lifecycle:hasID>motor1</omn-lifecycle:hasID>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://open-multinet.info/example#motor1">
+    <omn-lifecycle:implementedBy rdf:resource="http://localhost/resource/MotorGarage-1"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://open-multinet.info/example#motor1">
+    <omn-resource:isExclusive rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</omn-resource:isExclusive>
+  </rdf:Description>
+</rdf:RDF>
