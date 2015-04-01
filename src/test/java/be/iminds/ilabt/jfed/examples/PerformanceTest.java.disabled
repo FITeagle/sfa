@@ -1,0 +1,171 @@
+package be.iminds.ilabt.jfed.examples;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Date;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
+import org.junit.Test;
+
+import be.iminds.ilabt.jfed.BasicAuthoritiesModule;
+import be.iminds.ilabt.jfed.CoreModule;
+import be.iminds.ilabt.jfed.CorePreferencesModule;
+import be.iminds.ilabt.jfed.DirectUserModule;
+import be.iminds.ilabt.jfed.log.Logger;
+import be.iminds.ilabt.jfed.lowlevel.AnyCredential;
+import be.iminds.ilabt.jfed.lowlevel.GeniUser;
+import be.iminds.ilabt.jfed.lowlevel.JFedException;
+import be.iminds.ilabt.jfed.lowlevel.SimpleGeniUser;
+import be.iminds.ilabt.jfed.lowlevel.api_wrapper.impl.AutomaticAggregateManagerWrapper;
+import be.iminds.ilabt.jfed.lowlevel.api_wrapper.impl.AutomaticUserAndSliceApiWrapper;
+import be.iminds.ilabt.jfed.lowlevel.authority.AuthorityListModel;
+import be.iminds.ilabt.jfed.lowlevel.authority.SfaAuthority;
+import be.iminds.ilabt.jfed.util.GeniUrn;
+import be.iminds.ilabt.jfed.util.IOUtils;
+
+import com.google.inject.Guice;
+import com.google.inject.Injector;
+
+public class PerformanceTest {
+	private SimpleGeniUser user;
+	private Injector injector;
+	private AuthorityListModel authorityListModel;
+	private final Logger logger = new Logger();
+	private SfaAuthority authority;
+	private AutomaticAggregateManagerWrapper am;
+	private AutomaticUserAndSliceApiWrapper sa;
+	private List<AnyCredential> creds;
+	private String sliverUrn;
+	private static final long PAUSE = 100;
+	private static final int REPETITIONS = 500;
+	private static final int WARMUPS = 5;
+
+	private interface IMethod {
+		public void run() throws Exception ;
+	}
+
+	private void measure(final String name, final IMethod method) throws Exception {
+		long after;
+		long before;
+		String result;
+		StringBuffer resultTotal = new StringBuffer();
+		System.out.println(name);
+		for (int i = 1; i <= WARMUPS; i++) {
+			Thread.sleep(PAUSE);
+			method.run();
+		}
+		for (int i = 1; i <= REPETITIONS; i++) {
+			Thread.sleep(PAUSE);
+			before = System.nanoTime();
+			method.run();
+			after = System.nanoTime();
+			result = i + " " + ((after - before) / 1000 / 1000 + "\n");
+			System.out.print(result);
+			resultTotal.append(result);
+		}
+		IOUtils.stringToFile(name + ".data", resultTotal.toString());
+	}
+
+	@Test
+	public void main() throws Exception {
+		final String authorityURN = "urn:publicid:IDN+localhost+authority+cm";
+		final String userURN = "urn:publicid:IDN+localhost+user+testuser";
+		final String pemPath = "/Users/willner/fed4fire_clients/credentials/vwall_default_new2.nop.pem";
+		// "/Users/willner/repositories/fiteagle/sfa/src/test/bin/conf/cli.pem";
+		final char[] pemPass = "".toCharArray();
+		final File pemFile = new File(pemPath);
+		final String rspec = IOUtils.fileToString("/Users/willner/repositories/fiteagle/sfa/src/test/bin/conf/test.rspec");
+		GeniUrn sliceUrn = GeniUrn.parse("urn:publicid:IDN+localhost+slice+mytestslice");
+		
+		this.setupJfed(userURN, authorityURN, pemPass, pemFile);
+		List<AnyCredential> userCredentials = this.sa.getUserCredentials(this.logger, GeniUrn.parse(userURN));
+		List<AnyCredential> sliceCredentials = this.sa.getSliceCredentials(logger, sliceUrn);
+		
+		this.measure("GetVersion", () -> this.am.getVersion());
+		this.measure("GetCredential", () -> this.sa.getUserCredentials(this.logger, GeniUrn.parse(userURN)));
+		this.measure("ListResources", () -> this.am.listResources(this.creds, false));
+		this.measure("Register", () -> this.sa.getSliceCredentials(logger, sliceUrn));
+		this.measure("Allocate", () -> this.sliverUrn = getURN(this.am.allocate(sliceUrn, sliceCredentials, rspec, new Date())));
+//		this.measure("Status", () -> this.am.status(GeniUrn.parse(sliverUrn), sliceCredentials));
+//		this.measure("Provision", () -> this.am.provisionAndStart(GeniUrn.parse(sliverUrn), sliceCredentials, null, new Date()));
+	}
+
+	public String getURN(String manifest) {
+		Pattern p = Pattern.compile("sliver_id=\"(.*)\"");
+		Matcher m = p.matcher(manifest);
+		m.find();
+		return m.group(1);
+	}
+
+	public void setupJfed(final String userURN, final String authorityURN, final char[] pemPass,
+			final File pemFile) throws IOException, JFedException {
+		final String pemKeyCertFilename = pemFile.getPath();
+		this.user = new SimpleGeniUser(null, GeniUrn.parse(userURN),
+				IOUtils.fileToString(pemKeyCertFilename), pemPass, pemFile,
+				pemFile);
+
+		this.injector = Guice.createInjector(new BasicAuthoritiesModule(),
+				new DirectUserModule(this.user), new CoreModule(),
+				new CorePreferencesModule());
+		this.authorityListModel = this.injector.getInstance(AuthorityListModel.class);
+		final GeniUser loggedInUser = this.injector.getInstance(GeniUser.class);
+
+		if (loggedInUser != null) {
+			System.out.println("You are logged in as user: "
+					+ loggedInUser.getUserUrn());
+			if (loggedInUser.getUserAuthority() != null) {
+				System.out.println("             on authority: "
+						+ loggedInUser.getUserAuthority().getUrn());
+				if ((loggedInUser.getUserAuthority().getUrls() == null)
+						|| loggedInUser.getUserAuthority().getUrls().isEmpty()) {
+					System.err
+					.println("ERROR: there are no URLs known for your user authority! (urls="
+							+ loggedInUser.getUserAuthority().getUrls()
+							+ ")");
+					System.exit(1);
+				}
+				if (!loggedInUser.getUserUrnString().equals(
+						this.user.getUserUrnString())) {
+					System.err
+					.println("WARNING: the user you are now logged in with ("
+							+ loggedInUser.getUserUrnString()
+							+ "), "
+							+ "does not match the user you started login with ("
+							+ this.user.getUserUrnString()
+							+ "). "
+							+ "(this should not happen)");
+				}
+			} else {
+				System.err
+				.println("ERROR: the authority of your user was not found!");
+			}
+		} else {
+			System.err.println("ERROR: null user!");
+		}
+
+		this.authority = this.authorityListModel.getByUrn(authorityURN,
+				AuthorityListModel.SubAuthMatchingMode.EXACT_SUBAUTHORITY);
+
+		// conPool = injector.getInstance(JFedConnectionProvider.class);
+		// jFedPreferences = injector.getInstance(JFedPreferences.class);
+		this.am = this.injector
+				.getInstance(
+						AutomaticAggregateManagerWrapper.AutomaticAggregateManagerWrapperFactory.class)
+						.create(this.authority);
+		this.sa = this.injector
+				.getInstance(
+						AutomaticUserAndSliceApiWrapper.AutomaticUserAndSliceApiWrapperFactory.class)
+						.create();
+		this.creds = this.sa.getUserCredentials(this.logger, this.user.getUserUrn());
+
+//		for (final AnyCredential cred : this.creds) {
+//			System.out.println("\n\ncredential:\n"
+//					+ cred.getCredentialXml().substring(
+//							0,
+//							cred.getCredentialXml().length() > 300 ? 300 : cred
+//									.getCredentialXml().length()) + "...\n");
+//		}
+	}
+}

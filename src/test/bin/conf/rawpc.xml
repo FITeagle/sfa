@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rdf:RDF xmlns:geo="http://www.w3.org/2003/01/geo/wgs84_pos#" xmlns:omn-lifecycle="http://open-multinet.info/ontology/omn-lifecycle#" xmlns:omn-resource="http://open-multinet.info/ontology/omn-resource#" xmlns:omn="http://open-multinet.info/ontology/omn#" xmlns:owl="http://www.w3.org/2002/07/owl#" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:rdfs="http://www.w3.org/2000/01/rdf-schema#" xmlns:xsd="http://www.w3.org/2001/XMLSchema#">
+  <rdf:Description rdf:about="http://open-multinet.info/example#request">
+    <rdf:type rdf:resource="http://open-multinet.info/ontology/omn-lifecycle#Request"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://open-multinet.info/example#request">
+    <omn:hasResource rdf:resource="http://open-multinet.info/example#my-raw-pc-1"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="genid1">
+    <rdf:type rdf:resource="http://open-multinet.info/ontology/omn-service#InstallService"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="genid1">
+    <ns0:installPath xmlns:ns0="http://open-multinet.info/ontology/omn-service#">~/logos</ns0:installPath>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="genid1">
+    <ns0:url xmlns:ns0="http://open-multinet.info/ontology/omn-service#">http://www.fed4fire.eu/wp-content/uploads/2014/11/fed4fire-logo.jpg</ns0:url>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="genid2">
+    <rdf:type rdf:resource="http://open-multinet.info/ontology/omn-service#InstallService"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="genid2">
+    <ns0:installPath xmlns:ns0="http://open-multinet.info/ontology/omn-service#">~/logos</ns0:installPath>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="genid2">
+    <ns0:url xmlns:ns0="http://open-multinet.info/ontology/omn-service#">http://fiteagle.org/images/logo_fiteagle.png</ns0:url>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="genid3">
+    <rdf:type rdf:resource="http://open-multinet.info/ontology/omn-service#ExecuteService"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="genid3">
+    <ns0:command xmlns:ns0="http://open-multinet.info/ontology/omn-service#">time</ns0:command>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="genid3">
+    <ns0:shell xmlns:ns0="http://open-multinet.info/ontology/omn-service#">sh</ns0:shell>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="genid4">
+    <rdf:type rdf:resource="http://open-multinet.info/ontology/omn-service#ExecuteService"/>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="genid4">
+    <ns0:command xmlns:ns0="http://open-multinet.info/ontology/omn-service#">df -h ~/logos</ns0:command>
+  </rdf:Description>
+  <rdf:Description rdf:nodeID="genid4">
+    <ns0:shell xmlns:ns0="http://open-multinet.info/ontology/omn-service#">sh</ns0:shell>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://open-multinet.info/example#my-raw-pc-1">
+    <rdf:type rdf:resource="http://open-multinet.info/ontology/omn-domain-pc#PC"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://open-multinet.info/example#my-raw-pc-1">
+    <rdf:type rdf:resource="http://open-multinet.info/ontology/omn-resource#Node"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://open-multinet.info/example#my-raw-pc-1">
+    <omn:hasService rdf:nodeID="genid1"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://open-multinet.info/example#my-raw-pc-1">
+    <omn:hasService rdf:nodeID="genid2"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://open-multinet.info/example#my-raw-pc-1">
+    <omn:hasService rdf:nodeID="genid3"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://open-multinet.info/example#my-raw-pc-1">
+    <omn:hasService rdf:nodeID="genid4"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://open-multinet.info/example#my-raw-pc-1">
+    <omn:isResourceOf rdf:resource="http://open-multinet.info/example#request"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://open-multinet.info/example#my-raw-pc-1">
+    <omn-lifecycle:hasID>my-raw-pc-1</omn-lifecycle:hasID>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://open-multinet.info/example#my-raw-pc-1">
+    <omn-lifecycle:implementedBy rdf:resource="https://localhost:8443/resource/physicalnode-1"/>
+  </rdf:Description>
+  <rdf:Description rdf:about="http://open-multinet.info/example#my-raw-pc-1">
+    <omn-resource:isExclusive rdf:datatype="http://www.w3.org/2001/XMLSchema#boolean">true</omn-resource:isExclusive>
+  </rdf:Description>
+</rdf:RDF>
+
