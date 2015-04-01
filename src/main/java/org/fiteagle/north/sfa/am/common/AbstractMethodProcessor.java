@@ -125,7 +125,6 @@ public class AbstractMethodProcessor {
       byte[] output = null;
       String outputString = "";
 
-
       byte[] input = toCompress.getBytes(ISFA_AM.UTF_8);
       // Compress the bytes
       output = new byte[input.length];

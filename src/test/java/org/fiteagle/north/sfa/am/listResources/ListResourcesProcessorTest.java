@@ -67,10 +67,4 @@ public class ListResourcesProcessorTest extends CommonTestMethods{
     
   }
   
-  private Model createTestModel() {
-    Model returnModel = ModelFactory.createDefaultModel();
-    Resource resource = returnModel.createResource("http://test");
-    resource.addProperty(RDF.type, Omn.Resource);
-    return returnModel;
-  }
 }

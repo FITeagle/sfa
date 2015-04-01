@@ -29,7 +29,7 @@ public class CommonTestMethods {
   public void initialize() {
     parameter = new LinkedList<>();
     urns = new ArrayList<>();
-    test_urn = "urn:publicid:IDN+localhost+sliver+test";
+    test_urn = "urn:publicid:IDN+localhost+sliver+http%3A%2F%2Flocalhost%2Fresource%2Fsliver1";
     credentials = new LinkedList<>();
     sender = EasyMock.createMock(SFA_AM_MDBSender.class);
   }
@@ -47,5 +47,12 @@ public class CommonTestMethods {
     urns.add(test_urn);
     parameter.add(urns);
     parameter.add(credentials);
+  }
+  
+  public Model createTestModel() {
+    Model returnModel = ModelFactory.createDefaultModel();
+    Resource resource = returnModel.createResource("http://test");
+    resource.addProperty(RDF.type, Omn.Resource);
+    return returnModel;
   }
 }

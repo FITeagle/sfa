@@ -1,6 +1,7 @@
 package org.fiteagle.north.sfa.am.allocate;
 
 import com.hp.hpl.jena.rdf.model.*;
+
 import info.openmultinet.ontology.exceptions.InvalidModelException;
 import info.openmultinet.ontology.translators.geni.ManifestConverter;
 import info.openmultinet.ontology.translators.geni.RequestConverter;
@@ -18,21 +19,28 @@ import javax.xml.bind.JAXBException;
 import org.fiteagle.api.core.*;
 import org.fiteagle.north.sfa.am.ISFA_AM;
 import org.fiteagle.north.sfa.am.ReservationStateEnum;
+import org.fiteagle.north.sfa.am.common.AbstractMethodProcessor;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
 import org.fiteagle.north.sfa.util.URN;
 
 import com.hp.hpl.jena.vocabulary.RDF;
 
 
-public class ProcessAllocate {
+public class ProcessAllocate extends AbstractMethodProcessor{
   
   private final static Logger LOGGER = Logger.getLogger(ProcessAllocate.class.getName());
   
-  public static void parseAllocateParameter(final List<?> parameter, final Map<String,  Object> allocateParameters) throws JAXBException, InvalidModelException {
+  private Map<String, Object> allocateParameters = new HashMap<>(); 
+  
+  public ProcessAllocate(List<?> parameter) {
+    this.parameter = parameter;
+  }
+  
+  public void parseAllocateParameter() throws JAXBException, InvalidModelException {
     ProcessAllocate.LOGGER.log(Level.INFO, "parsing allocate parameter");
-    System.out.println(parameter);
-    System.out.println(parameter.size());
-    for (final Object param : parameter) {
+    System.out.println(this.parameter);
+    System.out.println(this.parameter.size());
+    for (final Object param : this.parameter) {
       if (param instanceof String) {
         String allocateParameter = (String) param;
         if (allocateParameter.startsWith(ISFA_AM.URN)) {
@@ -63,10 +71,10 @@ public class ProcessAllocate {
   }
   
   @SuppressWarnings("unchecked")
-  public static Model reserveInstances(final Map<String, Object> allocateParameter) {
-    Model incoming = (Model) allocateParameter.get(ISFA_AM.RequiredResources);
+  public Model reserveInstances() {
+    Model incoming = (Model) allocateParameters.get(ISFA_AM.RequiredResources);
     Model requestModel = ModelFactory.createDefaultModel();
-      URN sliceURN = (URN) allocateParameter.get(ISFA_AM.URN);
+      URN sliceURN = (URN) allocateParameters.get(ISFA_AM.URN);
 
       Resource topology = requestModel.createResource(IConfig.TOPOLOGY_NAMESPACE_VALUE+ sliceURN.getSubject());
       topology.addProperty(RDF.type, Omn.Topology);
@@ -75,13 +83,13 @@ public class ProcessAllocate {
 
     String serializedModel = MessageUtil.serializeModel(requestModel, IMessageBus.SERIALIZATION_TURTLE);
     LOGGER.log(Level.INFO, "send reservation request ...");
-    Model resultModel = SFA_AM_MDBSender.getInstance().sendRDFRequest(serializedModel, IMessageBus.TYPE_CREATE, IMessageBus.TARGET_RESERVATION);
+    Model resultModel = getSender().sendRDFRequest(serializedModel, IMessageBus.TYPE_CREATE, IMessageBus.TARGET_RESERVATION);
     LOGGER.log(Level.INFO, "reservation reply received.");
 
     return resultModel;
   }
 
-    private static Model getRequestedResources(Resource topology, Model requestedModel) {
+    private Model getRequestedResources(Resource topology, Model requestedModel) {
         ResIterator resIterator = requestedModel.listResourcesWithProperty(Omn.isResourceOf);
         Model requestedResourcesModel = ModelFactory.createDefaultModel();
         while(resIterator.hasNext()){
@@ -109,14 +117,14 @@ public class ProcessAllocate {
 
 
 
-  private static Model parseRSpec(String request) throws JAXBException, InvalidModelException {
+  private Model parseRSpec(String request) throws JAXBException, InvalidModelException {
 
       InputStream is = new ByteArrayInputStream( request.getBytes(Charset.defaultCharset()) );
       Model model = RequestConverter.getModel(is);
       return  model;
   }
   
-  public static void addAllocateValue(final HashMap<String, Object> result, final Map<String, Object> allocateParameters, Model allocateResponse) throws UnsupportedEncodingException {
+  public void createResponse(final HashMap<String, Object> result, Model allocateResponse) throws UnsupportedEncodingException {
     final Map<String, Object> value = new HashMap<>();
     
 
@@ -145,11 +153,13 @@ public class ProcessAllocate {
 
     value.put(IGeni.GENI_SLIVERS, geniSlivers);
     result.put(ISFA_AM.VALUE, value);
+    this.addCode(result);
+    this.addOutput(result);
   }
 
 
 
-    private static String setSliverURN(String SliceURN, int i){
+    private String setSliverURN(String SliceURN, int i){
 	  String sliverURN = "";
 	  URN urn = new URN(SliceURN);
 	  urn.setType(ISFA_AM.Sliver);
