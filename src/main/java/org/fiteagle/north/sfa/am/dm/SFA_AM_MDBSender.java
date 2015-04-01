@@ -15,9 +15,13 @@ import javax.jms.Topic;
 import javax.ws.rs.core.Response;
 
 import com.hp.hpl.jena.rdf.model.*;
+import com.hp.hpl.jena.reasoner.Reasoner;
+import info.openmultinet.ontology.Parser;
 import info.openmultinet.ontology.vocabulary.Omn_federation;
 import org.fiteagle.api.core.IMessageBus;
 import org.fiteagle.api.core.MessageUtil;
+
+import org.fiteagle.north.sfa.exceptions.EmptyReplyException;;
 
 @Startup
 @Singleton
@@ -33,9 +37,12 @@ public class SFA_AM_MDBSender {
   private final static String TRIPLET_STORE_URL = "<http://localhost:3030/fiteagle/query> ";
   
   private static SFA_AM_MDBSender instance;
-  
+
+   Reasoner reasoner;
   public SFA_AM_MDBSender() {
     instance = this;
+      reasoner  = Parser.createReasoner();
+
   }
   
   public static SFA_AM_MDBSender getInstance() {
@@ -103,71 +110,5 @@ public class SFA_AM_MDBSender {
     return namespaces;
   }
   
-  public String getTestbedDescription() throws EmptyReplyException {
-    Model resultModel = sendSPARQLQueryRequest("", IMessageBus.TARGET_FEDERATION_MANAGER);
-    StmtIterator iterator = resultModel.listStatements();
-    if (iterator.hasNext() == false) {
-      throw new EmptyReplyException("No testbed could be found");
-    }
-    
-    String resultString = MessageUtil.serializeModel(resultModel, IMessageBus.SERIALIZATION_RDFJSON);
-    LOGGER.log(Level.INFO, "result is " + resultString);
-    return resultString;
-  }
-  
-  public String getListRessources(String geni_query) throws EmptyReplyException {
-    String query;
-    if (!geni_query.isEmpty()) {
-      query = geni_query;
-      LOGGER.log(Level.INFO, "Using user-defined query");
-    } else {
-      query = "PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> "
-          + "PREFIX omn: <http://open-multinet.info/ontology/omn#> "
-          + "PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#> "
-          + "PREFIX omnFederation: <http://open-multinet.info/ontology/omn-federation#> ."
-          + "PREFIX wgs: <http://www.w3.org/2003/01/geo/wgs84_pos#> " + "CONSTRUCT { "
-          + "?resource "+ Omn_federation.partOfFederation+" ?testbed." + "?resource rdfs:label ?label. "
-          + "?resource rdfs:comment ?comment." + "?resource rdf:type ?type. " + "?resource wgs:lat ?lat. "
-          + "?resource wgs:long ?long. } " + "FROM " + TRIPLET_STORE_URL + "WHERE {"
-          + "?resource omnFederation:partOfFederation ?testbed. " + "?testbed a omnFederation:Federation. "
-          + "OPTIONAL {?resource rdfs:label ?label. }" + "OPTIONAL {?resource rdfs:comment ?comment. }"
-          + "OPTIONAL {?resource rdf:type ?type. }" + "OPTIONAL {?resource wgs:lat ?lat. }"
-          + "OPTIONAL {?resource wgs:long ?long. } }";
-      LOGGER.log(Level.INFO, "Using default query");
-    }
-
-    Model requestModel = ModelFactory.createDefaultModel();
-      String serializedModel = MessageUtil.serializeModel(requestModel, IMessageBus.SERIALIZATION_TURTLE);
-
-    Model resultModel = sendRDFRequest(serializedModel,IMessageBus.TYPE_GET, IMessageBus.TARGET_RESOURCE_ADAPTER_MANAGER);
-    String resultString = MessageUtil.serializeModel(resultModel, IMessageBus.SERIALIZATION_RDFXML);
-    
-    LOGGER.log(Level.INFO, "result after serialization " + resultString);
-    
-    return resultString;
-  }
-  
-
-/*  public class TimeoutException extends RuntimeException {
-    
-    private static final long serialVersionUID = -5630226460026376892L;
-    
-    public TimeoutException(String message) {
-      super("Timeout while waiting for a response: " + message);
-    }
-  }*/
-  
-  public class EmptyReplyException extends RuntimeException {
-    
-    private static final long serialVersionUID = 3084952835284992423L;
-    
-    public EmptyReplyException() {
-      super(" (Empty reply from repo)");
-    }
-    
-    public EmptyReplyException(String message) {
-      super(" (" + message + ")");
-    }
-  }
   
 }

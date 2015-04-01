@@ -1,8 +1,10 @@
-package org.fiteagle.north.sfa.delete;
+package org.fiteagle.north.sfa.am.delete;
 
 import info.openmultinet.ontology.vocabulary.Omn;
 import info.openmultinet.ontology.vocabulary.Omn_lifecycle;
 
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -10,13 +12,12 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.fiteagle.api.core.IGeni;
-import org.fiteagle.api.core.IMessageBus;
-import org.fiteagle.api.core.MessageBusOntologyModel;
-import org.fiteagle.api.core.MessageUtil;
+import org.fiteagle.api.core.*;
 import org.fiteagle.north.sfa.am.ISFA_AM;
 import org.fiteagle.north.sfa.am.ReservationStateEnum;
+import org.fiteagle.north.sfa.am.common.AbstractMethodProcessor;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
+import org.fiteagle.north.sfa.util.GENI_Credential;
 import org.fiteagle.north.sfa.util.URN;
 
 import com.hp.hpl.jena.rdf.model.Model;
@@ -27,33 +28,41 @@ import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.vocabulary.RDF;
 
 
-public class ProcessDelete {
+public class ProcessDelete extends AbstractMethodProcessor {
 	
 	private final static Logger LOGGER = Logger.getLogger(ProcessDelete.class.getName());
 	
-	public static Model deleteInstances(List<URN> urns) {
+	private final List<URN> urns;
+	
+	public ProcessDelete(List<URN> urns){
+	  this.urns = urns;
+	}
+	
+	public  Model deleteInstances() throws UnsupportedEncodingException {
 		
 		LOGGER.log(Level.INFO, "create delete model ");
 		Model requestModel = ModelFactory.createDefaultModel();
 		for (URN urn : urns) {
-			Resource reservation = requestModel.createResource(urn.toString());
+
 
 			if (ISFA_AM.SLICE.equals(urn.getType())) {
-				reservation.addProperty(RDF.type, Omn.Group);
+                Resource resource = requestModel.createResource(IConfig.TOPOLOGY_NAMESPACE_VALUE+urn.getSubject());
+                resource.addProperty(RDF.type, Omn.Topology);
 			} else if (ISFA_AM.Sliver.equals(urn.getType())) {
-				reservation.addProperty(RDF.type, Omn.Reservation);
-					}
-			}
+                Resource resource =  requestModel.createResource(URLDecoder.decode(urn.getSubject(), ISFA_AM.UTF_8));
+                resource.addProperty(RDF.type, Omn.Resource);
+            }
+		}
 
 		String serializedModel = MessageUtil.serializeModel(requestModel, IMessageBus.SERIALIZATION_TURTLE);
 		LOGGER.log(Level.INFO, "send delete request ...");
-		Model deleteResponse = SFA_AM_MDBSender.getInstance().sendRDFRequest(serializedModel, IMessageBus.TYPE_DELETE,IMessageBus.TARGET_ORCHESTRATOR);
+		Model deleteResponse = getSender().sendRDFRequest(serializedModel, IMessageBus.TYPE_DELETE,IMessageBus.TARGET_ORCHESTRATOR);
 		LOGGER.log(Level.INFO,"delete reply is received.");
 		return deleteResponse;
 		
 	}
 	
-	public static void addDeleteValue(final HashMap<String, Object> result, Model deleteResponse){
+	public void createResponse(final HashMap<String, Object> result, Model deleteResponse){
 		
 		  final List<Map<String, Object>> value = new LinkedList<>();
 		  
@@ -77,6 +86,13 @@ public class ProcessDelete {
 		    }
 		    
 		    result.put(ISFA_AM.VALUE, value);
+        this.addCode(result);
+        this.addOutput(result);
 	}
+	
+  public void handleCredentials(final Object param) {
+    List<GENI_Credential> credentialList = this.parseCredentialsParameters(param);
+    this.checkCredentials(credentialList);
+  }
 
 }

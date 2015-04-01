@@ -9,6 +9,7 @@ package org.fiteagle.north.sfa.aaa;
         import javax.xml.bind.JAXBContext;
         import javax.xml.bind.JAXBException;
         import javax.xml.bind.Marshaller;
+        import javax.xml.bind.Unmarshaller;
 
 
         import org.fiteagle.north.sfa.aaa.jaxbClasses.Credential;
@@ -64,6 +65,14 @@ public class CredentialFactory {
 
         return stringWriter.toString();
 
+    }
+
+    public static SignedCredential buildCredential(String credential) throws JAXBException {
+        JAXBContext context = JAXBContext.newInstance("org.fiteagle.north.sfa.aaa.jaxbClasses");
+        Unmarshaller unmarshaller = context.createUnmarshaller();
+        StringReader reader = new StringReader(credential);
+        SignedCredential sc = (SignedCredential) unmarshaller.unmarshal(reader);
+        return sc;
     }
 
     private static class SFIFix{

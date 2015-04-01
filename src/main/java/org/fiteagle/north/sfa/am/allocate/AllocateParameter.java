@@ -1,4 +1,4 @@
-package org.fiteagle.north.sfa.allocate;
+package org.fiteagle.north.sfa.am.allocate;
 
 public class AllocateParameter {
 	

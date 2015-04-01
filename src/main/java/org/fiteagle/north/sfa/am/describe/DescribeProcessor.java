@@ -1,43 +1,46 @@
-package org.fiteagle.north.sfa.describe;
+package org.fiteagle.north.sfa.am.describe;
 
+import com.hp.hpl.jena.ontology.Individual;
 import com.hp.hpl.jena.rdf.model.*;
 import com.hp.hpl.jena.vocabulary.RDF;
 
+import org.fiteagle.api.core.IConfig;
 import org.fiteagle.api.core.IGeni;
 import org.fiteagle.api.core.IMessageBus;
-import org.fiteagle.api.core.MessageBusOntologyModel;
 import org.fiteagle.api.core.MessageUtil;
 import org.fiteagle.north.sfa.am.ISFA_AM;
+import org.fiteagle.north.sfa.am.common.AbstractMethodProcessor;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
 import org.fiteagle.north.sfa.util.URN;
 
 import info.openmultinet.ontology.vocabulary.Omn;
-import info.openmultinet.ontology.vocabulary.Omn_lifecycle;
 
-import javax.jms.Message;
-
+import java.io.UnsupportedEncodingException;
+import java.net.URLDecoder;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
  * Created by dne on 12.01.15.
  */
-public class DescribeProcessor {
+public class DescribeProcessor extends AbstractMethodProcessor {
     private final static Logger LOGGER = Logger.getLogger(DescribeProcessor.class.getName());
 
-    private Model getDescriptions(List<URN> urns){
+    public Model getDescriptions(List<URN> urns) throws UnsupportedEncodingException {
         Model requestModel = ModelFactory.createDefaultModel();
         for(URN u : urns){
-            Resource resource = requestModel.createResource(u.toString());
+
             if(ISFA_AM.SLICE.equals(u.getType())){
+                Resource resource = requestModel.createResource(IConfig.TOPOLOGY_NAMESPACE_VALUE+ u.getSubject());
                 resource.addProperty(RDF.type, Omn.Topology);
             }
             if(ISFA_AM.Sliver.equals(u.getType())){
+                Resource resource =requestModel.createResource(URLDecoder.decode(u.getSubject(), "UTF-8"));
                 resource.addProperty(RDF.type, Omn.Resource);
+
             }
         }
         String serializedModel = MessageUtil.serializeModel(requestModel, IMessageBus.SERIALIZATION_TURTLE);
@@ -47,16 +50,5 @@ public class DescribeProcessor {
         return resultModel;
     }
 
-    //TODO remove ugly RSPEC string!
-    public HashMap<String, Object> getValue(Object credList, Object options, List<URN> urns) {
-        HashMap<String, Object> value = new HashMap<>();
-        Model descriptions = getDescriptions(urns);
-        List<HashMap<String,Object>> slivers = new ArrayList<>();
-        value.put(IGeni.GENI_RSPEC, "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n" +
-                "<rspec type=\"manifest\" xmlns=\"http://www.geni.net/resources/rspec/3\"/>");
-        value.put(IGeni.GENI_SLIVERS, slivers);
-        // value.put(IGeni.GENI_RSPEC, OMN2Manifest.getRSpec(descriptions));
-        value.put(IGeni.GENI_URN, urns.get(0).toString());
-        return value;
-    }
+
 }

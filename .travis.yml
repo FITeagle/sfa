@@ -1,18 +1,23 @@
 language: java
 jdk:
-  - oraclejdk7
+- oraclejdk7
 script:
-  - travis_retry mvn clean install site
+- travis_retry mvn clean install site
 notifications:
-  slack: av-fitt:FmLx2wj2Td3cNfmrjaQXUXBO
+  slack:
+    secure: JmNq1sGb57RBYnQZFE+3EDN31ya+Jd1puzFFWzYt6z/MJPw+Ib+hlCdDbniu3CRZnxJWNndbHUA6DTjtxjT9fJxH8/nEwIjY46xXHVyDduqkmLfTydihDsS1AeHph51oeHaqWNVK5Z3in/qRCWIbjiADrKaHalF0Uz6QaCDuCNg=
   email:
-    - alexander.willner@tu-berlin.de
-    - fiteagle.dev@av.tu-berlin.de
+  - alexander.willner@tu-berlin.de
+  - fiteagle.dev@av.tu-berlin.de
 cache:
   directories:
   - $HOME/.m2
 after_success:
-  - mvn clean test jacoco:report coveralls:report
-  - sudo apt-get install -y screen
-  - key="Y" ./src/test/bin/acceptanceTest.sh
-  
+- mvn clean test jacoco:report coveralls:report
+- sudo apt-get install -y screen
+- key="Y" ./src/test/bin/acceptanceTest.sh
+- mvn deploy --settings .travis/settings.xml
+env:
+  global:
+  - secure: cJKqqSjbU1LhU3E+zCm2f4LjMXwI2VoJN+6BUHd/x8ECzleYbE5abTASJvu4KaPdV/Wb9Vhgnvteu5gR2qt2vIVFaESjZyByJlOG9v3f+C+2XLI1SYm0Pl6/bHjteZSAV46m8H0JdQ8WUtxJABPBgofeHJrlXzn5AI2xaNnWjCg=
+  - secure: Q23H0M9uqZUt7UM9jtIyZhx6LyYA/MeynDF9P9WDMVM3f8uNmMCUdTwmBYoq/hnZ94ITBjnydScSu4e38kVxiTxIFn4bpPk7+Up8NhmU7WJt7mBiU64keoDmXxu/3T3fBNRPu7xsK7VLsVKghMadC1FTeqlmsRXQ+qOHlQkFK4s=

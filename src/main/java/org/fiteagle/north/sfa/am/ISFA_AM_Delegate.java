@@ -34,5 +34,11 @@ public interface ISFA_AM_Delegate {
 	
 	void setGeniValue(String geni_value);
 	String getGeniValue();
-	
+
+    void setRspecType(String type);
+
+    void setRspecVersion(String version);
+
+    String getRspecType();
+    String getRspecVersion();
 }

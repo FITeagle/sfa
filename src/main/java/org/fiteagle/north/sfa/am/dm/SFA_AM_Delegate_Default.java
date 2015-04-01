@@ -22,9 +22,11 @@ public class SFA_AM_Delegate_Default implements ISFA_AM_Delegate {
 	private String geni_value;
 	private String output = "";
 	private int geni_code= 0;
-	
-	
-	@Override
+    private String rspecType;
+    private String rspecVersion;
+
+
+    @Override
 	public void setOutput (String outputString){
 		this.output = outputString;
 	}
@@ -118,10 +120,24 @@ public class SFA_AM_Delegate_Default implements ISFA_AM_Delegate {
 	public String getGeniValue(){
 		return this.geni_value;
 	}
-	
 
-	
-	
+    @Override
+    public void setRspecType(String rspecType) {
+        this.rspecType = rspecType;
+    }
 
+    @Override
+    public void setRspecVersion(String rspecVersion) {
+        this.rspecVersion = rspecVersion;
 
+    }
+    @Override
+    public String getRspecType() {
+        return rspecType;
+    }
+
+    @Override
+    public String getRspecVersion() {
+        return rspecVersion;
+    }
 }

@@ -46,25 +46,32 @@ public interface ISFA_AM extends ISFA {
 	String RequiredResources = "requiredResources";
 	String Sliver = "sliver";
 	String SLICE = "slice";
+	String GENI= "geni";
+	String UTF_8 = "UTF-8";
+	String LOCALHOST = "localhost";
+	String READY = "Ready";
+	String UNCOMPLETED = "Uncompleted";
+	String NO_ERROR = "NO ERROR";
+	String SUCCESS = "SUCCESS";
 
 	
-	public abstract Object listResources(List<?> parameter) throws JMSException, UnsupportedEncodingException;
+	public abstract Object listResources(List<?> parameter) throws JMSException, UnsupportedEncodingException, JAXBException, InvalidModelException;
 
 	public abstract Object getVersion(List<?> parameter);
 	
-	public abstract Object describe(List<?> parameter) throws UnsupportedEncodingException, JAXBException;// , InvalidModelException;
+	public abstract Object describe(List<?> parameter) throws UnsupportedEncodingException, JAXBException, InvalidModelException;// , InvalidModelException;
 	
 	public abstract Object allocate(List<?> parameter) throws JAXBException, InvalidModelException, UnsupportedEncodingException;
 	
-	public abstract Object renew(List<?> parameter);
+	public abstract Object renew(List<?> parameter) throws UnsupportedEncodingException;
 	
 	public abstract Object provision(List<?> parameter) throws UnsupportedEncodingException;
 	
 	public abstract Object status(List<?> parameter) throws UnsupportedEncodingException;
 	
-	public abstract Object performOperationalAction(List<?> parameter);
+	public abstract Object performOperationalAction(List<?> parameter) throws UnsupportedEncodingException;
 	
-	public abstract Object delete(List<?> parameter);
+	public abstract Object delete(List<?> parameter) throws UnsupportedEncodingException;
 	
 	public abstract Object shutdown(List<?> parameter);
 }

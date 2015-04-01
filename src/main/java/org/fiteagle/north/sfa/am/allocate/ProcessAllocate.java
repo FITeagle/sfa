@@ -1,4 +1,4 @@
-package org.fiteagle.north.sfa.allocate;
+package org.fiteagle.north.sfa.am.allocate;
 
 import com.hp.hpl.jena.rdf.model.*;
 import info.openmultinet.ontology.exceptions.InvalidModelException;
@@ -8,33 +8,19 @@ import info.openmultinet.ontology.vocabulary.Omn;
 import info.openmultinet.ontology.vocabulary.Omn_lifecycle;
 
 import java.io.*;
-import java.net.URLEncoder;
 import java.nio.charset.Charset;
-import java.text.SimpleDateFormat;
 import java.util.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.xml.bind.JAXBException;
-import javax.xml.parsers.DocumentBuilder;
-import javax.xml.parsers.DocumentBuilderFactory;
-import javax.xml.parsers.ParserConfigurationException;
 
-import org.fiteagle.api.core.IGeni;
-import org.fiteagle.api.core.IMessageBus;
-import org.fiteagle.api.core.MessageBusOntologyModel;
-import org.fiteagle.api.core.MessageUtil;
+import org.fiteagle.api.core.*;
 import org.fiteagle.north.sfa.am.ISFA_AM;
 import org.fiteagle.north.sfa.am.ReservationStateEnum;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
 import org.fiteagle.north.sfa.util.URN;
-import org.w3c.dom.Document;
-import org.w3c.dom.Element;
-import org.w3c.dom.NodeList;
-import org.xml.sax.InputSource;
-import org.xml.sax.SAXException;
 
-import com.hp.hpl.jena.ontology.OntClass;
 import com.hp.hpl.jena.vocabulary.RDF;
 
 
@@ -73,13 +59,7 @@ public class ProcessAllocate {
         }
       }
     }
-    
-    /*
-     * for (final Object param : parameter) { if (param instanceof String) { // considered to be slice_urn String param2
-     * = (String) param; this.delegate.setSliceURN(param2); } else if (param instanceof Map<?, ?>) { // considered to be
-     * options parameters. this.parseOptionsParameters(param); } else if(param instanceof List<?>){ // considered to be
-     * credentials parameters. this.parseCredentialsParameters(param); } }
-     */
+
   }
   
   @SuppressWarnings("unchecked")
@@ -88,44 +68,16 @@ public class ProcessAllocate {
     Model requestModel = ModelFactory.createDefaultModel();
       URN sliceURN = (URN) allocateParameter.get(ISFA_AM.URN);
 
-      Resource topology = requestModel.createResource(Omn.Topology.getURI() + "/"+ sliceURN.getSubject());
+      Resource topology = requestModel.createResource(IConfig.TOPOLOGY_NAMESPACE_VALUE+ sliceURN.getSubject());
       topology.addProperty(RDF.type, Omn.Topology);
       Model requestedResources = getRequestedResources(topology, incoming);
      requestModel.add(requestedResources);
- /*
-    int counter = 1;
-    for (final Object requiredResources : (List<String>) allocateParameter.get(ISFA_AM.RequiredResources)){
-      Resource sliver = requestModel.createResource(setSliverURN(allocateParameter.get(ISFA_AM.URN).toString(), counter));
-      sliver.addProperty(RDF.type, Omn.Resource);
-      Resource reservation = requestModel.createResource(Omn.Reservation.getURI()+UUID.randomUUID().toString());
-        reservation.addProperty(RDF.type, Omn.Reservation);
-        reservation.addProperty(Omn.isReservationOf, sliver);
 
-
-        sliver.addProperty(Omn.isResourceOf, slice);
-        slice.addProperty(Omn.hasResource, sliver);
-        sliver.addProperty(Omn_lifecycle.implementedBy,requestModel.createResource(requiredResources.toString()));
-      if(allocateParameter.containsKey(ISFA_AM.EndTime)){
-        reservation.addProperty(MessageBusOntologyModel.endTime, allocateParameter.get(ISFA_AM.EndTime).toString());
-      }else{
-        Date afterAdding2h = getDefaultExpirationTime();
-        reservation.addProperty(MessageBusOntologyModel.endTime, new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssXXX").format(afterAdding2h));
-      }
-      counter = counter + 1;
-    }
-    */
     String serializedModel = MessageUtil.serializeModel(requestModel, IMessageBus.SERIALIZATION_TURTLE);
     LOGGER.log(Level.INFO, "send reservation request ...");
     Model resultModel = SFA_AM_MDBSender.getInstance().sendRDFRequest(serializedModel, IMessageBus.TYPE_CREATE, IMessageBus.TARGET_RESERVATION);
     LOGGER.log(Level.INFO, "reservation reply received.");
-    
-//    StmtIterator iter = resultModel.listStatements();
-//    while (iter.hasNext()) {
-//      Statement st = iter.next();
-//      Resource r = st.getSubject();
-//      sliverMap.put(r.getURI().toString(), st.getObject().toString());
-//      LOGGER.log(Level.INFO, "created sliver " + r.getURI());
-//    }
+
     return resultModel;
   }
 
@@ -134,12 +86,10 @@ public class ProcessAllocate {
         Model requestedResourcesModel = ModelFactory.createDefaultModel();
         while(resIterator.hasNext()){
             Resource oldResource = resIterator.nextResource();
-            Resource oldType = oldResource.getProperty(RDF.type).getObject().asResource();
+            Resource oldBase = oldResource.getProperty(Omn_lifecycle.implementedBy).getObject().asResource();
 
-            Resource newResource = requestedResourcesModel.createResource(oldType.getURI() + "/" + oldResource.getLocalName());
-            // newResource.addProperty(RDF.type, oldType);
-            // newResource.addProperty(Omn_lifecycle.implementedBy, oldResource.getProperty(Omn_lifecycle.implementedBy).getObject().asResource());
-            // newResource.addProperty(Omn.isResourceOf, topology);
+            Resource newResource = requestedResourcesModel.createResource(oldBase.getURI() + "/" + oldResource.getLocalName());
+
             StmtIterator stmtIterator = oldResource.listProperties();
             while(stmtIterator.hasNext()){
                 Statement statement = stmtIterator.nextStatement();
@@ -172,7 +122,7 @@ public class ProcessAllocate {
 
     try {
 
-      value.put(IGeni.GENI_RSPEC, ManifestConverter.getRSpec(allocateResponse, "localhost"));
+      value.put(IGeni.GENI_RSPEC, ManifestConverter.getRSpec(allocateResponse, IConfig.DEFAULT_HOSTNAME));
     } catch (JAXBException | InvalidModelException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
@@ -182,17 +132,12 @@ public class ProcessAllocate {
     
     ResIterator iterator = allocateResponse.listResourcesWithProperty(RDF.type,Omn.Reservation);
     while(iterator.hasNext()){
-      /**
-       * defines a loop depending on the slivers number.
-       * In the loop, Map is created for each sliver containing 
-       * sliver urn, experires and status.
-       * The created maps should be added to geni_slivers list.
-       */    
+
       final Map<String, Object> sliverMap = new HashMap<>();
 
       Resource reservation = iterator.nextResource();
       
-      sliverMap.put(IGeni.GENI_SLIVER_URN, ManifestConverter.generateSliverID("localhost",reservation.getProperty(Omn.isReservationOf).getResource().getURI()));
+      sliverMap.put(IGeni.GENI_SLIVER_URN, ManifestConverter.generateSliverID(IConfig.DEFAULT_HOSTNAME,reservation.getProperty(Omn.isReservationOf).getResource().getURI()));
       sliverMap.put(IGeni.GENI_EXPIRES, reservation.getProperty(MessageBusOntologyModel.endTime).getLiteral().getString());
       sliverMap.put(IGeni.GENI_ALLOCATION_STATUS, ReservationStateEnum.valueOf(reservation.getProperty(Omn_lifecycle.hasReservationState).getResource().getLocalName()).getGeniState());
       geniSlivers.add(sliverMap);
