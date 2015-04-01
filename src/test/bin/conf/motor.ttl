@@ -1,0 +1,38 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix geo: <http://www.w3.org/2003/01/geo/wgs84_pos#> .
+@prefix omn-lifecycle: <http://open-multinet.info/ontology/omn-lifecycle#> .
+@prefix omn-resource: <http://open-multinet.info/ontology/omn-resource#> .
+@prefix omn: <http://open-multinet.info/ontology/omn#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix ns0: <http://open-multinet.info/ontology/omn-service#> .
+
+<http://open-multinet.info/example#my-motor-1>
+    omn:hasService [
+        ns0:installPath "~/logos" ;
+        ns0:url "http://www.fed4fire.eu/wp-content/uploads/2014/11/fed4fire-logo.jpg" ;
+        a ns0:InstallService
+    ], [
+        ns0:installPath "~/logos" ;
+        ns0:url "http://fiteagle.org/images/logo_fiteagle.png" ;
+        a ns0:InstallService
+    ], [
+        ns0:command "time" ;
+        ns0:shell "sh" ;
+        a ns0:ExecuteService
+    ], [
+        ns0:command "df -h ~/logos" ;
+        ns0:shell "sh" ;
+        a ns0:ExecuteService
+    ] ;
+    omn:isResourceOf <http://open-multinet.info/example#request> ;
+    omn-lifecycle:hasID "my-raw-pc-1" ;
+    omn-lifecycle:implementedBy <http://localhost/resource/MotorGarage-1> ;
+    omn-resource:isExclusive true ;
+    a omn-resource:Node, <http://open-multinet.info/ontology/resource/motorgarage#MotorGarage> .
+
+<http://open-multinet.info/example#request>
+    omn:hasResource <http://open-multinet.info/example#my-motor-1> ;
+    a omn-lifecycle:Request .
+
