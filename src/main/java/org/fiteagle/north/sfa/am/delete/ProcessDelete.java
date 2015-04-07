@@ -32,17 +32,15 @@ public class ProcessDelete extends AbstractMethodProcessor {
 	
 	private final static Logger LOGGER = Logger.getLogger(ProcessDelete.class.getName());
 	
-	private final List<URN> urns;
-	
-	public ProcessDelete(List<URN> urns){
-	  this.urns = urns;
-	}
+	public ProcessDelete(final List<?> parameter) {
+    this.parameter = parameter;
+  }
 	
 	public  Model deleteInstances() throws UnsupportedEncodingException {
 		
 		LOGGER.log(Level.INFO, "create delete model ");
 		Model requestModel = ModelFactory.createDefaultModel();
-		for (URN urn : urns) {
+		for (URN urn : this.urns) {
 
 
 			if (ISFA_AM.SLICE.equals(urn.getType())) {
@@ -90,9 +88,5 @@ public class ProcessDelete extends AbstractMethodProcessor {
         this.addOutput(result);
 	}
 	
-  public void handleCredentials(final Object param) {
-    List<GENI_Credential> credentialList = this.parseCredentialsParameters(param);
-    this.checkCredentials(credentialList);
-  }
 
 }

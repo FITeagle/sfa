@@ -7,9 +7,8 @@ import java.util.HashMap;
 import info.openmultinet.ontology.vocabulary.Omn;
 
 import org.easymock.EasyMock;
-import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
+import org.fiteagle.north.sfa.am.common.CommonTestMethods;
 import org.fiteagle.north.sfa.exceptions.EmptyReplyException;
-import org.junit.Before;
 import org.junit.Test;
 
 import com.hp.hpl.jena.rdf.model.Model;
@@ -17,15 +16,9 @@ import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.vocabulary.RDF;
 
-public class ProcessGetVersionTest {
+public class ProcessGetVersionTest extends CommonTestMethods{
   
   ProcessGetVersion processGetVersion;
-  SFA_AM_MDBSender sender;
-  
-  @Before
-  public void initialize() {
-    sender = EasyMock.createMock(SFA_AM_MDBSender.class);
-  }
   
   @Test
   public void setTestbedDescriptionTest() {
@@ -33,7 +26,7 @@ public class ProcessGetVersionTest {
     EasyMock.expect(sender.sendSPARQLQueryRequest(EasyMock.anyObject(String.class), EasyMock.anyObject(String.class)))
         .andReturn(returnModel);
     EasyMock.replay(sender);
-    processGetVersion = new ProcessGetVersion();
+    processGetVersion = new ProcessGetVersion(parameter);
     processGetVersion.setSender(sender);
     Model model = processGetVersion.getTestbedDescription();
     assertFalse(model.isEmpty());
@@ -42,23 +35,19 @@ public class ProcessGetVersionTest {
   @Test(expected = EmptyReplyException.class)
   public void parseTestbedDescriptionTest() {
     Model testModel = ModelFactory.createDefaultModel();
-    processGetVersion = new ProcessGetVersion();
-    String testbedDescription = processGetVersion.parseTestbedDescription(testModel);
+    this.prepareParameters();
+    processGetVersion = new ProcessGetVersion(parameter);
+    assertFalse(processGetVersion.parseTestbedDescription(testModel).isEmpty());
   }
   
   @Test
   public void createResponseTest() {
     final HashMap<String, Object> result = new HashMap<>();
     String testbedDescription = "testbed description";
-    processGetVersion = new ProcessGetVersion();
+    this.prepareParameters();
+    processGetVersion = new ProcessGetVersion(parameter);
     processGetVersion.createResponse(result, testbedDescription);
   }
   
-  private Model createTestModel() {
-    Model returnModel = ModelFactory.createDefaultModel();
-    Resource resource = returnModel.createResource("http://test");
-    resource.addProperty(RDF.type, Omn.Resource);
-    return returnModel;
-  }
   
 }

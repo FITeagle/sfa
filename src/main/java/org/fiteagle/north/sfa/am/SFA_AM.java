@@ -11,6 +11,7 @@ import java.util.zip.Deflater;
 import javax.jms.JMSException;
 import javax.xml.bind.JAXBException;
 
+
 //import info.openmultinet.ontology.exceptions.InvalidModelException;
 import com.hp.hpl.jena.rdf.model.ResIterator;
 import com.hp.hpl.jena.rdf.model.Resource;
@@ -37,6 +38,7 @@ import org.fiteagle.north.sfa.exceptions.BadVersionException;
 import org.fiteagle.north.sfa.exceptions.ForbiddenException;
 import org.fiteagle.north.sfa.exceptions.SearchFailedException;
 import org.fiteagle.north.sfa.am.status.StatusProcessor;
+import org.fiteagle.north.sfa.am.common.AbstractMethodProcessor;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_Delegate_Default;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
 import org.fiteagle.north.sfa.exceptions.EmptyReplyException;
@@ -105,57 +107,37 @@ public class SFA_AM implements ISFA_AM {
                     break;
             }
         } catch (BadArgumentsException e) {
-            HashMap<String, Object> exceptionBody = new HashMap<>();
-            handleException(exceptionBody, e, GENI_CodeEnum.BADARGS);
-            result = exceptionBody;
+          result = handleException(e, GENI_CodeEnum.BADARGS);
+          
         } catch (JMSException e) {
-            HashMap<String, Object> exceptionBody = new HashMap<>();
-            handleException(exceptionBody, e, GENI_CodeEnum.SERVERERROR);
-            result = exceptionBody;
+          result = handleException(e, GENI_CodeEnum.SERVERERROR);
+          
         } catch (EmptyReplyException e) {
-            HashMap<String, Object> exceptionBody = new HashMap<>();
-            handleException(exceptionBody, e, GENI_CodeEnum.SEARCHFAILED);
-            result = exceptionBody;
+          result = handleException(e, GENI_CodeEnum.SEARCHFAILED);
+          
         } catch (MessageUtil.TimeoutException e) {
-            HashMap<String, Object> exceptionBody = new HashMap<>();
-            handleException(exceptionBody, e, GENI_CodeEnum.TIMEDOUT);
-            result = exceptionBody;
-        }catch (ForbiddenException e){
-            HashMap<String, Object> exceptionBody = new HashMap<>();
-            handleException(exceptionBody, e, GENI_CodeEnum.FORBIDDEN);
-            result = exceptionBody;
-
-        }  catch (SearchFailedException e){
-        HashMap<String, Object> exceptionBody = new HashMap<>();
-        handleException(exceptionBody, e, GENI_CodeEnum.SEARCHFAILED);
-        result = exceptionBody;
-        }  catch(BadVersionException e){
-          HashMap<String, Object> exceptionBody = new HashMap<>();
-          handleException(exceptionBody, e, GENI_CodeEnum.BADVERSION);
-          result = exceptionBody;
-          }
+          result = handleException(e, GENI_CodeEnum.TIMEDOUT);
+          
+        } catch (ForbiddenException e){
+          result = handleException(e, GENI_CodeEnum.FORBIDDEN);
+          
+        } catch (SearchFailedException e){
+        result = handleException(e, GENI_CodeEnum.SEARCHFAILED);
         
-        catch (RuntimeException e) {
-
-            HashMap<String, Object> exceptionBody = new HashMap<>();
-            handleException(exceptionBody, e, GENI_CodeEnum.ERROR);
-            result = exceptionBody;
+        } catch(BadVersionException e){
+          result = handleException(e, GENI_CodeEnum.BADVERSION);
+          
+        } catch (RuntimeException e) {
+          result = handleException(e, GENI_CodeEnum.ERROR);
+          
         } catch (UnsupportedEncodingException e) {
-            HashMap<String, Object> exceptionBody = new HashMap<>();
-            handleException(exceptionBody, e, GENI_CodeEnum.ERROR);
-            result = exceptionBody;
-//    } catch (InvalidModelException e) {
-//      HashMap<String, Object> exceptionBody = new HashMap<>();
-//      handleException(exceptionBody, e.getMessage(), GENI_CodeEnum.ERROR);
-//      result = exceptionBody;
+          result = handleException(e, GENI_CodeEnum.ERROR);
+          
         } catch (JAXBException e) {
-            HashMap<String, Object> exceptionBody = new HashMap<>();
-            handleException(exceptionBody, e, GENI_CodeEnum.ERROR);
-            result = exceptionBody;
+          result = handleException(e, GENI_CodeEnum.ERROR);
+
         } catch (InvalidModelException e) {
-            HashMap<String, Object> exceptionBody = new HashMap<>();
-            handleException(exceptionBody, e, GENI_CodeEnum.ERROR);
-            result = exceptionBody;
+          result = handleException(e, GENI_CodeEnum.ERROR);
         } 
 
         return result;
@@ -165,31 +147,25 @@ public class SFA_AM implements ISFA_AM {
     public Object allocate(final List<?> parameter) throws JAXBException, InvalidModelException, UnsupportedEncodingException {
         SFA_AM.LOGGER.log(Level.INFO, "allocate...");
         final HashMap<String, Object> result = new HashMap<>();
-
-        final Map<String, Object> allocateParameters = new HashMap<>();
-        ProcessAllocate.parseAllocateParameter(parameter, allocateParameters);
-
-//        final Map<String, String> sliverMap = new HashMap<>();
-        Model allocateResponse = ProcessAllocate.reserveInstances(allocateParameters);
-        ProcessAllocate.addAllocateValue(result, allocateParameters, allocateResponse);
-
-        this.addCode(result);
-        this.addOutput(result);
+        ProcessAllocate processAllocate = new ProcessAllocate(parameter);
+        processAllocate.parseAllocateParameter();
+        processAllocate.setSender(SFA_AM_MDBSender.getInstance());
+        Model allocateResponse = processAllocate.reserveInstances();
+        processAllocate.createResponse(result, allocateResponse);
         return result;
     }
 
     @Override
     public Object renew(final List<?> parameter) throws UnsupportedEncodingException {
+        SFA_AM.LOGGER.log(Level.INFO, "renew...");
         final HashMap<String, Object> result = new HashMap<>();
-        RenewHandler renewHandler = new RenewHandler();
+        RenewHandler renewHandler = new RenewHandler(parameter);
+        renewHandler.parseURNList();
+        renewHandler.handleCredentials(1);
+        renewHandler.parseExpirationTime();
         renewHandler.setSender(SFA_AM_MDBSender.getInstance());
-        List<URN> urnList =  parseURNList(parameter.get(0));
-        String expirationTime =(String) parameter.get(2);
-        Model resultModel = renewHandler.renew(urnList,expirationTime,new HashMap<String, Object>());
-        List<Map<String, Object>> slivers = renewHandler.getSlivers(resultModel);
-        result.put(ISFA_AM.VALUE,slivers );
-        this.addCode(result);
-        this.addOutput(result);
+        Model resultModel = renewHandler.renew();
+        renewHandler.createResponse(result, resultModel);
         return result;
     }
 
@@ -197,10 +173,9 @@ public class SFA_AM implements ISFA_AM {
     public Object provision(final List<?> parameter) throws UnsupportedEncodingException {
         SFA_AM.LOGGER.log(Level.INFO, "provision...");
         final HashMap<String, Object> result = new HashMap<>();
-        List<URN> urns = parseURNList(parameter.get(0));
-        ProcessProvision processProvision = new ProcessProvision(urns);
-        processProvision.handleCredentials(parameter.get(1));
-        final HashMap<String, Object> provisionParameters = (HashMap<String, Object>) parameter.get(2);
+        ProcessProvision processProvision = new ProcessProvision(parameter);
+        processProvision.parseURNList();
+        processProvision.handleCredentials(1);
         SFA_AM.LOGGER.log(Level.INFO, "provision parameters are parsed");
         processProvision.setSender(SFA_AM_MDBSender.getInstance());
         Model provisionResponse = processProvision.provisionInstances();
@@ -212,10 +187,9 @@ public class SFA_AM implements ISFA_AM {
     public Object status(final List<?> parameter) throws UnsupportedEncodingException {
         SFA_AM.LOGGER.log(Level.INFO, "status...");
         final HashMap<String, Object> result = new HashMap<>();
-        List<URN> urns = parseURNList(parameter.get(0));
-        StatusProcessor statusProcessor = new StatusProcessor(urns);
-        statusProcessor.handleCredentials(parameter.get(1));
-        final HashMap<String, Object> statusParameters = (HashMap<String, Object>) parameter.get(2);
+        StatusProcessor statusProcessor = new StatusProcessor(parameter);
+        statusProcessor.parseURNList();
+        statusProcessor.handleCredentials(1);
         statusProcessor.setSender(SFA_AM_MDBSender.getInstance());
         Model statusResponse = statusProcessor.getStates();
         statusProcessor.createResponse(result, statusResponse);
@@ -226,27 +200,24 @@ public class SFA_AM implements ISFA_AM {
     public Object performOperationalAction(final List<?> parameter) throws UnsupportedEncodingException {
         SFA_AM.LOGGER.log(Level.INFO, "performOperationalAction...");
         final HashMap<String, Object> result = new HashMap<>();
-        List<URN> urns = parseURNList(parameter.get(0));
-        PerformOperationalActionHandler performOperationalActionHandler = new PerformOperationalActionHandler(urns);
-        performOperationalActionHandler.handleCredentials(parameter.get(1));
-        String action = (String) parameter.get(2);
+        PerformOperationalActionHandler performOperationalActionHandler = new PerformOperationalActionHandler(parameter);
+        performOperationalActionHandler.parseURNList();
+        performOperationalActionHandler.handleCredentials(1);
+        performOperationalActionHandler.parseAction();
         //TODO ignore options for now
-
         performOperationalActionHandler.setSender(SFA_AM_MDBSender.getInstance());
-        Model performResponse = performOperationalActionHandler.performAction(action);
+        Model performResponse = performOperationalActionHandler.performAction();
         performOperationalActionHandler.createResponse(result, performResponse);
         return result;
     }
 
     @Override
     public Object delete(final List<?> parameter) throws UnsupportedEncodingException {
-        
         SFA_AM.LOGGER.log(Level.INFO, "delete...");
         final HashMap<String, Object> result = new HashMap<>();
-        List<URN> urns = parseURNList(parameter.get(0));
-        ProcessDelete processDelete = new ProcessDelete(urns);
-        processDelete.handleCredentials(parameter.get(1));
-        final HashMap<String, Object> deleteParameters = (HashMap<String, Object>) parameter.get(2);
+        ProcessDelete processDelete = new ProcessDelete(parameter);
+        processDelete.parseURNList();
+        processDelete.handleCredentials(1);
         SFA_AM.LOGGER.log(Level.INFO, "delete parameters are parsed");
         processDelete.setSender(SFA_AM_MDBSender.getInstance());
         Model deleteResponse = processDelete.deleteInstances();
@@ -265,7 +236,7 @@ public class SFA_AM implements ISFA_AM {
     SFA_AM.LOGGER.log(Level.INFO, "listResources...");
     HashMap<String, Object> result = new HashMap<>();
     ListResourcesProcessor listResourcesProcessor = new ListResourcesProcessor(parameter);
-    listResourcesProcessor.handleCredentials();
+    listResourcesProcessor.handleCredentials(0);
     listResourcesProcessor.parseOptionsParameters();
     if (listResourcesProcessor.checkSupportedVersions()) {
       listResourcesProcessor.setSender(SFA_AM_MDBSender.getInstance());
@@ -277,53 +248,11 @@ public class SFA_AM implements ISFA_AM {
         }
   }
 
-
-
-    //TODO remove after reconfiguring all methods
-    public static String compress(String toCompress) throws UnsupportedEncodingException {
-        byte[] output = null;
-        String outputString = "";
-
-
-        byte[] input = toCompress.getBytes(ISFA_AM.UTF_8);
-        // Compress the bytes
-        output = new byte[input.length];
-        Deflater compresser = new Deflater();
-        compresser.setInput(input);
-        compresser.finish();
-        compresser.deflate(output);
-        compresser.end();
-        outputString = Base64.encodeBase64String(output);
-
-
-        return outputString;
-
-    }
-
-    //TODO needs way more logic, needs refactoring
-    private List<GENI_Credential> parseCredentialsParameters(final Object param) {
-
-        @SuppressWarnings("unchecked")
-        final List<Map<String, ?>> param2 = (List<Map<String, ?>>) param;
-        List<GENI_Credential> credentialList = new ArrayList<>(param2.size());
-        if (param2.size() > 0) {
-            for (Map<String, ?> map : param2) {
-                GENI_Credential credential = new GENI_Credential(map);
-                credentialList.add(credential);
-
-            }
-        } else {
-            throw new BadArgumentsException("Invalid Credentials");
-        }
-        return credentialList;
-    }
-
     @Override
     public Object getVersion(final List<?> parameter) {
         final HashMap<String, Object> result = new HashMap<>();
-        ProcessGetVersion processGetVersion = new ProcessGetVersion();
+        ProcessGetVersion processGetVersion = new ProcessGetVersion(parameter);
         processGetVersion.setSender(SFA_AM_MDBSender.getInstance());
-        
         Model testbedDescriptionModel = processGetVersion.getTestbedDescription();
         String testbedDescription = processGetVersion.parseTestbedDescription(testbedDescriptionModel);
         processGetVersion.createResponse(result, testbedDescription);
@@ -332,97 +261,30 @@ public class SFA_AM implements ISFA_AM {
 
     @Override
     public Object describe(List<?> parameter) throws UnsupportedEncodingException, JAXBException, InvalidModelException {
-        LOGGER.log(Level.ALL, "Describe called");
+        LOGGER.log(Level.INFO, "Describe... ");
         final HashMap<String, Object> result = new HashMap<>();
-        Object URNList = parameter.get(0);
-        Object credList = parameter.get(1);
-        Object options = parameter.get(2);
-        List<URN> URNS = parseURNList(URNList);
+        DescribeProcessor describeProcessor = new DescribeProcessor(parameter);
+        describeProcessor.parseURNList();
+        describeProcessor.handleCredentials(1);
+        describeProcessor.parseDescribeOptions();
+        describeProcessor.setSender(SFA_AM_MDBSender.getInstance());
 
-        List<GENI_Credential> credentialList = parseCredentialsParameters(credList);
-        checkCredentials(credentialList);
-
-        parseDescribeOptions(options);
-
-        DescribeProcessor describeProcessor = new DescribeProcessor();
-        Model descriptions = describeProcessor.getDescriptions(URNS);
-        HashMap<String, Object> value = new HashMap<>();
-        StmtIterator stmtIterator = descriptions.listStatements(null, RDF.type, Omn.Reservation);
-        if(stmtIterator.hasNext() || !(URNS.size() ==1 && ISFA_AM.SLICE.equalsIgnoreCase(URNS.get(0).getType()) ))
-            describeProcessor.addSliverInformation(value,descriptions);
-
-        value.put(IGeni.GENI_RSPEC, ManifestConverter.getRSpec(descriptions, IConfig.DEFAULT_HOSTNAME));
-        if (this.delegate.getCompressed())
-            value.put(IGeni.GENI_RSPEC, compress((String) value.get(IGeni.GENI_RSPEC)));
-        this.addCode(result);
-        this.addOutput(result);
-        result.put(ISFA_AM.VALUE, value);
+        Model descriptions = describeProcessor.getDescriptions();
+        describeProcessor.createResponse(result, descriptions);        
+        return result;
+    }
+    
+    private HashMap<String, Object> handleException(Exception e, GENI_CodeEnum errorCode) {
+        LOGGER.log(Level.WARNING, e.getMessage(),e);
+        HashMap<String, Object> result = new HashMap<>();
+        AbstractMethodProcessor abstractMethodProcessor = new AbstractMethodProcessor();
+        abstractMethodProcessor.delegate.setGeniCode(errorCode.getValue());
+        abstractMethodProcessor.delegate.setOutput(e.getMessage());
+        abstractMethodProcessor.addCode(result);
+        abstractMethodProcessor.addOutput(result);
+        result.put(ISFA_AM.VALUE, new HashMap<String, Object>());
         return result;
     }
 
-    // TODO remove after reconfiguring all methods
-    private void checkCredentials(List<GENI_Credential> credentialList) {
-
-        for (GENI_Credential credential : credentialList) {
-            if(credential.get_geni_type() == null || credential.get_geni_version() ==null || credential.get_geni_value() == null){
-                throw new ForbiddenException("Operation forbidden, Credentials not valid");
-            }
-            this.delegate.setGeniType((String) credential.get_geni_type());
-            this.delegate.setGeinVersion((String) credential.get_geni_version());
-            this.delegate.setGeniValue((String) credential.get_geni_value());
-        }
-
-    }
-
-    private void parseDescribeOptions(Object options) {
-        HashMap<String, Object> optionsMap = (HashMap<String, Object>) options;
-
-        boolean compressed = (boolean) optionsMap.get(IGeni.GENI_COMPRESSED);
-        if (compressed)
-            this.delegate.setCompressed(true);
-
-        HashMap<String, Object> geni_rspec_version = (HashMap<String, Object>) optionsMap.get(IGeni.GENI_RSPEC_VERSION);
-        String geni_rspec_version_type = (String) geni_rspec_version.get(ISFA_AM.TYPE);
-        String geni_rspec_version_version = (String) geni_rspec_version.get(ISFA_AM.VERSION);
-
-    }
-
-    private List<URN> parseURNList(Object urnList) {
-        List<String> URNS = (ArrayList<String>) urnList;
-        if (URNS == null || URNS.size() == 0) {
-            throw new BadArgumentsException("URN must not be null");
-        }
-        List<URN> returnList = new ArrayList<>();
-        for (String s : URNS) {
-            URN u = new URN(s);
-            returnList.add(u);
-        }
-        return returnList;
-    }
-
-    private void handleException(HashMap<String, Object> result, Exception e, GENI_CodeEnum errorCode) {
-        LOGGER.log(Level.WARNING, e.getMessage(),e);
-
-        this.delegate.setGeniCode(errorCode.getValue());
-        this.delegate.setOutput(e.getMessage());
-        this.addCode(result);
-        this.addOutput(result);
-
-
-        result.put(ISFA_AM.VALUE, new HashMap<String, Object>());
-    }
-
-    //TODO remove after reconfiguring all methods
-    private void addOutput(final HashMap<String, Object> result) {
-        result.put(ISFA_AM.OUTPUT, this.delegate.getOutput());
-    }
-
-    //TODO remove after reconfiguring all methods
-    private void addCode(final HashMap<String, Object> result) {
-        final Map<String, Integer> code = new HashMap<>();
-        code.put(IGeni.GENI_CODE, this.delegate.getGeniCode());
-        code.put(ISFA_AM.AM_CODE, this.delegate.getAMCode());
-        result.put(ISFA_AM.CODE, code);
-    }
 
 }

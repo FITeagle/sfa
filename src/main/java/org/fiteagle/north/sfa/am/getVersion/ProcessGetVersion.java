@@ -26,8 +26,8 @@ public class ProcessGetVersion extends AbstractMethodProcessor {
   private static final int API_VERSION = 3;
   
   
-  public ProcessGetVersion() {
-    
+  public ProcessGetVersion(List<?> parameter) {
+    this.parameter = parameter;
   }
   
   public Model getTestbedDescription() {

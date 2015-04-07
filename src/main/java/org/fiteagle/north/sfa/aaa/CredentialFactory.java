@@ -11,7 +11,6 @@ package org.fiteagle.north.sfa.aaa;
         import javax.xml.bind.Marshaller;
         import javax.xml.bind.Unmarshaller;
 
-
         import org.fiteagle.north.sfa.aaa.jaxbClasses.Credential;
         import org.fiteagle.north.sfa.aaa.jaxbClasses.Signatures;
         import org.fiteagle.north.sfa.aaa.jaxbClasses.SignedCredential;

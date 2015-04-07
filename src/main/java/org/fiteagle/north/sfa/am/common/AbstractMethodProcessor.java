@@ -10,7 +10,6 @@ import info.openmultinet.ontology.vocabulary.Omn_lifecycle;
 import org.apache.commons.codec.binary.Base64;
 import org.fiteagle.api.core.IGeni;
 import org.fiteagle.api.core.MessageBusOntologyModel;
-import org.fiteagle.north.sfa.ISFA;
 import org.fiteagle.north.sfa.am.ISFA_AM;
 import org.fiteagle.north.sfa.am.ISFA_AM_Delegate;
 import org.fiteagle.north.sfa.am.ReservationStateEnum;
@@ -39,7 +38,7 @@ import java.util.zip.Deflater;
 /**
  * Created by dne on 16.03.15.
  */
-public abstract class AbstractMethodProcessor {
+public class AbstractMethodProcessor {
     private final static Logger LOGGER = Logger.getLogger(AbstractMethodProcessor.class.getName());
 
 
@@ -50,7 +49,15 @@ public abstract class AbstractMethodProcessor {
 
     private SFA_AM_MDBSender sender;
     
-    protected ISFA_AM_Delegate delegate = new SFA_AM_Delegate_Default();;
+    public ISFA_AM_Delegate delegate = new SFA_AM_Delegate_Default();
+    
+    protected List<?> parameter;
+    
+    protected List<URN> urns;
+    
+    public AbstractMethodProcessor() {
+      
+    }
     
 
     public void addSliverInformation(Map<String, Object> value, Model response){
@@ -118,7 +125,6 @@ public abstract class AbstractMethodProcessor {
       byte[] output = null;
       String outputString = "";
 
-
       byte[] input = toCompress.getBytes(ISFA_AM.UTF_8);
       // Compress the bytes
       output = new byte[input.length];
@@ -142,7 +148,10 @@ public abstract class AbstractMethodProcessor {
         result.put(ISFA_AM.CODE, code);
     }
     
-    
+    public void handleCredentials(int index) {
+      List<GENI_Credential> credentialList = this.parseCredentialsParameters(this.parameter.get(index));
+      this.checkCredentials(credentialList);
+    }
     
     public List<GENI_Credential> parseCredentialsParameters(final Object param) {
 
@@ -171,8 +180,26 @@ public abstract class AbstractMethodProcessor {
           this.delegate.setGeinVersion((String) credential.get_geni_version());
           this.delegate.setGeniValue((String) credential.get_geni_value());
       }
-
   }
     
+    public List<?> getParameter(){
+      return this.parameter;
+    }
 
+    public void parseURNList() {
+      List<String> URNS = (ArrayList<String>) parameter.get(0);
+      if (URNS == null || URNS.size() == 0) {
+          throw new BadArgumentsException("URN must not be null");
+      }
+      List<URN> returnList = new ArrayList<>();
+      for (String s : URNS) {
+          URN u = new URN(s);
+          returnList.add(u);
+      }
+      setURNlist(returnList);
+  }
+    
+    private void setURNlist(List<URN> returnList) {
+      this.urns = returnList;
+    }
 }

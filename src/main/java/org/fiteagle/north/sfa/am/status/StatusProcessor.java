@@ -24,19 +24,17 @@ import java.util.logging.Logger;
  */
 public class StatusProcessor extends AbstractMethodProcessor {
   
-  private final List<URN> urns;
   
-  
-  public StatusProcessor(List<URN> urns) {
-    this.urns = urns;
-    }
+  public StatusProcessor(final List<?> parameter) {
+    this.parameter = parameter;
+  }
   
     private final static Logger LOGGER = Logger.getLogger(StatusProcessor.class.getName());
     
     public Model getStates() throws UnsupportedEncodingException {
         LOGGER.log(Level.INFO, "create status model ");
         Model requestModel = ModelFactory.createDefaultModel();
-        for (URN urn : urns) {
+        for (URN urn : this.urns) {
             if(ISFA_AM.Sliver.equals(urn.getType())){
                 Individual resource = Omn.Resource.createIndividual(URLDecoder.decode(urn.getSubject(), ISFA_AM.UTF_8));
                 requestModel.add(resource.listProperties());
@@ -62,8 +60,4 @@ public class StatusProcessor extends AbstractMethodProcessor {
       this.addOutput(result);
     }
     
-    public void handleCredentials(final Object param) {
-      List<GENI_Credential> credentialList = this.parseCredentialsParameters(param);
-      this.checkCredentials(credentialList);
-    }
 }
