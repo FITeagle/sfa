@@ -1,5 +1,7 @@
 package org.fiteagle.north.sfa.am.delete;
 
+import com.hp.hpl.jena.rdf.model.*;
+import info.openmultinet.ontology.translators.geni.ManifestConverter;
 import info.openmultinet.ontology.vocabulary.Omn;
 import info.openmultinet.ontology.vocabulary.Omn_lifecycle;
 
@@ -20,11 +22,6 @@ import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
 import org.fiteagle.north.sfa.util.GENI_Credential;
 import org.fiteagle.north.sfa.util.URN;
 
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.rdf.model.Statement;
-import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.vocabulary.RDF;
 
 
@@ -64,10 +61,10 @@ public class ProcessDelete extends AbstractMethodProcessor {
 		
 		  final List<Map<String, Object>> value = new LinkedList<>();
 		  
-		  StmtIterator stmtIterator = deleteResponse.listStatements(null, RDF.type, Omn.Reservation);
-		    while (stmtIterator.hasNext()) {
-		      Statement statement = stmtIterator.next();
-		      Resource reservation = statement.getSubject();
+		  ResIterator resIterator = deleteResponse.listResourcesWithProperty(Omn.hasReservation);
+		    while (resIterator.hasNext()) {
+
+		      Resource resource = resIterator.nextResource();
 		      
 		      /**
 		       * defines a loop depending on the slivers number.
@@ -76,9 +73,10 @@ public class ProcessDelete extends AbstractMethodProcessor {
 		       * The created maps should be added to geniSlivers list.
 		       */ 
 		      final Map<String, Object> sliverMap = new HashMap<>();
-		      sliverMap.put(IGeni.GENI_SLIVER_URN, reservation.getURI());
+				Resource reservation  = resource.getProperty(Omn.hasReservation).getObject().asResource();
+		      sliverMap.put(IGeni.GENI_SLIVER_URN,  ManifestConverter.generateSliverID(IConfig.DEFAULT_HOSTNAME, resource.getURI()));
 		    	sliverMap.put(IGeni.GENI_EXPIRES, reservation.getProperty(MessageBusOntologyModel.endTime).getLiteral().getString());
-		      sliverMap.put(IGeni.GENI_ALLOCATION_STATUS, ReservationStateEnum.valueOf(reservation.getProperty(Omn_lifecycle.hasReservationState).getResource().getLocalName()));
+		      sliverMap.put(IGeni.GENI_ALLOCATION_STATUS, ReservationStateEnum.valueOf(reservation.getProperty(Omn_lifecycle.hasReservationState).getResource().getLocalName()).getGeniState());
 		      
 		      value.add(sliverMap);
 		    }
