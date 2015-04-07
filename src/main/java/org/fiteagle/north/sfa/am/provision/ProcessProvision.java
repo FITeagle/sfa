@@ -66,7 +66,7 @@ public class ProcessProvision extends AbstractMethodProcessor {
 		String serializedModel = MessageUtil.serializeModel(requestModel,
 				IMessageBus.SERIALIZATION_TURTLE);
 		LOGGER.log(Level.INFO, "send provision request ...");
-		Model provisionResponse = getSender().sendRDFRequest(serializedModel, IMessageBus.TYPE_CONFIGURE,
+		Model provisionResponse = getSender().sendRDFRequest(serializedModel, IMessageBus.TYPE_CREATE,
 						IMessageBus.TARGET_ORCHESTRATOR);
 		LOGGER.log(Level.INFO,
 				"provision reply is received.");
