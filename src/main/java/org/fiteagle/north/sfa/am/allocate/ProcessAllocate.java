@@ -20,7 +20,7 @@ import org.fiteagle.api.core.*;
 import org.fiteagle.north.sfa.am.ISFA_AM;
 import org.fiteagle.north.sfa.am.ReservationStateEnum;
 import org.fiteagle.north.sfa.am.common.AbstractMethodProcessor;
-import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
+import org.fiteagle.north.sfa.exceptions.BadArgumentsException;
 import org.fiteagle.north.sfa.util.URN;
 
 import com.hp.hpl.jena.vocabulary.RDF;
@@ -30,7 +30,10 @@ public class ProcessAllocate extends AbstractMethodProcessor{
   
   private final static Logger LOGGER = Logger.getLogger(ProcessAllocate.class.getName());
   
-  private Map<String, Object> allocateParameters = new HashMap<>(); 
+  private Map<String, Object> allocateOptions = new HashMap<>(); 
+  
+  private URN urn;
+  private String request;
   
   public ProcessAllocate(List<?> parameter) {
     this.parameter = parameter;
@@ -38,48 +41,44 @@ public class ProcessAllocate extends AbstractMethodProcessor{
   
   public void parseAllocateParameter() throws JAXBException, InvalidModelException {
     ProcessAllocate.LOGGER.log(Level.INFO, "parsing allocate parameter");
-    System.out.println(this.parameter);
-    System.out.println(this.parameter.size());
-    for (final Object param : this.parameter) {
-      if (param instanceof String) {
-        String allocateParameter = (String) param;
-        if (allocateParameter.startsWith(ISFA_AM.URN)) {
-          allocateParameters.put(ISFA_AM.URN, new URN(allocateParameter));
-          ProcessAllocate.LOGGER.log(Level.INFO, allocateParameters.get(ISFA_AM.URN).toString());
-        } else if (allocateParameter.contains(ISFA_AM.REQUEST)) {
-          allocateParameters.put(ISFA_AM.REQUEST, allocateParameter);
-          ProcessAllocate.LOGGER.log(Level.INFO, allocateParameters.get(ISFA_AM.REQUEST).toString());
-
-          Model model = parseRSpec(allocateParameter);
-          allocateParameters.put(ISFA_AM.RequiredResources, model);
-        }
-      }
-      if (param instanceof Map<?, ?>) {
-        @SuppressWarnings("unchecked")
-        final Map<String, ?> param2 = (Map<String, ?>) param;
-        if (!param2.isEmpty()) {
+    LOGGER.log(Level.INFO, "allocate parameters " + this.parameter);
+    LOGGER.log(Level.INFO, "number of allocate parameters " + this.parameter.size());
+    
+    if(parameter.get(0) == null || parameter.get(2) == null){
+      throw new BadArgumentsException("sliceUrn and rspec fileds must not be null");
+    }
+    String slice_urn = (String) parameter.get(0);
+    this.urn = new URN(slice_urn);
+    LOGGER.log(Level.INFO, "urn " + this.urn);
+    this.request = (String) parameter.get(2);
+    LOGGER.log(Level.INFO, "request " + this.request);
+    
+    
+    @SuppressWarnings("unchecked")
+    final Map<String, ?> param2 = (Map<String, ?>) parameter.get(3);
+    if (!param2.isEmpty()) {
           for (Map.Entry<String, ?> parameters : param2.entrySet()) {
             if (parameters.getKey().toString().equals(IGeni.GENI_END_TIME)) {
-              allocateParameters.put(ISFA_AM.EndTime, parameters.getValue().toString());
-              ProcessAllocate.LOGGER.log(Level.INFO, allocateParameters.get(ISFA_AM.EndTime).toString());
+              allocateOptions.put(ISFA_AM.EndTime, parameters.getValue().toString());
+              ProcessAllocate.LOGGER.log(Level.INFO, allocateOptions.get(ISFA_AM.EndTime).toString());
             }
           }
         }
-      }
-    }
-
+      
   }
   
   @SuppressWarnings("unchecked")
-  public Model reserveInstances() {
-    Model incoming = (Model) allocateParameters.get(ISFA_AM.RequiredResources);
+  public Model reserveInstances() throws JAXBException, InvalidModelException {
+    
+    Model incoming = parseRSpec(request);
     Model requestModel = ModelFactory.createDefaultModel();
-      URN sliceURN = (URN) allocateParameters.get(ISFA_AM.URN);
-
-      Resource topology = requestModel.createResource(IConfig.TOPOLOGY_NAMESPACE_VALUE+ sliceURN.getSubject());
-      topology.addProperty(RDF.type, Omn.Topology);
-      Model requestedResources = getRequestedResources(topology, incoming);
-     requestModel.add(requestedResources);
+ 
+    Resource topology = requestModel.createResource(IConfig.TOPOLOGY_NAMESPACE_VALUE+ this.urn.getSubject());
+    topology.addProperty(RDF.type, Omn.Topology);
+    Model requestedResources = getRequestedResources(topology, incoming);
+    LOGGER.log(Level.INFO, "allocate model " + requestedResources);
+    requestModel.add(requestedResources);
+      
 
     String serializedModel = MessageUtil.serializeModel(requestModel, IMessageBus.SERIALIZATION_TURTLE);
     LOGGER.log(Level.INFO, "send reservation request ...");
@@ -157,15 +156,5 @@ public class ProcessAllocate extends AbstractMethodProcessor{
     this.addOutput(result);
   }
 
-
-
-    private String setSliverURN(String SliceURN, int i){
-	  String sliverURN = "";
-	  URN urn = new URN(SliceURN);
-	  urn.setType(ISFA_AM.Sliver);
-	  urn.setSubject(Integer.toString(i));
-	  sliverURN = urn.toString();
-	  return sliverURN;
-  }
   }
 

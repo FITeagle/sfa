@@ -149,6 +149,7 @@ public class SFA_AM implements ISFA_AM {
         final HashMap<String, Object> result = new HashMap<>();
         ProcessAllocate processAllocate = new ProcessAllocate(parameter);
         processAllocate.parseAllocateParameter();
+        processAllocate.handleCredentials(1);
         processAllocate.setSender(SFA_AM_MDBSender.getInstance());
         Model allocateResponse = processAllocate.reserveInstances();
         processAllocate.createResponse(result, allocateResponse);
