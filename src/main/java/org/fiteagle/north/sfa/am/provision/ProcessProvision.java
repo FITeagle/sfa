@@ -6,9 +6,11 @@ import info.openmultinet.ontology.exceptions.InvalidModelException;
 import info.openmultinet.ontology.translators.geni.ManifestConverter;
 import info.openmultinet.ontology.vocabulary.Omn;
 import info.openmultinet.ontology.vocabulary.Omn_lifecycle;
+import info.openmultinet.ontology.vocabulary.Omn_service;
 
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -23,6 +25,7 @@ import org.fiteagle.north.sfa.am.ISFA_AM;
 import org.fiteagle.north.sfa.am.ReservationStateEnum;
 import org.fiteagle.north.sfa.am.common.AbstractMethodProcessor;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
+import org.fiteagle.north.sfa.exceptions.BadArgumentsException;
 import org.fiteagle.north.sfa.util.GENI_Credential;
 import org.fiteagle.north.sfa.util.URN;
 
@@ -37,6 +40,8 @@ public class ProcessProvision extends AbstractMethodProcessor {
   
   private final static Logger LOGGER = Logger.getLogger(ProcessProvision.class.getName());
   
+  private ProvisionOptions provisionOptions;
+  
   public ProcessProvision(final List<?> parameter) {
     this.parameter = parameter;
   }
@@ -49,12 +54,20 @@ public class ProcessProvision extends AbstractMethodProcessor {
 
 			if (ISFA_AM.SLICE.equals(urn.getType())) {
                 Individual topology = Omn.Topology.createIndividual(IConfig.TOPOLOGY_NAMESPACE_VALUE+urn.getSubject());
+                topology.addProperty(Omn_service.username, provisionOptions.getUser());
+                for(String key: provisionOptions.getKeys()){
+                  topology.addProperty(Omn_service.publickey, key);
+                }
                 requestModel.add(topology.listProperties());
 
 			}else{
 				if (ISFA_AM.Sliver.equals(urn.getType())) {
 					Individual resource = Omn.Resource.createIndividual(URLDecoder.decode(urn.getSubject(),ISFA_AM.UTF_8));
-                    requestModel.add(resource.listProperties());
+					resource.addProperty(Omn_service.username, provisionOptions.getUser());
+					for(String key: provisionOptions.getKeys()){
+					  resource.addProperty(Omn_service.publickey, key);
+					}
+          requestModel.add(resource.listProperties());
 				}
 			}
 
@@ -85,5 +98,14 @@ public class ProcessProvision extends AbstractMethodProcessor {
 	    this.addCode(result);
       this.addOutput(result);
   }
+  
+  @SuppressWarnings("unchecked")
+  public void handleOptions(){
+    
+    final Map<String, ?> param2 = (Map<String, ?>) this.parameter.get(2);
+    provisionOptions = new ProvisionOptions(param2);
+    provisionOptions.parse_geni_users();
+    
+    }
   
 }

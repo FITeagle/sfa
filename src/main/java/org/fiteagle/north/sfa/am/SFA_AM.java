@@ -177,7 +177,8 @@ public class SFA_AM implements ISFA_AM {
         ProcessProvision processProvision = new ProcessProvision(parameter);
         processProvision.parseURNList();
         processProvision.handleCredentials(1);
-        SFA_AM.LOGGER.log(Level.INFO, "provision parameters are parsed");
+        processProvision.handleOptions();
+        SFA_AM.LOGGER.log(Level.INFO, "provision parameters have been parsed");
         processProvision.setSender(SFA_AM_MDBSender.getInstance());
         Model provisionResponse = processProvision.provisionInstances();
         processProvision.createResponse(result, provisionResponse);

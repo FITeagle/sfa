@@ -3,8 +3,10 @@ package org.fiteagle.north.sfa.am;
 import java.io.UnsupportedEncodingException;
 import java.util.List;
 
+
 //import info.openmultinet.ontology.exceptions.InvalidModelException;
 import info.openmultinet.ontology.exceptions.InvalidModelException;
+
 import org.fiteagle.north.sfa.ISFA;
 
 import javax.jms.JMSException;
@@ -53,6 +55,12 @@ public interface ISFA_AM extends ISFA {
 	String UNCOMPLETED = "Uncompleted";
 	String NO_ERROR = "NO ERROR";
 	String SUCCESS = "SUCCESS";
+	String KEYS = "keys";
+	
+	String GENI_RSPEC_VERSION = "geni_rspec_version";
+  String GENI_BEST_EFFORT = "geni_best_effort";
+  String GENI_END_TIME = "geni_end_time";
+  String GENI_USERS = "geni_users";
 
 	
 	public abstract Object listResources(List<?> parameter) throws JMSException, UnsupportedEncodingException, JAXBException, InvalidModelException;
