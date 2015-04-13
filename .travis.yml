@@ -13,10 +13,11 @@ cache:
   directories:
   - $HOME/.m2
 after_success:
+- mvn deploy --settings .travis/settings.xml
+- curl http://trescimo.av.tu-berlin.de/static/trigger.php?c=fiteagle
 - mvn clean test jacoco:report coveralls:report
 - sudo apt-get install -y screen
 - key="Y" ./src/test/bin/acceptanceTest.sh
-- mvn deploy --settings .travis/settings.xml
 env:
   global:
   - secure: cJKqqSjbU1LhU3E+zCm2f4LjMXwI2VoJN+6BUHd/x8ECzleYbE5abTASJvu4KaPdV/Wb9Vhgnvteu5gR2qt2vIVFaESjZyByJlOG9v3f+C+2XLI1SYm0Pl6/bHjteZSAV46m8H0JdQ8WUtxJABPBgofeHJrlXzn5AI2xaNnWjCg=
