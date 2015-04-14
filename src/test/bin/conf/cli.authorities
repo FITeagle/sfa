@@ -6,12 +6,11 @@
         <urls>
             <serverurl>
                 <servertype role="Slice Authority" version="1"/>
-                <!--url>https://docker1.av.tu-berlin.de:8443/sfa/api/sa/v1</url-->
-                <url>https://trescimo.av.tu-berlin.de:8443/sfa/api/sa/v1</url>
+                <url>https://localhost:8443/sfa/api/sa/v1</url>
             </serverurl>
             <serverurl>
                 <servertype role="Aggregate Manager" version="3"/>
-                <url>https://trescimo.av.tu-berlin.de:8443/sfa/api/am/v3</url>
+                <url>https://localhost:8443/sfa/api/am/v3</url>
             </serverurl>
         </urls>
         <proxies/>
