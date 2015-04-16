@@ -2,6 +2,8 @@ package org.fiteagle.north.sfa.am.allocate;
 
 import com.hp.hpl.jena.rdf.model.*;
 
+import com.hp.hpl.jena.vocabulary.RDFSyntax;
+import com.sun.org.apache.xpath.internal.operations.Mod;
 import info.openmultinet.ontology.exceptions.InvalidModelException;
 import info.openmultinet.ontology.translators.geni.ManifestConverter;
 import info.openmultinet.ontology.translators.geni.RequestConverter;
@@ -70,7 +72,8 @@ public class ProcessAllocate extends AbstractMethodProcessor{
   @SuppressWarnings("unchecked")
   public Model reserveInstances() throws JAXBException, InvalidModelException {
     
-    Model incoming = parseRSpec(request);
+
+    Model incoming  = parseRSpec(request);
     Model requestModel = ModelFactory.createDefaultModel();
  
     Resource topology = requestModel.createResource(IConfig.TOPOLOGY_NAMESPACE_VALUE+ this.urn.getSubject());
@@ -117,9 +120,16 @@ public class ProcessAllocate extends AbstractMethodProcessor{
 
 
   private Model parseRSpec(String request) throws JAXBException, InvalidModelException {
-
+      Model model = null ;
       InputStream is = new ByteArrayInputStream( request.getBytes(Charset.defaultCharset()) );
-      Model model = RequestConverter.getModel(is);
+      if(request.contains(RDF.getURI())){
+         model = ModelFactory.createDefaultModel();
+          model.read(is,null,IMessageBus.SERIALIZATION_RDFXML);
+      }else{
+          model = RequestConverter.getModel(is);
+      }
+
+
       return  model;
   }
   
