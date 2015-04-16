@@ -94,11 +94,19 @@ public class ProcessGetVersion extends AbstractMethodProcessor {
     typeA.put(ISFA_AM.TYPE, ISFA_AM.OPEN_MULTINET);
     typeA.put(ISFA_AM.VERSION, ISFA_AM.VERSION_1);
     typeA.put(IGeni.GENI_NAMESPACE, ISFA_AM.NAMESPACE);
+    //TODO wrong schema
     typeA.put(ISFA_AM.SCHEMA, IGeni.GENI_REQUEST_RSPEC_SCHEMA);
-    
     typeA.put(IGeni.GENI_EXTENSIONS, extensions);
-    
     reqRSpecs.add(typeA);
+
+    final Map<String, Object> typeB = new HashMap<>();
+    typeB.put(ISFA_AM.TYPE, ISFA_AM.GENI.toUpperCase());
+    typeB.put(ISFA_AM.VERSION, ISFA_AM.VERSION_3);
+    typeB.put(IGeni.GENI_NAMESPACE, "http://www.geni.net/resources/rspec/3");
+    typeB.put(ISFA_AM.SCHEMA, IGeni.GENI_REQUEST_RSPEC_SCHEMA);
+    typeB.put(IGeni.GENI_EXTENSIONS, extensions);
+    reqRSpecs.add(typeB);
+
     value.put(IGeni.GENI_REQUEST_VERSION, reqRSpecs);
   }
   
@@ -111,6 +119,14 @@ public class ProcessGetVersion extends AbstractMethodProcessor {
     adTypeA.put(IGeni.GENI_NAMESPACE, ISFA_AM.NAMESPACE);
     adTypeA.put(IGeni.GENI_EXTENSIONS, extensions);
     adRSpecs.add(adTypeA);
+
+    final Map<String, Object> adTypeB = new HashMap<>();
+    adTypeB.put(ISFA_AM.TYPE, ISFA_AM.GENI.toUpperCase());
+    adTypeB.put(ISFA_AM.VERSION, ISFA_AM.VERSION_3);
+    adTypeB.put(ISFA_AM.SCHEMA, IGeni.GENI_AD_RSPEC_SCHEMA);
+    adTypeB.put(IGeni.GENI_NAMESPACE, "http://www.geni.net/resources/rspec/3");
+    adTypeB.put(IGeni.GENI_EXTENSIONS, extensions);
+    adRSpecs.add(adTypeB);
     value.put(IGeni.GENI_AD_VERSION, adRSpecs);
   }
   
