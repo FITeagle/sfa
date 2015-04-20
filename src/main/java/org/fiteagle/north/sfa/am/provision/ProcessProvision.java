@@ -54,20 +54,15 @@ public class ProcessProvision extends AbstractMethodProcessor {
 
 			if (ISFA_AM.SLICE.equals(urn.getType())) {
                 Individual topology = Omn.Topology.createIndividual(IConfig.TOPOLOGY_NAMESPACE_VALUE+urn.getSubject());
-                topology.addProperty(Omn_service.username, provisionOptions.getUser());
-                for(String key: provisionOptions.getKeys()){
-                  topology.addProperty(Omn_service.publickey, key);
-                }
+
+				addUsers(topology);
                 requestModel.add(topology.listProperties());
 
 			}else{
 				if (ISFA_AM.Sliver.equals(urn.getType())) {
 					Individual resource = Omn.Resource.createIndividual(URLDecoder.decode(urn.getSubject(),ISFA_AM.UTF_8));
-					resource.addProperty(Omn_service.username, provisionOptions.getUser());
-					for(String key: provisionOptions.getKeys()){
-					  resource.addProperty(Omn_service.publickey, key);
-					}
-          requestModel.add(resource.listProperties());
+					addUsers(resource);
+					requestModel.add(resource.listProperties());
 				}
 			}
 
@@ -82,8 +77,18 @@ public class ProcessProvision extends AbstractMethodProcessor {
 				"provision reply is received.");
 		return provisionResponse;
 	}
-  
-  public void createResponse(final HashMap<String, Object> result, Model provisionResponse){
+
+	private void addUsers(Individual topology) {
+		if(provisionOptions.getUser()!= null){
+			topology.addProperty(Omn_service.username, provisionOptions.getUser());
+			for(String key: provisionOptions.getKeys()){
+				topology.addProperty(Omn_service.publickey, key);
+			}
+		}
+
+	}
+
+	public void createResponse(final HashMap<String, Object> result, Model provisionResponse){
 	  
 	  final Map<String, Object> value = new HashMap<>();
 

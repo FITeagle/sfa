@@ -83,19 +83,21 @@ public class ProvisionOptions {
   }
   
   public void parse_geni_users(){
-    
-    for(Map<String, ?> users: get_geni_users()){
-      setUser((String) users.get(ISFA_AM.URN));
-      LOGGER.log(Level.INFO, "user name is " + getUser());
-      
-      @SuppressWarnings("unchecked")
-      List<String> keys = (List<String>) users.get(ISFA_AM.KEYS);
-      if(keys.isEmpty()) {
+    if(this.geni_users != null){
+      for(Map<String, ?> users: get_geni_users()){
+        setUser((String) users.get(ISFA_AM.URN));
+        LOGGER.log(Level.INFO, "user name is " + getUser());
+
+        @SuppressWarnings("unchecked")
+        List<String> keys = (List<String>) users.get(ISFA_AM.KEYS);
+        if(keys.isEmpty()) {
           throw new BadArgumentsException("geni_users field doesn't contain keys !!");
         }
-      LOGGER.log(Level.INFO, "user's public key is " + keys.get(0));
-      setKeys(keys);
+        LOGGER.log(Level.INFO, "user's public key is " + keys.get(0));
+        setKeys(keys);
       }
+    }
+
   }
   
 }
