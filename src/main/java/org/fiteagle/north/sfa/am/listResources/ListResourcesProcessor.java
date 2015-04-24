@@ -43,7 +43,7 @@ public class ListResourcesProcessor extends AbstractMethodProcessor{
         Resource topology = topologyModel.createResource(AnonId.create());
         topology.addProperty(RDF.type, Omn_lifecycle.Offering);
         topology.addProperty(RDF.type, Omn.Topology);
-        ResIterator resIterator = resourcesResult.listSubjects();
+        ResIterator resIterator = resourcesResult.listSubjectsWithProperty(Omn_lifecycle.canImplement);
         while(resIterator.hasNext()){
             Resource resource = resIterator.nextResource();
             topology.addProperty(Omn.hasResource, resource);
@@ -62,10 +62,10 @@ public class ListResourcesProcessor extends AbstractMethodProcessor{
     }
 
     public void addManagerId(Model topologyModel) {
-      ResIterator resIterator = topologyModel.listResourcesWithProperty(Omn_lifecycle.parentOf);
+      ResIterator resIterator = topologyModel.listResourcesWithProperty(Omn_lifecycle.canImplement);
       Resource aggregateManager = topologyModel.createResource("urn:publicId:IDN+localhost+authority+am");
       while(resIterator.hasNext()){
-          resIterator.nextResource().addProperty(Omn_lifecycle.parentTo,aggregateManager);
+          resIterator.nextResource().addProperty(Omn_lifecycle.parentOf,aggregateManager);
           }
       }
 

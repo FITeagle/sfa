@@ -80,6 +80,7 @@ public class ProcessProvision extends AbstractMethodProcessor {
 
 	private void addUsers(Individual topology) {
 		if(provisionOptions.getUser()!= null){
+
 			topology.addProperty(Omn_service.username, provisionOptions.getUser());
 			for(String key: provisionOptions.getKeys()){
 				topology.addProperty(Omn_service.publickey, key);
