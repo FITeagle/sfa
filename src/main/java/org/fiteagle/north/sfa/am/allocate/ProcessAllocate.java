@@ -108,6 +108,14 @@ public class ProcessAllocate extends AbstractMethodProcessor{
                 }else{
                     newResource.addProperty(statement.getPredicate(),statement.getObject());
                 }
+                if(statement.getPredicate().equals(Omn_lifecycle.usesService)){
+                    Resource service = requestedModel.getResource(statement.getObject().asResource().getURI());
+                    StmtIterator serviceProperties = service.listProperties();
+                    while (serviceProperties.hasNext()){
+                        requestedResourcesModel.add(serviceProperties.nextStatement());
+                    }
+
+                }
 
             }
             topology.addProperty(Omn.hasResource, newResource);
