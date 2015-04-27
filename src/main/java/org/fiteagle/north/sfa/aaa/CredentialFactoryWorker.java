@@ -96,7 +96,7 @@ public class CredentialFactoryWorker {
 
         GregorianCalendar gregCalendar = new GregorianCalendar();
         gregCalendar
-                .setTimeInMillis(java.lang.System.currentTimeMillis() + 100000);
+                .setTimeInMillis(java.lang.System.currentTimeMillis() + 10000000);
         XMLGregorianCalendar expirationDate = null;
         try {
             expirationDate = DatatypeFactory.newInstance()

@@ -63,7 +63,7 @@ public class ListResourcesProcessor extends AbstractMethodProcessor{
 
     public void addManagerId(Model topologyModel) {
       ResIterator resIterator = topologyModel.listResourcesWithProperty(Omn_lifecycle.canImplement);
-      Resource aggregateManager = topologyModel.createResource("urn:publicId:IDN+localhost+authority+am");
+      Resource aggregateManager = topologyModel.createResource("urn:publicid:IDN+localhost+authority+cm");
       while(resIterator.hasNext()){
           resIterator.nextResource().addProperty(Omn_lifecycle.parentOf,aggregateManager);
           }
