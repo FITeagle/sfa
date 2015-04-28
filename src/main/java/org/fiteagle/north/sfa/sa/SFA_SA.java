@@ -15,6 +15,7 @@ import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.vocabulary.OWL;
 import com.hp.hpl.jena.vocabulary.RDF;
+import com.hp.hpl.jena.vocabulary.RDFS;
 import info.openmultinet.ontology.vocabulary.Omn;
 import info.openmultinet.ontology.vocabulary.Omn_lifecycle;
 import org.fiteagle.api.core.IConfig;
@@ -194,6 +195,7 @@ public class SFA_SA implements ISFA_SA {
         //TODO change this to URN.toURI()
         Resource resource = groupModel.createResource(IConfig.TOPOLOGY_NAMESPACE_VALUE+ sliceURN.getSubject());
         resource.addProperty(RDF.type, Omn.Topology );
+        resource.addProperty(RDFS.label, resource.getURI());
         Property authInfo = groupModel.createProperty(Omn_lifecycle.hasAuthenticationInformation.getNameSpace(),Omn_lifecycle.hasAuthenticationInformation.getLocalName());
         authInfo.addProperty(RDF.type, OWL.FunctionalProperty);
         resource.addProperty(authInfo, X509Util.getCertificateBodyEncoded(sliceCert));
