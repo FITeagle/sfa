@@ -52,6 +52,7 @@ public interface ISFA_AM extends ISFA {
 	String UTF_8 = "UTF-8";
 	String LOCALHOST = "localhost";
 	String READY = "Ready";
+	String STARTED = "Started";
 	String UNCOMPLETED = "Uncompleted";
 	String NO_ERROR = "NO ERROR";
 	String SUCCESS = "SUCCESS";

@@ -110,6 +110,8 @@ public class AbstractMethodProcessor {
                 return IGeni.GENI_READY;
             case ISFA_AM.UNCOMPLETED:
                 return IGeni.GENI_PENDING_ALLOCATION;
+            case ISFA_AM.STARTED:
+                    return  IGeni.GENI_READY;
             default:
                 return "";
         }
