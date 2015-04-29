@@ -8,9 +8,7 @@ import info.openmultinet.ontology.translators.geni.AdvertisementConverter;
 import info.openmultinet.ontology.vocabulary.Omn;
 import info.openmultinet.ontology.vocabulary.Omn_lifecycle;
 
-import org.fiteagle.api.core.IGeni;
-import org.fiteagle.api.core.IMessageBus;
-import org.fiteagle.api.core.MessageUtil;
+import org.fiteagle.api.core.*;
 import org.fiteagle.north.sfa.am.GENI_CodeEnum;
 import org.fiteagle.north.sfa.am.ISFA_AM;
 import org.fiteagle.north.sfa.am.common.AbstractMethodProcessor;
@@ -63,7 +61,8 @@ public class ListResourcesProcessor extends AbstractMethodProcessor{
 
     public void addManagerId(Model topologyModel) {
       ResIterator resIterator = topologyModel.listResourcesWithProperty(Omn_lifecycle.canImplement);
-      Resource aggregateManager = topologyModel.createResource("urn:publicid:IDN+localhost+authority+cm");
+        Config config = new Config();
+      Resource aggregateManager = topologyModel.createResource("urn:publicid:IDN+"+config.getProperty(IConfig.KEY_HOSTNAME)+"+authority+cm");
       while(resIterator.hasNext()){
           resIterator.nextResource().addProperty(Omn_lifecycle.parentOf,aggregateManager);
           }

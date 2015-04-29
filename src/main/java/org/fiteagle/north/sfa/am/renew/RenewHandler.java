@@ -1,5 +1,6 @@
 package org.fiteagle.north.sfa.am.renew;
 
+import com.hp.hpl.jena.ontology.Individual;
 import com.hp.hpl.jena.rdf.model.*;
 import com.hp.hpl.jena.vocabulary.OWL;
 import com.hp.hpl.jena.vocabulary.RDF;
@@ -93,8 +94,9 @@ public class RenewHandler extends AbstractMethodProcessor {
                 resource.addProperty(RDF.type, Omn.Resource);
 
             }else if(ISFA_AM.SLICE.equals(urn.getType())){
-                Resource resource = requestModel.createResource(IConfig.TOPOLOGY_NAMESPACE_VALUE + urn.getSubject());
-                resource.addProperty(RDF.type, Omn.Topology);
+                Individual topology = Omn.Topology.createIndividual("http://" + urn.getDomain() + "/topology/" + urn.getSubject());
+
+               requestModel.add(topology.getModel());
             }
         }
         String serializedModel = MessageUtil.serializeModel(requestModel, IMessageBus.SERIALIZATION_TURTLE);

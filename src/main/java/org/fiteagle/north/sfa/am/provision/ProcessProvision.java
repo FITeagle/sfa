@@ -50,10 +50,12 @@ public class ProcessProvision extends AbstractMethodProcessor {
 
 		LOGGER.log(Level.INFO, "create provision model ");
 		Model requestModel = ModelFactory.createDefaultModel();
+
 		for (URN urn : this.urns) {
 
 			if (ISFA_AM.SLICE.equals(urn.getType())) {
-                Individual topology = Omn.Topology.createIndividual(IConfig.TOPOLOGY_NAMESPACE_VALUE+urn.getSubject());
+
+                Individual topology = Omn.Topology.createIndividual("http://"+urn.getDomain()+"/topology/"+ urn.getSubject());
 
 				addUsers(topology);
                 requestModel.add(topology.listProperties());
@@ -94,7 +96,8 @@ public class ProcessProvision extends AbstractMethodProcessor {
 	  final Map<String, Object> value = new HashMap<>();
 
 	  try {
-		value.put(IGeni.GENI_RSPEC, ManifestConverter.getRSpec(provisionResponse, ISFA_AM.LOCALHOST));
+		  Config config = new Config( ) ;
+		  value.put(IGeni.GENI_RSPEC, ManifestConverter.getRSpec(provisionResponse, config.getProperty(IConfig.KEY_HOSTNAME)));
 	} catch (JAXBException | InvalidModelException e) {
 		// TODO Auto-generated catch block
 		LOGGER.log(Level.SEVERE,e.toString());

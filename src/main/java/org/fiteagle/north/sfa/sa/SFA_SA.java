@@ -18,10 +18,7 @@ import com.hp.hpl.jena.vocabulary.RDF;
 import com.hp.hpl.jena.vocabulary.RDFS;
 import info.openmultinet.ontology.vocabulary.Omn;
 import info.openmultinet.ontology.vocabulary.Omn_lifecycle;
-import org.fiteagle.api.core.IConfig;
-import org.fiteagle.api.core.IMessageBus;
-import org.fiteagle.api.core.MessageBusOntologyModel;
-import org.fiteagle.api.core.MessageUtil;
+import org.fiteagle.api.core.*;
 import org.fiteagle.north.sfa.aaa.CertificateAuthority;
 import org.fiteagle.north.sfa.aaa.CredentialFactory;
 import org.fiteagle.north.sfa.aaa.KeyStoreManagement;
@@ -102,7 +99,8 @@ public class SFA_SA implements ISFA_SA {
     public Object getCredential(X509Certificate userCertificate) throws Exception {
         HashMap<String,Object> result = new HashMap<>();
         //TODO get urn from properties
-        URN sliceAuthorityURN = new URN("urn:publicid:IDN+localhost+authority+SA");
+        Config config  = new Config();
+        URN sliceAuthorityURN = new URN("urn:publicid:IDN+"+config.getProperty(IConfig.KEY_HOSTNAME)+"+authority+SA");
         KeyStoreManagement keyStoreManagement =  KeyStoreManagement.getInstance();
         X509Certificate sliceAuthorityCert = keyStoreManagement.getSliceAuthorityCert();
         URN ownerURN = X509Util.getURN(userCertificate);
@@ -193,7 +191,7 @@ public class SFA_SA implements ISFA_SA {
     private Model createGroupModel(URN sliceURN, X509Certificate sliceCert) throws Exception {
         Model groupModel = ModelFactory.createDefaultModel();
         //TODO change this to URN.toURI()
-        Resource resource = groupModel.createResource(IConfig.TOPOLOGY_NAMESPACE_VALUE+ sliceURN.getSubject());
+        Resource resource = groupModel.createResource("http://"+ sliceURN.getDomain() + "/topology/"+sliceURN.getSubject());
         resource.addProperty(RDF.type, Omn.Topology );
         resource.addProperty(RDFS.label, resource.getURI());
         Property authInfo = groupModel.createProperty(Omn_lifecycle.hasAuthenticationInformation.getNameSpace(),Omn_lifecycle.hasAuthenticationInformation.getLocalName());

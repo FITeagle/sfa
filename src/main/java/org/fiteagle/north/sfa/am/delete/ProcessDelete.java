@@ -41,7 +41,7 @@ public class ProcessDelete extends AbstractMethodProcessor {
 
 
 			if (ISFA_AM.SLICE.equals(urn.getType())) {
-                Resource resource = requestModel.createResource(IConfig.TOPOLOGY_NAMESPACE_VALUE+urn.getSubject());
+                Resource resource = requestModel.createResource("http://"+urn.getDomain()+"/topology/"+ urn.getSubject());
                 resource.addProperty(RDF.type, Omn.Topology);
 			} else if (ISFA_AM.Sliver.equals(urn.getType())) {
                 Resource resource =  requestModel.createResource(URLDecoder.decode(urn.getSubject(), ISFA_AM.UTF_8));
@@ -73,8 +73,9 @@ public class ProcessDelete extends AbstractMethodProcessor {
 		       * The created maps should be added to geniSlivers list.
 		       */ 
 		      final Map<String, Object> sliverMap = new HashMap<>();
+				Config config =  new Config();
 				Resource reservation  = resource.getProperty(Omn.hasReservation).getObject().asResource();
-		      sliverMap.put(IGeni.GENI_SLIVER_URN,  ManifestConverter.generateSliverID(IConfig.DEFAULT_HOSTNAME, resource.getURI()));
+		      sliverMap.put(IGeni.GENI_SLIVER_URN,  ManifestConverter.generateSliverID(config.getProperty(IConfig.KEY_HOSTNAME), resource.getURI()));
 		    	sliverMap.put(IGeni.GENI_EXPIRES, reservation.getProperty(MessageBusOntologyModel.endTime).getLiteral().getString());
 		      sliverMap.put(IGeni.GENI_ALLOCATION_STATUS, ReservationStateEnum.valueOf(reservation.getProperty(Omn_lifecycle.hasReservationState).getResource().getLocalName()).getGeniState());
 		      

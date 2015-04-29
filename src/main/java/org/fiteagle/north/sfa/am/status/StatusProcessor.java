@@ -39,7 +39,7 @@ public class StatusProcessor extends AbstractMethodProcessor {
                 Individual resource = Omn.Resource.createIndividual(URLDecoder.decode(urn.getSubject(), ISFA_AM.UTF_8));
                 requestModel.add(resource.listProperties());
             }else {
-                Individual topology = Omn.Topology.createIndividual(IConfig.TOPOLOGY_NAMESPACE_VALUE+urn.getSubject());
+                Individual topology = Omn.Topology.createIndividual("http://"+urn.getDomain()+"/topology/"+ urn.getSubject());
                 requestModel.add(topology.listProperties());
             }
         }

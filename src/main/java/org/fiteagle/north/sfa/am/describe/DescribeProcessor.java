@@ -5,10 +5,7 @@ import com.hp.hpl.jena.rdf.model.*;
 import com.hp.hpl.jena.vocabulary.RDF;
 
 import org.apache.commons.codec.binary.Base64;
-import org.fiteagle.api.core.IConfig;
-import org.fiteagle.api.core.IGeni;
-import org.fiteagle.api.core.IMessageBus;
-import org.fiteagle.api.core.MessageUtil;
+import org.fiteagle.api.core.*;
 import org.fiteagle.north.sfa.am.ISFA_AM;
 import org.fiteagle.north.sfa.am.common.AbstractMethodProcessor;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
@@ -44,7 +41,7 @@ public class DescribeProcessor extends AbstractMethodProcessor {
         for(URN u : this.urns){
 
             if(ISFA_AM.SLICE.equals(u.getType())){
-                Resource resource = requestModel.createResource(IConfig.TOPOLOGY_NAMESPACE_VALUE+ u.getSubject());
+                Resource resource = requestModel.createResource("http://"+u.getDomain()+"/topology/"+ u.getSubject());
                 resource.addProperty(RDF.type, Omn.Topology);
             }
             if(ISFA_AM.Sliver.equals(u.getType())){
@@ -78,7 +75,8 @@ public class DescribeProcessor extends AbstractMethodProcessor {
       if(stmtIterator.hasNext() || !(this.urns.size() ==1 && ISFA_AM.SLICE.equalsIgnoreCase(this.urns.get(0).getType()) ))
         addSliverInformation(value,descriptions);
 
-      value.put(IGeni.GENI_RSPEC, ManifestConverter.getRSpec(descriptions, IConfig.DEFAULT_HOSTNAME));
+        Config config = new Config();
+      value.put(IGeni.GENI_RSPEC, ManifestConverter.getRSpec(descriptions, config.getProperty(IConfig.KEY_HOSTNAME)));
       if (this.delegate.getCompressed())
           value.put(IGeni.GENI_RSPEC, compress((String) value.get(IGeni.GENI_RSPEC)));
       result.put(ISFA_AM.VALUE, value);

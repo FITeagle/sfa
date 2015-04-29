@@ -76,7 +76,7 @@ public class ProcessAllocate extends AbstractMethodProcessor{
     Model incoming  = parseRSpec(request);
     Model requestModel = ModelFactory.createDefaultModel();
  
-    Resource topology = requestModel.createResource(IConfig.TOPOLOGY_NAMESPACE_VALUE+ this.urn.getSubject());
+    Resource topology = requestModel.createResource("http://"+this.urn.getDomain()+"/topology/"+ this.urn.getSubject());
     topology.addProperty(RDF.type, Omn.Topology);
     Model requestedResources = getRequestedResources(topology, incoming);
     LOGGER.log(Level.INFO, "allocate model " + requestedResources);
@@ -147,7 +147,8 @@ public class ProcessAllocate extends AbstractMethodProcessor{
 
     try {
 
-      value.put(IGeni.GENI_RSPEC, ManifestConverter.getRSpec(allocateResponse, IConfig.DEFAULT_HOSTNAME));
+        Config config = new Config();
+      value.put(IGeni.GENI_RSPEC, ManifestConverter.getRSpec(allocateResponse,config.getProperty(IConfig.KEY_HOSTNAME) ));
     } catch (JAXBException | InvalidModelException e) {
       // TODO Auto-generated catch block
       e.printStackTrace();
@@ -161,8 +162,8 @@ public class ProcessAllocate extends AbstractMethodProcessor{
       final Map<String, Object> sliverMap = new HashMap<>();
 
       Resource reservation = iterator.nextResource();
-      
-      sliverMap.put(IGeni.GENI_SLIVER_URN, ManifestConverter.generateSliverID(IConfig.DEFAULT_HOSTNAME,reservation.getProperty(Omn.isReservationOf).getResource().getURI()));
+      Config config =  new Config();
+      sliverMap.put(IGeni.GENI_SLIVER_URN, ManifestConverter.generateSliverID(config.getProperty(IConfig.KEY_HOSTNAME), reservation.getProperty(Omn.isReservationOf).getResource().getURI()));
       sliverMap.put(IGeni.GENI_EXPIRES, reservation.getProperty(MessageBusOntologyModel.endTime).getLiteral().getString());
       sliverMap.put(IGeni.GENI_ALLOCATION_STATUS, ReservationStateEnum.valueOf(reservation.getProperty(Omn_lifecycle.hasReservationState).getResource().getLocalName()).getGeniState());
       geniSlivers.add(sliverMap);

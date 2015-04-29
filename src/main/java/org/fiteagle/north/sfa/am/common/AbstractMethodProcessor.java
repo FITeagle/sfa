@@ -8,6 +8,8 @@ import info.openmultinet.ontology.vocabulary.Omn;
 import info.openmultinet.ontology.vocabulary.Omn_lifecycle;
 
 import org.apache.commons.codec.binary.Base64;
+import org.fiteagle.api.core.Config;
+import org.fiteagle.api.core.IConfig;
 import org.fiteagle.api.core.IGeni;
 import org.fiteagle.api.core.MessageBusOntologyModel;
 import org.fiteagle.north.sfa.am.ISFA_AM;
@@ -26,6 +28,8 @@ import org.fiteagle.north.sfa.util.GENI_Credential;
 import org.fiteagle.north.sfa.util.URN;
 
 import java.io.UnsupportedEncodingException;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -81,8 +85,9 @@ public class AbstractMethodProcessor {
             Resource reservation = statement.getSubject();
 
             final Map<String, Object> sliverMap = new HashMap<>();
+            Config config = new Config();
             Resource resource = response.getResource(reservation.getProperty(Omn.isReservationOf).getObject().asResource().getURI());
-            sliverMap.put(IGeni.GENI_SLIVER_URN, ManifestConverter.generateSliverID(ISFA_AM.LOCALHOST, resource.getURI()));
+            sliverMap.put(IGeni.GENI_SLIVER_URN, ManifestConverter.generateSliverID(config.getProperty(IConfig.KEY_HOSTNAME), resource.getURI()));
             sliverMap.put(IGeni.GENI_EXPIRES, reservation.getProperty(MessageBusOntologyModel.endTime).getLiteral().getString());
             sliverMap.put(IGeni.GENI_ALLOCATION_STATUS, ReservationStateEnum.valueOf(reservation.getProperty(Omn_lifecycle.hasReservationState).getResource().getLocalName()).getGeniState());
             sliverMap.put(IGeni.GENI_OPERATIONAL_STATUS, getGENI_OperationalState(resource.getProperty(Omn_lifecycle.hasState).getObject()));
@@ -97,8 +102,20 @@ public class AbstractMethodProcessor {
         Resource topology = stmtIterator.nextStatement().getSubject();
 
         String uri = topology.getURI();
-        String localname =  uri.substring( uri.lastIndexOf('/') + 1 );
-        URN urn =  new URN("urn:publicid:IDN+localhost+slice+"+localname);
+        String localname = "";
+        String hostname = "";
+        try {
+            URL url = new URL(uri);
+            localname = url.getPath().substring( url.getPath().lastIndexOf('/') + 1 );
+            hostname = url.getHost();
+
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        }
+        //String localname =  uri.substring( uri.lastIndexOf('/') + 1 );
+        //String localname = topology.getLocalName();
+        //URN urn =  new URN("urn:publicid:IDN+"+topology.getNameSpace().replace("http://","")+"+slice+"+localname);
+        URN urn = new URN("urn:publicid:IDN+"+hostname+"+slice+"+localname);
         return urn.toString();
 
     }

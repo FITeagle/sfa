@@ -1,5 +1,6 @@
 package org.fiteagle.north.sfa.am.performOperationalAction;
 
+import com.hp.hpl.jena.ontology.Individual;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Property;
@@ -10,9 +11,11 @@ import info.openmultinet.ontology.vocabulary.Omn;
 import info.openmultinet.ontology.vocabulary.Omn_lifecycle;
 
 import org.apache.jena.riot.RiotException;
+import org.bouncycastle.crypto.engines.ISAACEngine;
 import org.fiteagle.api.core.IGeni;
 import org.fiteagle.api.core.IMessageBus;
 import org.fiteagle.api.core.MessageUtil;
+import org.fiteagle.north.sfa.ISFA;
 import org.fiteagle.north.sfa.am.ISFA_AM;
 import org.fiteagle.north.sfa.am.common.AbstractMethodProcessor;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
@@ -44,34 +47,63 @@ public class PerformOperationalActionHandler extends AbstractMethodProcessor {
         if (this.urns == null || this.action == null) {
             throw new IllegalArgumentException("illegal arguments");
         }
-        for(URN urn : urns){
-            Resource resource = model.createResource(URLDecoder.decode(urn.getSubject(), ISFA_AM.UTF_8));
-            resource.addProperty(RDF.type, Omn.Resource);
-            switch (action) {
-                case IGeni.GENI_STATRT:
-                    System.out.println("start");
-                    resource.addProperty(Omn_lifecycle.hasState,Omn_lifecycle.Ready);
-                    break;
-                case IGeni.GENI_RESTART:
-                    System.out.println("restart");
-                    resource.addProperty(Omn_lifecycle.hasState,Omn_lifecycle.Ready);
-                    break;
-                case IGeni.GENI_STOP:
-                    System.out.println("stop");
-                    resource.addProperty(Omn_lifecycle.hasState,Omn_lifecycle.Stopping);
-                    break;
-                default:
-                    try {
-                        InputStream is = new ByteArrayInputStream(action.getBytes() );
-                        model.read(is,null, IMessageBus.SERIALIZATION_TURTLE);
-                        model.add(resource.listProperties());
-                    }catch(RiotException e){
-                        throw new IllegalArgumentException("illegal action");
-                    }
-                    break;
+        for(URN urn : urns) {
+            if (ISFA_AM.Sliver.equals(urn.getType())) {
+                Resource resource = model.createResource(URLDecoder.decode(urn.getSubject(), ISFA_AM.UTF_8));
+                resource.addProperty(RDF.type, Omn.Resource);
+                switch (action) {
+                    case IGeni.GENI_STATRT:
+                        System.out.println("start");
+                        resource.addProperty(Omn_lifecycle.hasState, Omn_lifecycle.Ready);
+                        break;
+                    case IGeni.GENI_RESTART:
+                        System.out.println("restart");
+                        resource.addProperty(Omn_lifecycle.hasState, Omn_lifecycle.Ready);
+                        break;
+                    case IGeni.GENI_STOP:
+                        System.out.println("stop");
+                        resource.addProperty(Omn_lifecycle.hasState, Omn_lifecycle.Stopping);
+                        break;
+                    default:
+                        try {
+                            InputStream is = new ByteArrayInputStream(action.getBytes());
+                            model.read(is, null, IMessageBus.SERIALIZATION_TURTLE);
+                            model.add(resource.listProperties());
+                        } catch (RiotException e) {
+                            throw new IllegalArgumentException("illegal action");
+                        }
+                        break;
+                }
+
+
+            }else if(ISFA_AM.SLICE.equals(urn.getType())){
+                Individual topology = Omn.Topology.createIndividual("http://"+urn.getDomain()+"/topology/"+ urn.getSubject());
+                switch (action) {
+                    case IGeni.GENI_STATRT:
+                        System.out.println("start");
+                        topology.addProperty(Omn_lifecycle.hasState, Omn_lifecycle.Ready);
+                        break;
+                    case IGeni.GENI_RESTART:
+                        System.out.println("restart");
+                        topology.addProperty(Omn_lifecycle.hasState, Omn_lifecycle.Ready);
+                        break;
+                    case IGeni.GENI_STOP:
+                        System.out.println("stop");
+                        topology.addProperty(Omn_lifecycle.hasState, Omn_lifecycle.Stopping);
+                        break;
+                    default:
+                        try {
+                            InputStream is = new ByteArrayInputStream(action.getBytes());
+                            model.read(is, null, IMessageBus.SERIALIZATION_TURTLE);
+                            model.add(topology.listProperties());
+                        } catch (RiotException e) {
+                            throw new IllegalArgumentException("illegal action");
+                        }
+                        break;
+                }
+                model.add(topology.getModel());
+
             }
-
-
         }
         String serializedModel = MessageUtil.serializeModel(model,
                 IMessageBus.SERIALIZATION_TURTLE);
