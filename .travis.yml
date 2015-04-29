@@ -14,7 +14,7 @@ cache:
   directories:
   - $HOME/.m2
 after_success:
-- curl http://trescimo.av.tu-berlin.de/static/trigger.php?c=fiteagle
+- curl http://demo.fiteagle.org/trigger.php?c=fiteagle
 - mvn clean test jacoco:report coveralls:report
 - sudo apt-get install -y screen
 - key="Y" ./src/test/bin/acceptanceTest.sh
