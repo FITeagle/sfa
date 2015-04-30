@@ -1,14 +1,15 @@
 package org.fiteagle.north.sfa.am.allocate;
 
 import com.hp.hpl.jena.rdf.model.*;
-
 import com.hp.hpl.jena.vocabulary.RDFSyntax;
 import com.sun.org.apache.xpath.internal.operations.Mod;
+
 import info.openmultinet.ontology.exceptions.InvalidModelException;
 import info.openmultinet.ontology.translators.geni.ManifestConverter;
 import info.openmultinet.ontology.translators.geni.RequestConverter;
 import info.openmultinet.ontology.vocabulary.Omn;
 import info.openmultinet.ontology.vocabulary.Omn_lifecycle;
+import info.openmultinet.ontology.vocabulary.Omn_resource;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -142,6 +143,25 @@ public class ProcessAllocate extends AbstractMethodProcessor{
   }
   
   public void createResponse(final HashMap<String, Object> result, Model allocateResponse) throws UnsupportedEncodingException {
+    
+    Property property = allocateResponse.createProperty(Omn_resource.type.getNameSpace(), "hasWrongType");
+    if(allocateResponse.contains(null, property)){
+      String error_message = "";
+      ResIterator resIterator = allocateResponse.listSubjects();
+      while(resIterator.hasNext()){
+        Resource resource = resIterator.nextResource();
+        StmtIterator stmtIterator = resource.listProperties();
+        while(stmtIterator.hasNext()){
+          Statement statement = stmtIterator.nextStatement();
+          error_message += resource.getURI();
+          error_message += " " +  statement.getPredicate().getLocalName() + " " + statement.getObject().toString() + "\n";
+        }
+      }
+      System.out.println("error message is " + error_message);
+      throw new BadArgumentsException(error_message);
+    }
+    else {
+    
     final Map<String, Object> value = new HashMap<>();
     
 
@@ -174,6 +194,6 @@ public class ProcessAllocate extends AbstractMethodProcessor{
     this.addCode(result);
     this.addOutput(result);
   }
-
+  }
   }
 
