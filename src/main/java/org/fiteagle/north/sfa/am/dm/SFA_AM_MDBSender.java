@@ -16,11 +16,13 @@ import javax.ws.rs.core.Response;
 
 import com.hp.hpl.jena.rdf.model.*;
 import com.hp.hpl.jena.reasoner.Reasoner;
+
 import info.openmultinet.ontology.Parser;
 import info.openmultinet.ontology.vocabulary.Omn_federation;
+
 import org.fiteagle.api.core.IMessageBus;
 import org.fiteagle.api.core.MessageUtil;
-
+import org.fiteagle.north.sfa.exceptions.BadArgumentsException;
 import org.fiteagle.north.sfa.exceptions.EmptyReplyException;;
 
 @Startup
@@ -68,7 +70,7 @@ public class SFA_AM_MDBSender {
       if(resultString.equals(Response.Status.REQUEST_TIMEOUT.name())){
         throw new MessageUtil.TimeoutException("Sent message ("+ methodType + ") (Target: "+methodTarget+"): "+MessageUtil.getStringBody(request));
       }
-      throw new RuntimeException(resultString);
+      throw new BadArgumentsException(resultString);
     }
     else{
       LOGGER.log(Level.INFO, "Received reply");

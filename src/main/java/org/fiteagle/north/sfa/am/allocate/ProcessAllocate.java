@@ -144,23 +144,6 @@ public class ProcessAllocate extends AbstractMethodProcessor{
   
   public void createResponse(final HashMap<String, Object> result, Model allocateResponse) throws UnsupportedEncodingException {
     
-    Property property = allocateResponse.createProperty(Omn_resource.type.getNameSpace(), "hasWrongType");
-    if(allocateResponse.contains(null, property)){
-      String error_message = "";
-      ResIterator resIterator = allocateResponse.listSubjects();
-      while(resIterator.hasNext()){
-        Resource resource = resIterator.nextResource();
-        StmtIterator stmtIterator = resource.listProperties();
-        while(stmtIterator.hasNext()){
-          Statement statement = stmtIterator.nextStatement();
-          error_message += resource.getURI();
-          error_message += " " +  statement.getPredicate().getLocalName() + " " + statement.getObject().toString() + "\n";
-        }
-      }
-      System.out.println("error message is " + error_message);
-      throw new BadArgumentsException(error_message);
-    }
-    else {
     
     final Map<String, Object> value = new HashMap<>();
     
@@ -193,7 +176,7 @@ public class ProcessAllocate extends AbstractMethodProcessor{
     result.put(ISFA_AM.VALUE, value);
     this.addCode(result);
     this.addOutput(result);
-  }
+//  }
   }
   }
 
