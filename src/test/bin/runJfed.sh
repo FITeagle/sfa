@@ -17,5 +17,6 @@ java \
   --authorities-file conf/cli.authorities \
   --debug \
    -p conf/cli.localhost.properties 
+  --group createsliver 
 
 open $(ls -t|head -n1)/result.html
