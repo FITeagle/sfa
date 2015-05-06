@@ -16,7 +16,7 @@ java \
   -c be.iminds.ilabt.jfed.lowlevel.api.test.TestAggregateManager3 \
   --authorities-file conf/cli.authorities \
   --debug \
-   -p conf/cli.localhost.properties 
+   -p conf/cli.localhost.properties \
   --group createsliver 
 
 open $(ls -t|head -n1)/result.html
