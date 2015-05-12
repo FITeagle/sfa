@@ -159,6 +159,7 @@ public class ProcessGetVersion extends AbstractMethodProcessor {
 					"Please add the Host-URL to the sfa.properties file");
 			Config config = new Config("sfa");
 			config.createPropertiesFile();
+			config.setNewProperty("url","Set your Host-URL here");
 		}
 		urlString = config.getProperty("url");
 		urlString += "/sfa/api/am/v3";
