@@ -1,5 +1,7 @@
 package org.fiteagle.north.sfa.am.getVersion;
 
+import java.io.File;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -9,6 +11,7 @@ import java.util.logging.Logger;
 
 import org.apache.jena.atlas.logging.Log;
 import org.fiteagle.api.core.Config;
+import org.fiteagle.api.core.IConfig;
 import org.fiteagle.api.core.IGeni;
 import org.fiteagle.api.core.IMessageBus;
 import org.fiteagle.api.core.MessageUtil;
@@ -150,17 +153,17 @@ public class ProcessGetVersion extends AbstractMethodProcessor {
 
 	private String getURL() {
 		String urlString = "";
-		try {
-			if (config == null) {
+		if (config == null) {
+			if (IConfig.PROPERTIES_DIRECTORY.resolve("sfa.properties").toFile()
+					.exists()) {
 				config = new Config("sfa");
+			} else {
+				config = new Config("sfa");
+				config.createPropertiesFile();
+				config.setNewProperty("url", "localhost");
 			}
-		} catch (Exception e) {
-			Log.fatal("SFA",
-					"Please add the Host-URL to the sfa.properties file");
-			Config config = new Config("sfa");
-			config.createPropertiesFile();
-			config.setNewProperty("url","Set your Host-URL here");
-		}
+		}else config = new Config("sfa");
+
 		urlString = config.getProperty("url");
 		urlString += "/sfa/api/am/v3";
 
