@@ -19,7 +19,15 @@ APIs
 
     https://localhost:8443/sfa/api/am/v3
     https://localhost:8443/sfa/api/sa/v1
+    
 
+Configuration
+----
+ If you want to get the correct URL to your SFA-API when you call a GetVersion, you should add the URL where your Server  is accessable to the 'sfa.properties'-file in /home/$user/.fiteagle/ .
+ 
+ For Example your domain is https://federation.your-domain.com ,just replace 'localhost' at the field "url" with
+ 'https://federation.your-domain.com'.
+ 
 Testing
 -------
 
