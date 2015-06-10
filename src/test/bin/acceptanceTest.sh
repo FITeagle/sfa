@@ -20,5 +20,7 @@ export WILDFLY_HOME="${TARGET}/server/wildfly"
 curl -fsSL fiteagle.org/bootstrap | bash -s init deployFT2 deployFT2sfa
 cd sfa
 ./src/test/bin/runJfed.sh
+sleep 10
+./src/test/bin/runJfed.sh
 
 echo "You might now want to delete ${TARGET}."
