@@ -18,5 +18,7 @@ java \
   --debug \
    -p conf/cli.localhost.properties \
   --group createsliver 
+RET=$?
 
 open $(ls -t|head -n1)/result.html
+exit $RET
