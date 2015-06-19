@@ -19,7 +19,6 @@ import org.fiteagle.north.sfa.am.ReservationStateEnum;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
 
 import org.fiteagle.north.sfa.am.dm.SFA_AM_Delegate_Default;
-import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
 import org.fiteagle.north.sfa.exceptions.BadArgumentsException;
 import org.fiteagle.north.sfa.exceptions.ForbiddenException;
 
@@ -141,8 +140,8 @@ public class AbstractMethodProcessor {
     }
 
     public String compress(String toCompress) throws UnsupportedEncodingException {
-      byte[] output = null;
-      String outputString = "";
+      byte[] output;
+      String outputString;
 
       byte[] input = toCompress.getBytes(ISFA_AM.UTF_8);
       // Compress the bytes
@@ -195,15 +194,16 @@ public class AbstractMethodProcessor {
           if(credential.get_geni_type() == null || credential.get_geni_version() ==null || credential.get_geni_value() == null){
               throw new ForbiddenException("Operation forbidden, Credentials not valid");
           }
-          this.delegate.setGeniType((String) credential.get_geni_type());
-          this.delegate.setGeinVersion((String) credential.get_geni_version());
-          this.delegate.setGeniValue((String) credential.get_geni_value());
+          this.delegate.setGeniType(credential.get_geni_type());
+          this.delegate.setGeinVersion(credential.get_geni_version());
+          this.delegate.setGeniValue(credential.get_geni_value());
       }
   }
     
     public List<?> getParameter(){
       return this.parameter;
     }
+
 
     public void parseURNList() {
       List<String> URNS = (ArrayList<String>) parameter.get(0);

@@ -19,6 +19,7 @@ import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.vocabulary.RDF;
 
 import info.openmultinet.ontology.exceptions.InvalidModelException;
+import info.openmultinet.ontology.exceptions.MissingRspecElementException;
 import info.openmultinet.ontology.translators.geni.AdvertisementConverter;
 import info.openmultinet.ontology.translators.geni.ManifestConverter;
 import info.openmultinet.ontology.vocabulary.Omn;
@@ -138,13 +139,15 @@ public class SFA_AM implements ISFA_AM {
 
         } catch (InvalidModelException e) {
           result = handleException(e, GENI_CodeEnum.ERROR);
-        } 
+        } catch (MissingRspecElementException e) {
+            result = handleException(e, GENI_CodeEnum.BADARGS);
+        }
 
         return result;
     }
 
     @Override
-    public Object allocate(final List<?> parameter) throws JAXBException, InvalidModelException, UnsupportedEncodingException {
+    public Object allocate(final List<?> parameter) throws JAXBException, InvalidModelException, UnsupportedEncodingException, MissingRspecElementException {
         SFA_AM.LOGGER.log(Level.INFO, "allocate...");
         final HashMap<String, Object> result = new HashMap<>();
         ProcessAllocate processAllocate = new ProcessAllocate(parameter);

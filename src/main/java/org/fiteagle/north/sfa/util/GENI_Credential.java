@@ -1,7 +1,5 @@
 package org.fiteagle.north.sfa.util;
 
-import com.sun.corba.se.spi.ior.ObjectKey;
-
 import java.util.HashMap;
 import java.util.Map;
 

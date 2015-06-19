@@ -1,15 +1,14 @@
 package org.fiteagle.north.sfa.am.allocate;
 
 import com.hp.hpl.jena.rdf.model.*;
-import com.hp.hpl.jena.vocabulary.RDFSyntax;
-import com.sun.org.apache.xpath.internal.operations.Mod;
+
 
 import info.openmultinet.ontology.exceptions.InvalidModelException;
+import info.openmultinet.ontology.exceptions.MissingRspecElementException;
 import info.openmultinet.ontology.translators.geni.ManifestConverter;
 import info.openmultinet.ontology.translators.geni.RequestConverter;
 import info.openmultinet.ontology.vocabulary.Omn;
 import info.openmultinet.ontology.vocabulary.Omn_lifecycle;
-import info.openmultinet.ontology.vocabulary.Omn_resource;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -71,7 +70,7 @@ public class ProcessAllocate extends AbstractMethodProcessor{
   }
   
   @SuppressWarnings("unchecked")
-  public Model reserveInstances() throws JAXBException, InvalidModelException {
+  public Model reserveInstances() throws JAXBException, InvalidModelException, MissingRspecElementException {
     
 
     Model incoming  = parseRSpec(request);
@@ -128,7 +127,7 @@ public class ProcessAllocate extends AbstractMethodProcessor{
 
 
 
-  private Model parseRSpec(String request) throws JAXBException, InvalidModelException {
+  private Model parseRSpec(String request) throws JAXBException, InvalidModelException, MissingRspecElementException {
       Model model = null ;
       InputStream is = new ByteArrayInputStream( request.getBytes(Charset.defaultCharset()) );
       if(request.contains(RDF.getURI())){
