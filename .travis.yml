@@ -5,7 +5,7 @@ script:
 - travis_retry mvn clean install site
 - '
 if [[ ${TRAVIS_PULL_REQUEST} == "false" && ${TRAVIS_BRANCH} == "master" ]]; then
-  mvn clean deploy --settings .travis/settings.xml
+  mvn clean deploy --settings .travis/settings.xml;
 else
   true;
 fi'
