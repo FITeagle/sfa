@@ -3,7 +3,7 @@
 _DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 cd ${_DIR}
 
-_VERSION="5.4-dev/r2339"
+_VERSION="master/422"
 _URL="http://jfed.iminds.be/releases/${_VERSION}/jar/jfed_cli.tar.gz"
 _PATH="jfed_cli"
 
@@ -18,6 +18,7 @@ java \
   --debug \
    -p conf/cli.localhost.properties \
   --group createsliver
+#  --group nonodelogin
 
 RET=$?
 echo "jfed error code ${RET}"
