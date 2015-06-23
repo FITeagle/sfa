@@ -7,7 +7,7 @@ _VERSION="5.4-dev/r2339"
 _URL="http://jfed.iminds.be/releases/${_VERSION}/jar/jfed_cli.tar.gz"
 _PATH="jfed_cli"
 
-if [ ! -d "${_PATH}" ]; then 
+if [ ! -d "${_PATH}" ]; then
   curl "${_URL}" | tar -zx
 fi
 
@@ -17,7 +17,7 @@ java \
   --authorities-file conf/cli.authorities \
   --debug \
    -p conf/cli.localhost.properties \
-  --group createsliver 
+  --group createsliver
 
 RET=$?
 echo "jfed error code ${RET}"
@@ -26,8 +26,8 @@ DIR=$(ls -td test-result*|head -n1)
 if [[ $(grep " failheader" -c ./${DIR}/result.html) > 0 ]]; then
   echo "test failed!"
   #cat ./${DIR}/result.html
-  open ./${DIR}/result.html
 else
   echo "test OK"
 fi
+open "./${DIR}/result.html"
 exit $RET
