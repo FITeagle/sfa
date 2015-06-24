@@ -19,7 +19,7 @@ cache:
 after_success:
 - curl http://demo.fiteagle.org/trigger.php?c=fiteagle
 - mvn clean test jacoco:report coveralls:report
-- key="Y" ./src/test/bin/acceptanceTest.sh
+#- key="Y" ./src/test/bin/acceptanceTest.sh
 env:
   global:
   - secure: bo4huAdRKsj0KvhxmLdoLqSFjtR6uRD0HpUZau+pRAvwp0bBY+k1z5wcS+dOoKhNdDGLg2aZClMabq0sbO0/ZnBvjQ+GhNeuKsUNoTN1LSqc2n7Yx6xGUQ+JxKO7NGVm2rxQUTgbq6Qp40CEmFu91I8emhi+LIjY6AcpHkt0yPk=
