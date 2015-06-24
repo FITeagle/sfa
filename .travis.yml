@@ -1,14 +1,12 @@
 language: java
 jdk:
 - oraclejdk7
-script:
-- travis_retry mvn clean install site
-- '
-if [[ ${TRAVIS_PULL_REQUEST} == "false" && ${TRAVIS_BRANCH} == "master" ]]; then
-  mvn clean deploy --settings .travis/settings.xml;
-else
-  true;
-fi'
+sudo: false
+addons:
+  apt:
+    packages:
+    - screen
+    - curl
 notifications:
   slack:
     secure: JmNq1sGb57RBYnQZFE+3EDN31ya+Jd1puzFFWzYt6z/MJPw+Ib+hlCdDbniu3CRZnxJWNndbHUA6DTjtxjT9fJxH8/nEwIjY46xXHVyDduqkmLfTydihDsS1AeHph51oeHaqWNVK5Z3in/qRCWIbjiADrKaHalF0Uz6QaCDuCNg=
@@ -21,9 +19,16 @@ cache:
 after_success:
 - curl http://demo.fiteagle.org/trigger.php?c=fiteagle
 - mvn clean test jacoco:report coveralls:report
-- sudo apt-get install -y screen
 - key="Y" ./src/test/bin/acceptanceTest.sh
 env:
   global:
   - secure: bo4huAdRKsj0KvhxmLdoLqSFjtR6uRD0HpUZau+pRAvwp0bBY+k1z5wcS+dOoKhNdDGLg2aZClMabq0sbO0/ZnBvjQ+GhNeuKsUNoTN1LSqc2n7Yx6xGUQ+JxKO7NGVm2rxQUTgbq6Qp40CEmFu91I8emhi+LIjY6AcpHkt0yPk=
   - secure: lpNX+EvXE4mK/kaXUkOmoAruvadG2+4pTTuikDc+rhNEdoQggLLOlVTEAJtGl9PkdEZNA4fD8bG86qebQD7EY21wGgR0/vwZ+B9p/h7U2wXxFpfP87NIvugWcIXRbkPD1MeRyG04Qw4StfkrgS6pfv3gjYIjqYj7YlA0Aig99UM=
+script:
+- travis_retry mvn clean install site
+- '
+if [[ ${TRAVIS_PULL_REQUEST} == "false" && ${TRAVIS_BRANCH} == "master" ]]; then
+  mvn clean deploy --settings .travis/settings.xml;
+else
+  true;
+fi'
