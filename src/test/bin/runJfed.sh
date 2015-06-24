@@ -3,12 +3,14 @@
 _DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 cd ${_DIR}
 
-_VERSION="master/422"
+#_VERSION="master/422" ## this version seems broken
+_VERSION="5.4-dev/r2339"
 _URL="http://jfed.iminds.be/releases/${_VERSION}/jar/jfed_cli.tar.gz"
 _PATH="jfed_cli"
 
 if [ ! -d "${_PATH}" ]; then
-  curl "${_URL}" | tar -zx
+  echo "downloading $_URL"
+  curl -L "${_URL}" | tar -zx
 fi
 
 java \
@@ -30,5 +32,5 @@ if [[ $(grep " failheader" -c ./${DIR}/result.html) > 0 ]]; then
 else
   echo "test OK"
 fi
-open "./${DIR}/result.html"
+[[ "$OSTYPE" == "darwin"* ]] && open "./${DIR}/result.html"
 exit $RET
