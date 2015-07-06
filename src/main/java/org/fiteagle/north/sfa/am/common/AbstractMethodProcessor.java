@@ -96,7 +96,7 @@ public class AbstractMethodProcessor {
         } return geniSlivers;
     }
 
-    private String getSliceURN(Model statusResponse) {
+    public String getSliceURN(Model statusResponse) {
         StmtIterator stmtIterator = statusResponse.listStatements(new SimpleSelector(null,Omn.hasResource, (Object)null));
         Resource topology = stmtIterator.nextStatement().getSubject();
 
