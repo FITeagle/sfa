@@ -1,5 +1,6 @@
 package org.fiteagle.north.sfa;
 
+import info.openmultinet.ontology.exceptions.InvalidModelException;
 import info.openmultinet.ontology.vocabulary.Omn_component;
 import info.openmultinet.ontology.vocabulary.Omn_federation;
 import info.openmultinet.ontology.vocabulary.Omn_resource;
@@ -45,10 +46,13 @@ private Model defaultModel;
 	
 	
 	@PreDestroy
-	public void deleteSfaApi() throws Exception {
+	public void deleteSfaApi() {
 		try{	
 	    TripletStoreAccessor.deleteModel(defaultModel);
 		} catch (ResourceRepositoryException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		} catch (InvalidModelException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
