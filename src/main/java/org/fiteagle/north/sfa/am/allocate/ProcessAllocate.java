@@ -2,7 +2,6 @@ package org.fiteagle.north.sfa.am.allocate;
 
 import com.hp.hpl.jena.rdf.model.*;
 
-
 import info.openmultinet.ontology.exceptions.InvalidModelException;
 import info.openmultinet.ontology.exceptions.MissingRspecElementException;
 import info.openmultinet.ontology.translators.geni.ManifestConverter;
@@ -106,7 +105,20 @@ public class ProcessAllocate extends AbstractMethodProcessor{
                 if(statement.getPredicate().equals(Omn.isResourceOf)){
                     newResource.addProperty(statement.getPredicate(),topology);
                 }else{
-                    newResource.addProperty(statement.getPredicate(),statement.getObject());
+                  newResource.addProperty(statement.getPredicate(),statement.getObject());
+                  
+                  if(statement.getObject().isResource() && !requestedResourcesModel.containsResource(statement.getObject().asResource())){
+                    
+                    Resource res = requestedResourcesModel.createResource(statement.getObject().asResource().getURI());
+                    SimpleSelector simpleSelector = new SimpleSelector(res, null,(Object) null);
+                   StmtIterator iter = requestedModel.listStatements(simpleSelector);
+                   while(iter.hasNext()){
+                     Statement stmt = iter.nextStatement();
+                     res.addProperty(stmt.getPredicate(), stmt.getObject());
+                   }
+                 }
+                  
+                    
                 }
                 if(statement.getPredicate().equals(Omn_lifecycle.usesService)){
                     Resource service = requestedModel.getResource(statement.getObject().asResource().getURI());
