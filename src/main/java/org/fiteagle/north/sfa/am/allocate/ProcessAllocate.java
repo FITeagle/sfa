@@ -1,6 +1,7 @@
 package org.fiteagle.north.sfa.am.allocate;
 
 import com.hp.hpl.jena.rdf.model.*;
+import com.hp.hpl.jena.rdf.model.impl.StatementImpl;
 
 import info.openmultinet.ontology.exceptions.InvalidModelException;
 import info.openmultinet.ontology.exceptions.MissingRspecElementException;
@@ -93,18 +94,28 @@ public class ProcessAllocate extends AbstractMethodProcessor{
     private Model getRequestedResources(Resource topology, Model requestedModel) {
         ResIterator resIterator = requestedModel.listResourcesWithProperty(Omn.isResourceOf);
         Model requestedResourcesModel = ModelFactory.createDefaultModel();
+        
+        Map<String, Resource> originalResourceNames = new HashMap<String, Resource>();
+        
         while(resIterator.hasNext()){
+          
+          
+          
             Resource oldResource = resIterator.nextResource();
             Resource oldBase = oldResource.getProperty(Omn_lifecycle.implementedBy).getObject().asResource();
 
             Resource newResource = requestedResourcesModel.createResource(oldBase.getURI() + "/" + oldResource.getLocalName());
 
+            originalResourceNames.put(oldResource.getURI(), newResource);
+            
             StmtIterator stmtIterator = oldResource.listProperties();
             while(stmtIterator.hasNext()){
                 Statement statement = stmtIterator.nextStatement();
                 if(statement.getPredicate().equals(Omn.isResourceOf)){
                     newResource.addProperty(statement.getPredicate(),topology);
                 }else{
+                 
+                    
                   newResource.addProperty(statement.getPredicate(),statement.getObject());
                   
                   if(statement.getObject().isResource() && !requestedResourcesModel.containsResource(statement.getObject().asResource())){
@@ -117,7 +128,7 @@ public class ProcessAllocate extends AbstractMethodProcessor{
                      res.addProperty(stmt.getPredicate(), stmt.getObject());
                    }
                  }
-                  
+                   
                     
                 }
                 if(statement.getPredicate().equals(Omn_lifecycle.usesService)){
@@ -133,8 +144,28 @@ public class ProcessAllocate extends AbstractMethodProcessor{
             topology.addProperty(Omn.hasResource, newResource);
             requestedResourcesModel.add(topology.getProperty(Omn.hasResource));
         }
+        
+        Model newRequestedResourcesModel = ModelFactory.createDefaultModel();
+        
+        ResIterator resIter = requestedResourcesModel.listSubjects();
+        while(resIter.hasNext()){
+          Resource res = resIter.nextResource();
+          StmtIterator stmtIter = res.listProperties();
+          while(stmtIter.hasNext()){
+            Statement stmt = stmtIter.nextStatement();
+            if("deployedOn".equals(stmt.getPredicate().getLocalName()) || "requires".equals(stmt.getPredicate().getLocalName())){
+              Statement newStatement = new StatementImpl(res, stmt.getPredicate(), originalResourceNames.get(stmt.getObject().toString()));
+              newRequestedResourcesModel.add(newStatement);
+            }
+            else{
+              newRequestedResourcesModel.add(stmt);
+            }
+          }
+        }
+        
 
-       return requestedResourcesModel;
+            
+       return newRequestedResourcesModel;
     }
 
 
