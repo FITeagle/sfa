@@ -92,16 +92,21 @@ public class ProcessAllocate extends AbstractMethodProcessor{
   }
 
     private Model getRequestedResources(Resource topology, Model requestedModel) {
-        ResIterator resIterator = requestedModel.listResourcesWithProperty(Omn.isResourceOf);
+      ResIterator resIterator = requestedModel.listSubjects();
+      
+//        ResIterator resIterator = requestedModel.listResourcesWithProperty(Omn.isResourceOf);
         Model requestedResourcesModel = ModelFactory.createDefaultModel();
         
         Map<String, Resource> originalResourceNames = new HashMap<String, Resource>();
         
         while(resIterator.hasNext()){
-          
-          
-          
+
             Resource oldResource = resIterator.nextResource();
+            
+            if(oldResource.hasProperty(Omn.isResourceOf)){
+              
+            
+            
             Resource oldBase = oldResource.getProperty(Omn_lifecycle.implementedBy).getObject().asResource();
 
             Resource newResource = requestedResourcesModel.createResource(oldBase.getURI() + "/" + oldResource.getLocalName());
@@ -118,18 +123,6 @@ public class ProcessAllocate extends AbstractMethodProcessor{
                     
                   newResource.addProperty(statement.getPredicate(),statement.getObject());
                   
-                  if(statement.getObject().isResource() && !requestedResourcesModel.containsResource(statement.getObject().asResource())){
-                    
-                    Resource res = requestedResourcesModel.createResource(statement.getObject().asResource().getURI());
-                    SimpleSelector simpleSelector = new SimpleSelector(res, null,(Object) null);
-                   StmtIterator iter = requestedModel.listStatements(simpleSelector);
-                   while(iter.hasNext()){
-                     Statement stmt = iter.nextStatement();
-                     res.addProperty(stmt.getPredicate(), stmt.getObject());
-                   }
-                 }
-                   
-                    
                 }
                 if(statement.getPredicate().equals(Omn_lifecycle.usesService)){
                     Resource service = requestedModel.getResource(statement.getObject().asResource().getURI());
@@ -143,7 +136,19 @@ public class ProcessAllocate extends AbstractMethodProcessor{
             }
             topology.addProperty(Omn.hasResource, newResource);
             requestedResourcesModel.add(topology.getProperty(Omn.hasResource));
-        }
+        } else if(oldResource.hasProperty(Omn.hasResource)){
+          
+        } else {
+//             if(!oldResource.hasProperty(Omn.isResourceOf) || !oldResource.hasProperty(Omn.hasResource)){
+              StmtIterator stmtIterator = oldResource.listProperties();
+              while(stmtIterator.hasNext()){
+                Statement statement = stmtIterator.nextStatement();
+                requestedResourcesModel.add(statement);
+              }
+
+            }
+    }
+        
         
         Model newRequestedResourcesModel = ModelFactory.createDefaultModel();
         
@@ -154,7 +159,7 @@ public class ProcessAllocate extends AbstractMethodProcessor{
           while(stmtIter.hasNext()){
             Statement stmt = stmtIter.nextStatement();
             if("deployedOn".equals(stmt.getPredicate().getLocalName()) || "requires".equals(stmt.getPredicate().getLocalName())){
-              Statement newStatement = new StatementImpl(res, stmt.getPredicate(), originalResourceNames.get(stmt.getObject().toString()));
+              Statement newStatement = new StatementImpl(stmt.getSubject(), stmt.getPredicate(), originalResourceNames.get(stmt.getObject().toString()));
               newRequestedResourcesModel.add(newStatement);
             }
             else{
@@ -163,7 +168,6 @@ public class ProcessAllocate extends AbstractMethodProcessor{
           }
         }
         
-
             
        return newRequestedResourcesModel;
     }
