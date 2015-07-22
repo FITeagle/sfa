@@ -1,5 +1,7 @@
 package org.fiteagle.north.sfa.util;
 
+import org.fiteagle.north.sfa.exceptions.URNParsingException;
+
 /**
  * Created by dne on 12.01.15.
  */
@@ -23,7 +25,7 @@ public class URN {
                 this.type = splitted[2];
                 this.subject = splitted[3];
             } else {
-                throw new URNParsingException();
+                throw new URNParsingException("Failure by parsing URN. Please consider supported form for sliceuUrn");
             }
 
         } else {
@@ -33,7 +35,7 @@ public class URN {
                 this.type = "user";
                 this.subject = splitted[1];
             } else {
-                throw new URNParsingException();
+                throw new URNParsingException("Failure by parsing URN. URNs shouldn't be null. Please consider supported form for sliceUrn");
             }
         }
     }
@@ -84,11 +86,6 @@ public class URN {
         return false;
     }
 
-    public class URNParsingException extends RuntimeException {
-
-        private static final long serialVersionUID = 1L;
-
-    }
 
     public String getSubjectAtDomain() {
         if (domain.contains(":")) {

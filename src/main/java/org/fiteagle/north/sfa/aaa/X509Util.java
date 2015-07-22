@@ -17,6 +17,8 @@ import javax.naming.ldap.Rdn;
 import javax.security.auth.x500.X500Principal;
 
 import net.iharder.Base64;
+
+import org.fiteagle.north.sfa.exceptions.URNParsingException;
 import org.fiteagle.north.sfa.util.URN;
 
 
@@ -30,7 +32,7 @@ public static String getUserNameFromX509Certificate(X509Certificate cert) throws
     URN urn = null;
     try{
     	 urn = getURN(cert);
-    }catch(URN.URNParsingException e){
+    }catch(URNParsingException e){
     	
     }
    

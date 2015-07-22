@@ -12,6 +12,7 @@ import javax.jms.JMSException;
 import javax.xml.bind.JAXBException;
 
 
+
 //import info.openmultinet.ontology.exceptions.InvalidModelException;
 import com.hp.hpl.jena.rdf.model.ResIterator;
 import com.hp.hpl.jena.rdf.model.Resource;
@@ -38,6 +39,7 @@ import org.fiteagle.north.sfa.exceptions.BadArgumentsException;
 import org.fiteagle.north.sfa.exceptions.BadVersionException;
 import org.fiteagle.north.sfa.exceptions.ForbiddenException;
 import org.fiteagle.north.sfa.exceptions.SearchFailedException;
+import org.fiteagle.north.sfa.exceptions.URNParsingException;
 import org.fiteagle.north.sfa.am.status.StatusProcessor;
 import org.fiteagle.north.sfa.am.common.AbstractMethodProcessor;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_Delegate_Default;
@@ -110,6 +112,9 @@ public class SFA_AM implements ISFA_AM {
         } catch (BadArgumentsException e) {
           result = handleException(e, GENI_CodeEnum.BADARGS);
           
+        } catch (URNParsingException e) {
+          result = handleException(e, GENI_CodeEnum.BADARGS);
+          
         } catch (JMSException e) {
           result = handleException(e, GENI_CodeEnum.SERVERERROR);
           
@@ -141,13 +146,13 @@ public class SFA_AM implements ISFA_AM {
           result = handleException(e, GENI_CodeEnum.ERROR);
         } catch (MissingRspecElementException e) {
             result = handleException(e, GENI_CodeEnum.BADARGS);
-        }
+        } 
 
         return result;
     }
 
     @Override
-    public Object allocate(final List<?> parameter) throws JAXBException, InvalidModelException, UnsupportedEncodingException, MissingRspecElementException {
+    public Object allocate(final List<?> parameter) throws JAXBException, InvalidModelException, UnsupportedEncodingException, MissingRspecElementException, BadArgumentsException {
         SFA_AM.LOGGER.log(Level.INFO, "allocate...");
         final HashMap<String, Object> result = new HashMap<>();
         ProcessAllocate processAllocate = new ProcessAllocate(parameter);
