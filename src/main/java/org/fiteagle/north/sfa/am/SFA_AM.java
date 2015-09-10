@@ -157,7 +157,7 @@ public class SFA_AM implements ISFA_AM {
         final HashMap<String, Object> result = new HashMap<>();
         ProcessAllocate processAllocate = new ProcessAllocate(parameter);
         processAllocate.parseAllocateParameter();
-        processAllocate.handleCredentials(1);
+        processAllocate.handleCredentials(1, ISFA_AM.METHOD_ALLOCATE);
         processAllocate.setSender(SFA_AM_MDBSender.getInstance());
         Model allocateResponse = processAllocate.reserveInstances();
         processAllocate.createResponse(result, allocateResponse);
@@ -170,7 +170,7 @@ public class SFA_AM implements ISFA_AM {
         final HashMap<String, Object> result = new HashMap<>();
         RenewHandler renewHandler = new RenewHandler(parameter);
         renewHandler.parseURNList();
-        renewHandler.handleCredentials(1);
+        renewHandler.handleCredentials(1, ISFA_AM.METHOD_RENEW);
         renewHandler.parseExpirationTime();
         renewHandler.setSender(SFA_AM_MDBSender.getInstance());
         Model resultModel = renewHandler.renew();
@@ -184,7 +184,7 @@ public class SFA_AM implements ISFA_AM {
         final HashMap<String, Object> result = new HashMap<>();
         ProcessProvision processProvision = new ProcessProvision(parameter);
         processProvision.parseURNList();
-        processProvision.handleCredentials(1);
+        processProvision.handleCredentials(1,ISFA_AM.METHOD_PROVISION);
         processProvision.handleOptions();
         SFA_AM.LOGGER.log(Level.INFO, "provision parameters have been parsed");
         processProvision.setSender(SFA_AM_MDBSender.getInstance());
@@ -199,7 +199,7 @@ public class SFA_AM implements ISFA_AM {
         final HashMap<String, Object> result = new HashMap<>();
         StatusProcessor statusProcessor = new StatusProcessor(parameter);
         statusProcessor.parseURNList();
-        statusProcessor.handleCredentials(1);
+        statusProcessor.handleCredentials(1, ISFA_AM.METHOD_STATUS);
         statusProcessor.setSender(SFA_AM_MDBSender.getInstance());
         Model statusResponse = statusProcessor.getStates();
         statusProcessor.createResponse(result, statusResponse);
@@ -212,7 +212,7 @@ public class SFA_AM implements ISFA_AM {
         final HashMap<String, Object> result = new HashMap<>();
         PerformOperationalActionHandler performOperationalActionHandler = new PerformOperationalActionHandler(parameter);
         performOperationalActionHandler.parseURNList();
-        performOperationalActionHandler.handleCredentials(1);
+        performOperationalActionHandler.handleCredentials(1, ISFA_AM.METHOD_PERFORMOPERATIONALACTION);
         performOperationalActionHandler.parseAction();
         //TODO ignore options for now
         performOperationalActionHandler.setSender(SFA_AM_MDBSender.getInstance());
@@ -227,7 +227,7 @@ public class SFA_AM implements ISFA_AM {
         final HashMap<String, Object> result = new HashMap<>();
         ProcessDelete processDelete = new ProcessDelete(parameter);
         processDelete.parseURNList();
-        processDelete.handleCredentials(1);
+        processDelete.handleCredentials(1,ISFA_AM.METHOD_DELETE);
         SFA_AM.LOGGER.log(Level.INFO, "delete parameters are parsed");
         processDelete.setSender(SFA_AM_MDBSender.getInstance());
         Model deleteResponse = processDelete.deleteInstances();
@@ -246,7 +246,7 @@ public class SFA_AM implements ISFA_AM {
     SFA_AM.LOGGER.log(Level.INFO, "listResources...");
     HashMap<String, Object> result = new HashMap<>();
     ListResourcesProcessor listResourcesProcessor = new ListResourcesProcessor(parameter);
-    listResourcesProcessor.handleCredentials(0);
+    listResourcesProcessor.handleCredentials(0, ISFA_AM.METHOD_LIST_RESOURCES);
     listResourcesProcessor.parseOptionsParameters();
     if (listResourcesProcessor.checkSupportedVersions()) {
       listResourcesProcessor.setSender(SFA_AM_MDBSender.getInstance());
@@ -275,7 +275,7 @@ public class SFA_AM implements ISFA_AM {
         final HashMap<String, Object> result = new HashMap<>();
         DescribeProcessor describeProcessor = new DescribeProcessor(parameter);
         describeProcessor.parseURNList();
-        describeProcessor.handleCredentials(1);
+        describeProcessor.handleCredentials(1, ISFA_AM.METHOD_DESCRIBE);
         describeProcessor.parseDescribeOptions();
         describeProcessor.setSender(SFA_AM_MDBSender.getInstance());
 

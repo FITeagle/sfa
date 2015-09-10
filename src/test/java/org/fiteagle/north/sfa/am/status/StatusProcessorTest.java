@@ -4,6 +4,8 @@ import static org.junit.Assert.assertFalse;
 
 import java.io.UnsupportedEncodingException;
 import java.util.HashMap;
+
+import org.fiteagle.north.sfa.am.ISFA_AM;
 import org.fiteagle.north.sfa.am.common.CommonTestMethods;
 import org.fiteagle.north.sfa.exceptions.BadArgumentsException;
 import org.fiteagle.north.sfa.exceptions.SearchFailedException;
@@ -21,7 +23,7 @@ public class StatusProcessorTest extends CommonTestMethods{
 
     this.prepareParameters();
     statusProcessor = new StatusProcessor(parameter);
-    statusProcessor.handleCredentials(1);
+    statusProcessor.handleCredentials(1, ISFA_AM.METHOD_STATUS);
   }
   
   @Test

@@ -63,6 +63,17 @@ public interface ISFA_AM extends ISFA {
   String GENI_BEST_EFFORT = "geni_best_effort";
   String GENI_END_TIME = "geni_end_time";
   String GENI_USERS = "geni_users";
+  
+  final String PRIVILEGE_DEFAULT = "*";
+  final String PRIVILEGE_REFRESH = "refresh";
+  final String PRIVILEGE_RESOLVE = "resolve";
+  final String PRIVILEGE_INFO = "info";
+  final String PRIVILEGE_AUTHORITY= "authority";
+  final String PRIVILEGE_PI = "pi";
+  final String PRIVILEGE_BIND = "bind";
+  final String PRIVILEGE_CONTROL = "control";
+  final String PRIVILEGE_INSTANTIATE = "instantiate";
+  
 
 	
 	public abstract Object listResources(List<?> parameter) throws JMSException, UnsupportedEncodingException, JAXBException, InvalidModelException;

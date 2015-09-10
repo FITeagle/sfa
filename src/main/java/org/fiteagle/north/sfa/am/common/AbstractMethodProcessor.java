@@ -166,9 +166,9 @@ public class AbstractMethodProcessor {
         result.put(ISFA_AM.CODE, code);
     }
     
-    public void handleCredentials(int index) {
+    public void handleCredentials(int index, String methodName) {
       List<GENI_Credential> credentialList = this.parseCredentialsParameters(this.parameter.get(index));
-      this.checkCredentials(credentialList);
+      this.checkCredentials(credentialList, methodName);
     }
     
     public List<GENI_Credential> parseCredentialsParameters(final Object param) {
@@ -188,17 +188,92 @@ public class AbstractMethodProcessor {
       return credentialList;
   }
     
-    public void checkCredentials(List<GENI_Credential> credentialList) {
-
-      for (GENI_Credential credential : credentialList) {
-          if(credential.get_geni_type() == null || credential.get_geni_version() ==null || credential.get_geni_value() == null){
-              throw new ForbiddenException("Operation forbidden, Credentials not valid");
+  public void checkCredentials(List<GENI_Credential> credentialList, String methodName) {
+    
+    for (GENI_Credential credential : credentialList) {
+      checkCredentialParts(credential);
+//      if (credential.get_geni_type() == null || credential.get_geni_version() == null
+//          || credential.get_geni_value() == null
+//          || credential.get_credential_format().getPrivileges().getNAME() == null) {
+//        throw new ForbiddenException("Operation forbidden, Credentials not valid");
+//      }
+      
+      String privilege = credential.get_credential_format().getPrivileges().getNAME();
+      
+      switch (methodName){
+        case ISFA_AM.METHOD_LIST_RESOURCES:
+          if(!ISFA_AM.PRIVILEGE_DEFAULT.equals(privilege) && !ISFA_AM.PRIVILEGE_INFO.equals(privilege)){
+            handleNotValidPrivileges();
           }
-          this.delegate.setGeniType(credential.get_geni_type());
-          this.delegate.setGeinVersion(credential.get_geni_version());
-          this.delegate.setGeniValue(credential.get_geni_value());
+          break;
+        
+        case ISFA_AM.METHOD_ALLOCATE:
+          if(!ISFA_AM.PRIVILEGE_DEFAULT.equals(privilege)){
+            handleNotValidPrivileges();
+          }
+          break;
+          
+        case ISFA_AM.METHOD_DESCRIBE:
+          if(!ISFA_AM.PRIVILEGE_DEFAULT.equals(privilege) && !ISFA_AM.PRIVILEGE_INFO.equals(privilege)){
+            handleNotValidPrivileges();
+          }
+          break;
+          
+        case ISFA_AM.METHOD_RENEW:
+          if(!ISFA_AM.PRIVILEGE_DEFAULT.equals(privilege) && !ISFA_AM.PRIVILEGE_REFRESH.equals(privilege)){
+            handleNotValidPrivileges();
+          }
+          break;
+          
+        case ISFA_AM.METHOD_PROVISION:
+          if(!ISFA_AM.PRIVILEGE_DEFAULT.equals(privilege) && !ISFA_AM.PRIVILEGE_CONTROL.equals(privilege)){
+            handleNotValidPrivileges();
+          }
+          break;
+          
+        case ISFA_AM.METHOD_STATUS:
+          if(!ISFA_AM.PRIVILEGE_DEFAULT.equals(privilege) && !ISFA_AM.PRIVILEGE_INFO.equals(privilege) && !ISFA_AM.PRIVILEGE_PI.equals(privilege)){
+            handleNotValidPrivileges();
+          }
+          break;
+          
+        case ISFA_AM.METHOD_PERFORMOPERATIONALACTION:
+          if(!ISFA_AM.PRIVILEGE_DEFAULT.equals(privilege) && !ISFA_AM.PRIVILEGE_CONTROL.equals(privilege)){
+            handleNotValidPrivileges();
+          }
+          break;
+          
+        case ISFA_AM.METHOD_DELETE:
+          if(!ISFA_AM.PRIVILEGE_DEFAULT.equals(privilege) && !ISFA_AM.PRIVILEGE_CONTROL.equals(privilege) && !ISFA_AM.PRIVILEGE_RESOLVE.equals(privilege) && !ISFA_AM.PRIVILEGE_INSTANTIATE.equals(privilege)){
+            handleNotValidPrivileges();
+          }
+          break;
+          
+        case ISFA_AM.METHOD_SHUTDOWN:
+          if(!ISFA_AM.PRIVILEGE_DEFAULT.equals(privilege) && !ISFA_AM.PRIVILEGE_CONTROL.equals(privilege) && !ISFA_AM.PRIVILEGE_PI.equals(privilege)){
+            handleNotValidPrivileges();
+          }
+          break;
+          
       }
+      this.delegate.setGeniType(credential.get_geni_type());
+      this.delegate.setGeinVersion(credential.get_geni_version());
+      this.delegate.setGeniValue(credential.get_geni_value());
+      
+    }
   }
+  
+    private void checkCredentialParts(GENI_Credential credential){
+    if (credential.get_geni_type() == null || credential.get_geni_version() == null
+        || credential.get_geni_value() == null || credential.get_credential_format().getPrivileges().getNAME() == null
+        || !credential.get_credential_format().checkPrivilegeType()) {
+      throw new ForbiddenException("Operation forbidden, Credentials not valid");
+    }
+    }
+  
+    private void handleNotValidPrivileges(){
+      throw new ForbiddenException("Operation forbidden, privileges are not valid for this method");
+    }
     
     public List<?> getParameter(){
       return this.parameter;

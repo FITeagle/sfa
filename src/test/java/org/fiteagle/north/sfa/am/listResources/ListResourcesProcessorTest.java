@@ -14,6 +14,7 @@ import javax.jms.JMSException;
 import javax.xml.bind.JAXBException;
 
 import org.easymock.EasyMock;
+import org.fiteagle.north.sfa.am.ISFA_AM;
 import org.fiteagle.north.sfa.am.common.CommonTestMethods;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
 import org.fiteagle.north.sfa.exceptions.BadArgumentsException;
@@ -34,7 +35,7 @@ public class ListResourcesProcessorTest extends CommonTestMethods{
   public void handleCredentialsTest() {
     parameter.add(credentials);
     listResourcesProcessor = new ListResourcesProcessor(parameter);
-    listResourcesProcessor.handleCredentials(0);
+    listResourcesProcessor.handleCredentials(0, ISFA_AM.METHOD_LIST_RESOURCES);
   }
   
 
