@@ -15,15 +15,13 @@ import org.fiteagle.api.core.MessageBusOntologyModel;
 import org.fiteagle.north.sfa.am.ISFA_AM;
 import org.fiteagle.north.sfa.am.ISFA_AM_Delegate;
 import org.fiteagle.north.sfa.am.ReservationStateEnum;
-
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
-
 import org.fiteagle.north.sfa.am.dm.SFA_AM_Delegate_Default;
 import org.fiteagle.north.sfa.exceptions.BadArgumentsException;
 import org.fiteagle.north.sfa.exceptions.ForbiddenException;
-
 import org.fiteagle.north.sfa.exceptions.SearchFailedException;
 import org.fiteagle.north.sfa.util.GENI_Credential;
+import org.fiteagle.north.sfa.util.Privilege;
 import org.fiteagle.north.sfa.util.URN;
 
 import java.io.UnsupportedEncodingException;
@@ -198,8 +196,8 @@ public class AbstractMethodProcessor {
 //        throw new ForbiddenException("Operation forbidden, Credentials not valid");
 //      }
       
-      String privilege = credential.get_credential_format().getPrivileges().getNAME();
-      
+      for (Privilege credential_privilege : credential.get_signed_credential().getCredential().getPrivilege()){
+        String privilege = credential_privilege.getName();
       switch (methodName){
         case ISFA_AM.METHOD_LIST_RESOURCES:
           if(!ISFA_AM.PRIVILEGE_DEFAULT.equals(privilege) && !ISFA_AM.PRIVILEGE_INFO.equals(privilege)){
@@ -256,6 +254,7 @@ public class AbstractMethodProcessor {
           break;
           
       }
+      }
       this.delegate.setGeniType(credential.get_geni_type());
       this.delegate.setGeinVersion(credential.get_geni_version());
       this.delegate.setGeniValue(credential.get_geni_value());
@@ -265,9 +264,13 @@ public class AbstractMethodProcessor {
   
     private void checkCredentialParts(GENI_Credential credential){
     if (credential.get_geni_type() == null || credential.get_geni_version() == null
-        || credential.get_geni_value() == null || credential.get_credential_format().getPrivileges().getNAME() == null
-        || !credential.get_credential_format().checkPrivilegeType()) {
-      throw new ForbiddenException("Operation forbidden, Credentials not valid");
+        || credential.get_geni_value() == null || !("privilege").equals(credential.get_signed_credential().getCredential().getType())) {
+      handleNotValidPrivileges();
+    }
+    for (Privilege privilege : credential.get_signed_credential().getCredential().getPrivilege()){
+      if(privilege.getName() == null){
+        handleNotValidPrivileges();
+      }
     }
     }
   

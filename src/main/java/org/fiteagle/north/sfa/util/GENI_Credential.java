@@ -1,7 +1,14 @@
 package org.fiteagle.north.sfa.util;
 
+import java.io.StringReader;
 import java.util.HashMap;
 import java.util.Map;
+
+import javax.xml.bind.JAXBContext;
+import javax.xml.bind.JAXBException;
+import javax.xml.bind.Unmarshaller;
+
+import org.fiteagle.north.sfa.exceptions.ForbiddenException;
 
 /**
  * Created by dne on 20.01.15.
@@ -45,12 +52,29 @@ public class GENI_Credential extends HashMap<String, Object>{
     }
     
     private void parse_geni_value(String geni_value){
-      Credential_Format credential_Format = new Credential_Format(geni_value);
-      this.put(CREDENTIAL_FORMAT, credential_Format);
+      if(geni_value == null || geni_value.isEmpty()){
+        throw new ForbiddenException("bad credentials "); 
+      }
+      JAXBContext jc;
+      try {
+        jc = JAXBContext.newInstance(Signed_Credential.class);
+        Unmarshaller unmarshaller = jc.createUnmarshaller();
+        
+        StringReader stringReader = new StringReader(geni_value);
+        org.xml.sax.InputSource is = new org.xml.sax.InputSource(stringReader);
+        
+        Signed_Credential signed_credential = (Signed_Credential) unmarshaller.unmarshal(is);
+        
+        this.put(CREDENTIAL_FORMAT, signed_credential);
+        
+      } catch (JAXBException e) {
+        throw new ForbiddenException("credentials value can't be read "); 
+      }
+      
     }
     
-    public Credential_Format get_credential_format(){
-      return (Credential_Format) this.get(CREDENTIAL_FORMAT);
+    public Signed_Credential get_signed_credential(){
+      return (Signed_Credential) this.get(CREDENTIAL_FORMAT);
     }
 
 
