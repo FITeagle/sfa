@@ -77,7 +77,8 @@ public class PerformOperationalActionHandler extends AbstractMethodProcessor {
 
 
             }else if(ISFA_AM.SLICE.equals(urn.getType())){
-                Individual topology = Omn.Topology.createIndividual("http://"+urn.getDomain()+"/topology/"+ urn.getSubject());
+                Resource topology = model.createResource("http://" + urn.getDomain() + "/topology/" + urn.getSubject());
+                topology.addProperty(RDF.type, Omn.Topology);
                 switch (action) {
                     case IGeni.GENI_STATRT:
                         System.out.println("start");
