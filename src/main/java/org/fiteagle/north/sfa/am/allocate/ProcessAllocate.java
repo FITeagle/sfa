@@ -106,7 +106,7 @@ public class ProcessAllocate extends AbstractMethodProcessor{
             if(oldResource.hasProperty(Omn.isResourceOf)){
               
             
-            
+            //TODO resource might not have component_id
             Resource oldBase = oldResource.getProperty(Omn_lifecycle.implementedBy).getObject().asResource();
 
             Resource newResource = requestedResourcesModel.createResource(oldBase.getURI() + "/" + oldResource.getLocalName());
