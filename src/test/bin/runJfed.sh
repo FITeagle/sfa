@@ -4,8 +4,10 @@ _DIR=$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )
 cd ${_DIR}
 
 #_VERSION="master/422" ## this version seems broken
-_VERSION="5.4-dev/r2339"
-_URL="http://jfed.iminds.be/releases/${_VERSION}/jar/jfed_cli.tar.gz"
+#_VERSION="5.4-dev/r2339"
+_VERSION="229"
+#_URL="http://jfed.iminds.be/releases/${_VERSION}/jar/jfed_cli.tar.gz"
+_URL="http://jfed.iminds.be/releases/develop/${_VERSION}/jar/jfed_cli.tar.gz"
 _PATH="jfed_cli"
 
 if [ ! -d "${_PATH}" ]; then
@@ -15,13 +17,13 @@ fi
 
 java \
   -jar "${_PATH}/automated-testing.jar" \
-  -c be.iminds.ilabt.jfed.lowlevel.api.test.TestAggregateManager3 \
+  --test-class be.iminds.ilabt.jfed.lowlevel.api.test.TestAggregateManager3 \
   --authorities-file conf/cli.authorities \
   --debug \
-   -p conf/cli.localhost.properties \
+  --context-file conf/cli.localhost.properties \
   --group createsliver
 #  --group nonodelogin
-
+ 
 RET=$?
 echo "jfed error code ${RET}"
 
