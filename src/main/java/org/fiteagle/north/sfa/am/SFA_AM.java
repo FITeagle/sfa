@@ -1,5 +1,6 @@
 package org.fiteagle.north.sfa.am;
 
+import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.cert.X509Certificate;
 import java.util.*;
@@ -13,16 +14,22 @@ import javax.xml.bind.JAXBException;
 
 
 
+import javax.xml.stream.XMLStreamException;
+
 //import info.openmultinet.ontology.exceptions.InvalidModelException;
 import com.hp.hpl.jena.rdf.model.ResIterator;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.vocabulary.RDF;
 
+import info.openmultinet.ontology.exceptions.DeprecatedRspecVersionException;
 import info.openmultinet.ontology.exceptions.InvalidModelException;
 import info.openmultinet.ontology.exceptions.MissingRspecElementException;
 import info.openmultinet.ontology.translators.geni.AdvertisementConverter;
 import info.openmultinet.ontology.translators.geni.ManifestConverter;
+import info.openmultinet.ontology.translators.tosca.OMN2Tosca.MultipleNamespacesException;
+import info.openmultinet.ontology.translators.tosca.OMN2Tosca.MultiplePropertyValuesException;
+import info.openmultinet.ontology.translators.tosca.OMN2Tosca.RequiredResourceNotFoundException;
 import info.openmultinet.ontology.vocabulary.Omn;
 import info.openmultinet.ontology.vocabulary.Omn_lifecycle;
 
@@ -152,7 +159,7 @@ public class SFA_AM implements ISFA_AM {
     }
 
     @Override
-    public Object allocate(final List<?> parameter) throws JAXBException, InvalidModelException, UnsupportedEncodingException, MissingRspecElementException, BadArgumentsException {
+    public Object allocate(final List<?> parameter) throws JAXBException, InvalidModelException, UnsupportedEncodingException, MissingRspecElementException {
         SFA_AM.LOGGER.log(Level.INFO, "allocate...");
         final HashMap<String, Object> result = new HashMap<>();
         ProcessAllocate processAllocate = new ProcessAllocate(parameter);
