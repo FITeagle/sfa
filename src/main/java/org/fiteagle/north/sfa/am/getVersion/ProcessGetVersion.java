@@ -161,10 +161,12 @@ public class ProcessGetVersion extends AbstractMethodProcessor {
 				config = new Config("sfa");
 				config.createPropertiesFile();
 				config.setNewProperty("url", "localhost");
+				config.setNewProperty("protocol","https");
+				config.setNewProperty("port", "8443");
 			}
 		}else config = new Config("sfa");
 
-		urlString = config.getProperty("url");
+		urlString = config.getProperty("protocol")+ "://" + config.getProperty("url") +":"+ config.getProperty("port");
 		urlString += "/sfa/api/am/v3";
 
 		return urlString;
