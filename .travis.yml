@@ -26,4 +26,4 @@ env:
   - secure: lpNX+EvXE4mK/kaXUkOmoAruvadG2+4pTTuikDc+rhNEdoQggLLOlVTEAJtGl9PkdEZNA4fD8bG86qebQD7EY21wGgR0/vwZ+B9p/h7U2wXxFpfP87NIvugWcIXRbkPD1MeRyG04Qw4StfkrgS6pfv3gjYIjqYj7YlA0Aig99UM=
 script:
 - travis_retry mvn site
-- if [[ ${TRAVIS_PULL_REQUEST} == "false" && ${TRAVIS_BRANCH} == "master" ]]; then mvn deploy --settings .travis/settings.xml else; true; fi
+- if [[ ${TRAVIS_PULL_REQUEST} == "false" && ${TRAVIS_BRANCH} == "master" ]]; then mvn deploy --settings .travis/settings.xml; else true; fi
