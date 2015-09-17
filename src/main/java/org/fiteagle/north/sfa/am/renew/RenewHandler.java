@@ -94,7 +94,8 @@ public class RenewHandler extends AbstractMethodProcessor {
                 resource.addProperty(RDF.type, Omn.Resource);
 
             }else if(ISFA_AM.SLICE.equals(urn.getType())){
-                Individual topology = Omn.Topology.createIndividual("http://" + urn.getDomain() + "/topology/" + urn.getSubject());
+                Resource topology =requestModel.createResource("http://" + urn.getDomain() + "/topology/" + urn.getSubject());
+                topology.addProperty(RDF.type, Omn.Topology);
 
                requestModel.add(topology.getModel());
             }
