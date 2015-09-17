@@ -45,10 +45,12 @@ public class StatusProcessor extends AbstractMethodProcessor {
         Model requestModel = ModelFactory.createDefaultModel();
         for (URN urn : this.urns) {
             if(ISFA_AM.Sliver.equals(urn.getType())){
-                Individual resource = Omn.Resource.createIndividual(URLDecoder.decode(urn.getSubject(), ISFA_AM.UTF_8));
+                Resource resource = requestModel.createResource(URLDecoder.decode(urn.getSubject(), ISFA_AM.UTF_8));
+                resource.addProperty(RDF.type,Omn.Resource);
                 requestModel.add(resource.listProperties());
             }else {
-                Individual topology = Omn.Topology.createIndividual("http://"+urn.getDomain()+"/topology/"+ urn.getSubject());
+                Resource topology = requestModel.createResource("http://" + urn.getDomain() + "/topology/" + urn.getSubject());
+                topology.addProperty(RDF.type, Omn.Topology);
                 requestModel.add(topology.listProperties());
             }
         }
