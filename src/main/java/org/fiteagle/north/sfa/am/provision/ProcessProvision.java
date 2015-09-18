@@ -55,14 +55,15 @@ public class ProcessProvision extends AbstractMethodProcessor {
 
 			if (ISFA_AM.SLICE.equals(urn.getType())) {
 
-                Individual topology = Omn.Topology.createIndividual("http://"+urn.getDomain()+"/topology/"+ urn.getSubject());
-
+                Resource topology = requestModel.createResource("http://" + urn.getDomain() + "/topology/" + urn.getSubject());
+				topology.addProperty(RDF.type, Omn.Topology);
 				addUsers(topology);
                 requestModel.add(topology.listProperties());
 
 			}else{
 				if (ISFA_AM.Sliver.equals(urn.getType())) {
-					Individual resource = Omn.Resource.createIndividual(URLDecoder.decode(urn.getSubject(),ISFA_AM.UTF_8));
+					Resource resource = requestModel.createResource(URLDecoder.decode(urn.getSubject(), ISFA_AM.UTF_8));
+					resource.addProperty(RDF.type,Omn.Resource);
 					addUsers(resource);
 					requestModel.add(resource.listProperties());
 				}
@@ -80,7 +81,7 @@ public class ProcessProvision extends AbstractMethodProcessor {
 		return provisionResponse;
 	}
 
-	private void addUsers(Individual topology) {
+	private void addUsers(Resource topology) {
 		if(provisionOptions.getUser()!= null){
 
 			topology.addProperty(Omn_service.username, provisionOptions.getUser());

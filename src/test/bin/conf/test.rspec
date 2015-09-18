@@ -1,14 +1,10 @@
-
-    
-<rspec xmlns="http://www.geni.net/resources/rspec/3"
-       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-       xsi:schemaLocation="http://www.geni.net/resources/rspec/3
-                           http://www.geni.net/resources/rspec/3/request.xsd"
-       type="request">
-  <node component_id="http://localhost/resource/PhysicalNodeAdapter-1"
-        component_manager_id="urn:publicid:IDN+localhost+authority+cm"
-        client_id="my-raw-pc-1"
-        exclusive="true">
-    <sliver_type name="http://open-multinet.info/ontology/resource/ssh#SshService" />
-  </node>
+<rspec generated="2015-04-27T11:49:00.341+02:00" generated_by="omnlib"
+   type="request" xmlns="http://www.geni.net/resources/rspec/3" xmlns:ns2="http://demo.fiteagle.org/monitoring">
+   <node
+         client_id="demo-motor-1"
+         component_name="MotorGarage-1"
+         component_manager_id="urn:publicid:IDN+localhost+authority+root"
+         component_id="urn:publicid:IDN+localhost+node+http%3A%2F%2Flocalhost%2Fresource%2FMotorGarage-1">
+       <sliver_type name="http://open-multinet.info/ontology/resource/motor#Motor"/>
+   </node>
 </rspec>
