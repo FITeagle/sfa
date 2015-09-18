@@ -5,7 +5,7 @@ cd ${_DIR}
 
 #_VERSION="master/422" ## this version seems broken
 #_VERSION="5.4-dev/r2339"
-_VERSION="229"
+_VERSION="233"
 #_URL="http://jfed.iminds.be/releases/${_VERSION}/jar/jfed_cli.tar.gz"
 _URL="http://jfed.iminds.be/releases/develop/${_VERSION}/jar/jfed_cli.tar.gz"
 _PATH="jfed_cli"
@@ -21,9 +21,8 @@ java \
   --authorities-file conf/cli.authorities \
   --debug \
   --context-file conf/cli.localhost.properties \
-  --group createsliver
-#  --group nonodelogin
- 
+  --group nonodelogin
+
 RET=$?
 echo "jfed error code ${RET}"
 
