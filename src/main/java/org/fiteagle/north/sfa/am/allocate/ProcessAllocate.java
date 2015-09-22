@@ -112,12 +112,21 @@ public class ProcessAllocate extends AbstractMethodProcessor{
             Resource oldResource = resIterator.nextResource();
             
             if(oldResource.hasProperty(Omn.isResourceOf)){
-              
-            
-            //TODO resource might not have component_id
-            Resource oldBase = oldResource.getProperty(Omn_lifecycle.implementedBy).getObject().asResource();
 
-            Resource newResource = requestedResourcesModel.createResource(oldBase.getURI() + "/" + oldResource.getLocalName());
+                //TODO resource might not have component_id
+            Resource newResource = null;
+            if(oldResource.hasProperty(Omn_lifecycle.implementedBy)){
+              Resource oldBase = oldResource.getProperty(Omn_lifecycle.implementedBy).getObject().asResource();
+
+              newResource = requestedResourcesModel.createResource(oldBase.getURI() + "/" + oldResource.getLocalName());
+            }
+            else {
+              newResource = requestedResourcesModel.createResource(oldResource.getURI());
+            }
+              
+//            Resource oldBase = oldResource.getProperty(Omn_lifecycle.implementedBy).getObject().asResource();
+//
+//            Resource newResource = requestedResourcesModel.createResource(oldBase.getURI() + "/" + oldResource.getLocalName());
 
             originalResourceNames.put(oldResource.getURI(), newResource);
             
