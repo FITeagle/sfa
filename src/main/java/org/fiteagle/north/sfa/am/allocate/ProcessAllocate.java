@@ -3,12 +3,19 @@ package org.fiteagle.north.sfa.am.allocate;
 import com.hp.hpl.jena.rdf.model.*;
 import com.hp.hpl.jena.rdf.model.impl.StatementImpl;
 
+import info.openmultinet.ontology.exceptions.DeprecatedRspecVersionException;
 import info.openmultinet.ontology.exceptions.InvalidModelException;
 import info.openmultinet.ontology.exceptions.MissingRspecElementException;
+import info.openmultinet.ontology.translators.AbstractConverter;
 import info.openmultinet.ontology.translators.geni.ManifestConverter;
 import info.openmultinet.ontology.translators.geni.RequestConverter;
+import info.openmultinet.ontology.translators.tosca.OMN2Tosca.MultipleNamespacesException;
+import info.openmultinet.ontology.translators.tosca.OMN2Tosca.MultiplePropertyValuesException;
+import info.openmultinet.ontology.translators.tosca.OMN2Tosca.RequiredResourceNotFoundException;
+import info.openmultinet.ontology.translators.tosca.Tosca2OMN.UnsupportedException;
 import info.openmultinet.ontology.vocabulary.Omn;
 import info.openmultinet.ontology.vocabulary.Omn_lifecycle;
+import info.openmultinet.ontology.translators.dm.DeliveryMechanism;
 
 import java.io.*;
 import java.nio.charset.Charset;
@@ -17,6 +24,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.xml.bind.JAXBException;
+import javax.xml.stream.XMLStreamException;
 
 import org.fiteagle.api.core.*;
 import org.fiteagle.north.sfa.am.ISFA_AM;
@@ -104,13 +112,17 @@ public class ProcessAllocate extends AbstractMethodProcessor{
             Resource oldResource = resIterator.nextResource();
             
             if(oldResource.hasProperty(Omn.isResourceOf)){
+
+            Resource newResource = null;
+            if(oldResource.hasProperty(Omn_lifecycle.implementedBy)){
+              Resource oldBase = oldResource.getProperty(Omn_lifecycle.implementedBy).getObject().asResource();
+
+              newResource = requestedResourcesModel.createResource(oldBase.getURI() + "/" + oldResource.getLocalName());
+            }
+            else {
+              newResource = requestedResourcesModel.createResource(oldResource.getURI());
+            }
               
-            
-            //TODO resource might not have component_id
-            Resource oldBase = oldResource.getProperty(Omn_lifecycle.implementedBy).getObject().asResource();
-
-            Resource newResource = requestedResourcesModel.createResource(oldBase.getURI() + "/" + oldResource.getLocalName());
-
             originalResourceNames.put(oldResource.getURI(), newResource);
             
             StmtIterator stmtIterator = oldResource.listProperties();
@@ -174,14 +186,19 @@ public class ProcessAllocate extends AbstractMethodProcessor{
 
 
 
-  private Model parseRSpec(String request) throws JAXBException, InvalidModelException, MissingRspecElementException {
+  private Model parseRSpec(String request) throws JAXBException, InvalidModelException, MissingRspecElementException{
       Model model = null ;
       InputStream is = new ByteArrayInputStream( request.getBytes(Charset.defaultCharset()) );
       if(request.contains(RDF.getURI())){
          model = ModelFactory.createDefaultModel();
           model.read(is,null,IMessageBus.SERIALIZATION_RDFXML);
       }else{
-          model = RequestConverter.getModel(is);
+//          model = RequestConverter.getModel(is);
+        try {
+          model = DeliveryMechanism.getModelFromUnkownInput(request);
+        } catch (UnsupportedException | XMLStreamException | DeprecatedRspecVersionException e) {
+          LOGGER.log(Level.SEVERE, " problem has been occured while converting received request to rdf model \n", e);
+        } 
       }
 
 

@@ -9,6 +9,7 @@ import java.util.Map;
 
 import javax.xml.bind.JAXBException;
 
+import org.fiteagle.north.sfa.am.ISFA_AM;
 import org.fiteagle.north.sfa.am.common.CommonTestMethods;
 import org.fiteagle.north.sfa.exceptions.BadArgumentsException;
 import org.fiteagle.north.sfa.exceptions.ForbiddenException;
@@ -33,7 +34,7 @@ public class DescribeProcessorTest extends CommonTestMethods{
   public void testDescribeEmptyCredentials(){
     prepareParameters();
     describeProcessor = new DescribeProcessor(parameter);
-    describeProcessor.handleCredentials(1);
+    describeProcessor.handleCredentials(1, ISFA_AM.METHOD_DESCRIBE);
   }
   
   @Test( expected = ForbiddenException.class)
@@ -44,7 +45,7 @@ public class DescribeProcessorTest extends CommonTestMethods{
     credentials.add(map);
     parameter.add(credentials);
     describeProcessor = new DescribeProcessor(parameter);
-    describeProcessor.handleCredentials(1);
+    describeProcessor.handleCredentials(1, ISFA_AM.METHOD_DESCRIBE);
   }
   
   @Test
