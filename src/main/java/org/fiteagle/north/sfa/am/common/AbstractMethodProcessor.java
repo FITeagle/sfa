@@ -21,6 +21,7 @@ import org.fiteagle.north.sfa.exceptions.BadArgumentsException;
 import org.fiteagle.north.sfa.exceptions.ForbiddenException;
 import org.fiteagle.north.sfa.exceptions.SearchFailedException;
 import org.fiteagle.north.sfa.util.GENI_Credential;
+import org.fiteagle.north.sfa.util.GENI_Privileges_Enum;
 import org.fiteagle.north.sfa.util.Privilege;
 import org.fiteagle.north.sfa.util.URN;
 
@@ -190,70 +191,61 @@ public class AbstractMethodProcessor {
     
     for (GENI_Credential credential : credentialList) {
       checkCredentialParts(credential);
-//      if (credential.get_geni_type() == null || credential.get_geni_version() == null
-//          || credential.get_geni_value() == null
-//          || credential.get_credential_format().getPrivileges().getNAME() == null) {
-//        throw new ForbiddenException("Operation forbidden, Credentials not valid");
-//      }
+      
+      List<String> privilegeNames = new ArrayList<String>();
       
       for (Privilege credential_privilege : credential.get_signed_credential().getCredential().getPrivilege()){
-        String privilege = credential_privilege.getName();
+        privilegeNames.add(credential_privilege.getName());
+      }
+      
+
       switch (methodName){
+        
         case ISFA_AM.METHOD_LIST_RESOURCES:
-          if(!ISFA_AM.PRIVILEGE_DEFAULT.equals(privilege) && !ISFA_AM.PRIVILEGE_INFO.equals(privilege)){
-            handleNotValidPrivileges();
-          }
+          
+          checkMethodPrivileges(privilegeNames, GENI_Privileges_Enum.LISTRESOURCES.getPrivileges()); 
           break;
         
         case ISFA_AM.METHOD_ALLOCATE:
-          if(!ISFA_AM.PRIVILEGE_DEFAULT.equals(privilege)){
-            handleNotValidPrivileges();
-          }
+          
+          checkMethodPrivileges(privilegeNames, GENI_Privileges_Enum.ALLOCATE.getPrivileges());
           break;
           
         case ISFA_AM.METHOD_DESCRIBE:
-          if(!ISFA_AM.PRIVILEGE_DEFAULT.equals(privilege) && !ISFA_AM.PRIVILEGE_INFO.equals(privilege)){
-            handleNotValidPrivileges();
-          }
+          
+          checkMethodPrivileges(privilegeNames, GENI_Privileges_Enum.DESCRIBE.getPrivileges());
           break;
           
         case ISFA_AM.METHOD_RENEW:
-          if(!ISFA_AM.PRIVILEGE_DEFAULT.equals(privilege) && !ISFA_AM.PRIVILEGE_REFRESH.equals(privilege)){
-            handleNotValidPrivileges();
-          }
+          
+          checkMethodPrivileges(privilegeNames, GENI_Privileges_Enum.RENEW.getPrivileges());
           break;
           
         case ISFA_AM.METHOD_PROVISION:
-          if(!ISFA_AM.PRIVILEGE_DEFAULT.equals(privilege) && !ISFA_AM.PRIVILEGE_CONTROL.equals(privilege)){
-            handleNotValidPrivileges();
-          }
+          
+          checkMethodPrivileges(privilegeNames, GENI_Privileges_Enum.PROVISION.getPrivileges());
           break;
           
         case ISFA_AM.METHOD_STATUS:
-          if(!ISFA_AM.PRIVILEGE_DEFAULT.equals(privilege) && !ISFA_AM.PRIVILEGE_INFO.equals(privilege) && !ISFA_AM.PRIVILEGE_PI.equals(privilege)){
-            handleNotValidPrivileges();
-          }
+          
+          checkMethodPrivileges(privilegeNames, GENI_Privileges_Enum.STATUS.getPrivileges());
           break;
           
         case ISFA_AM.METHOD_PERFORMOPERATIONALACTION:
-          if(!ISFA_AM.PRIVILEGE_DEFAULT.equals(privilege) && !ISFA_AM.PRIVILEGE_CONTROL.equals(privilege)){
-            handleNotValidPrivileges();
-          }
+          
+          checkMethodPrivileges(privilegeNames, GENI_Privileges_Enum.PERFORMOPERATIONALACTION.getPrivileges());
           break;
           
         case ISFA_AM.METHOD_DELETE:
-          if(!ISFA_AM.PRIVILEGE_DEFAULT.equals(privilege) && !ISFA_AM.PRIVILEGE_CONTROL.equals(privilege) && !ISFA_AM.PRIVILEGE_RESOLVE.equals(privilege) && !ISFA_AM.PRIVILEGE_INSTANTIATE.equals(privilege)){
-            handleNotValidPrivileges();
-          }
+          
+          checkMethodPrivileges(privilegeNames, GENI_Privileges_Enum.DELETE.getPrivileges());
           break;
           
         case ISFA_AM.METHOD_SHUTDOWN:
-          if(!ISFA_AM.PRIVILEGE_DEFAULT.equals(privilege) && !ISFA_AM.PRIVILEGE_CONTROL.equals(privilege) && !ISFA_AM.PRIVILEGE_PI.equals(privilege)){
-            handleNotValidPrivileges();
-          }
+          
+          checkMethodPrivileges(privilegeNames, GENI_Privileges_Enum.SHUTDOWN.getPrivileges());
           break;
           
-      }
       }
       this.delegate.setGeniType(credential.get_geni_type());
       this.delegate.setGeinVersion(credential.get_geni_version());
@@ -261,6 +253,21 @@ public class AbstractMethodProcessor {
       
     }
   }
+  
+    private void checkMethodPrivileges(List<String> user_privileges, String required_privileges){
+      Boolean authorization = false;
+      String[] splitted_required_privileges = required_privileges.split("\\,");
+      
+      for(int i=0; i < splitted_required_privileges.length; i++){
+        if(user_privileges.contains(splitted_required_privileges[i])){
+          authorization = true;
+          break;
+        }
+      }
+      
+      if(!authorization)
+        handleNotValidPrivileges();
+    }
   
     private void checkCredentialParts(GENI_Credential credential){
     if (credential.get_geni_type() == null || credential.get_geni_version() == null
