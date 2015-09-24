@@ -19,10 +19,13 @@ public interface ISFA_SA extends ISFA {
 	String METHOD_REGISTER = "REGISTER";
 	String METHOD_GET_VERSION = "GETVERSION";
     String METHOD_RENEW_SLICE = "RENEWSLICE" ;
+	String METHOD_RESOLVE = "RESOLVE" ;
 
-    Object getVersion(List<?> parameter);
+	Object getVersion(List<?> parameter);
 	Object getCredential(X509Certificate certificate) throws Exception;
 	Object register(List<?> parameter) throws Exception;
 
     Object renewSlice(List<?> parameter) throws JAXBException, DatatypeConfigurationException;
+
+	Object resolve(List<?> parameter);
 }
