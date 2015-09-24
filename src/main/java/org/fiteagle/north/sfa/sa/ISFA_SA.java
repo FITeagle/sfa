@@ -20,6 +20,7 @@ public interface ISFA_SA extends ISFA {
 	String METHOD_GET_VERSION = "GETVERSION";
     String METHOD_RENEW_SLICE = "RENEWSLICE" ;
 	String METHOD_RESOLVE = "RESOLVE" ;
+	String METHOD_GET_KEYS = "GETKEYS" ;
 
 	Object getVersion(List<?> parameter);
 	Object getCredential(X509Certificate certificate) throws Exception;
@@ -28,4 +29,6 @@ public interface ISFA_SA extends ISFA {
     Object renewSlice(List<?> parameter) throws JAXBException, DatatypeConfigurationException;
 
 	Object resolve(List<?> parameter);
+
+	Object getKeys(List<?> parameter);
 }

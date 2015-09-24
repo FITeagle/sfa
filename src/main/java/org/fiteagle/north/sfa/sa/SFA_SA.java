@@ -68,6 +68,10 @@ public class SFA_SA implements ISFA_SA {
                 case ISFA_SA.METHOD_RESOLVE:
                     result = this.resolve(parameter);
                     break;
+                case ISFA_SA.METHOD_GET_KEYS:
+                    result = this.getKeys(parameter);
+                    break;
+
                 default:
                     result = "Unimplemented method '" + methodName + "'";
                     break;
@@ -194,6 +198,23 @@ public class SFA_SA implements ISFA_SA {
     @Override
     public Object resolve(List<?> parameter) {
         LOGGER.log(Level.INFO, "Logging Resolve ");
+        for(Object o: parameter){
+            LOGGER.log(Level.INFO,parameter.toString());
+        }
+
+        HashMap<String,Object> result = new HashMap<>();
+        String output = "";
+        int code = 0;
+
+        result.put("output", output);
+        result.put("code", code);
+        result.put("value", "");
+        return result;
+    }
+
+    @Override
+    public Object getKeys(List<?> parameter) {
+        LOGGER.log(Level.INFO, "Logging getKeys ");
         for(Object o: parameter){
             LOGGER.log(Level.INFO,parameter.toString());
         }
