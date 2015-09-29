@@ -20,16 +20,20 @@ public class Signed_Credential{
   final String CREDENTIAL = "credential";
   final String SIGNATURES = "signatures";
   
-  private Credential credentials;
+  private Credential credential;
+  
+//  private Credentials geni_credentials;
 
   @XmlElement(name=CREDENTIAL)
-  private void setCredential(Credential credential){
-    this.credentials = credential;
+  private void setCredentials(Credential geni_credentials){
+    this.credential = geni_credentials;
   }
   
-  public Credential getCredential(){
-    return this.credentials;
+  public Credential getCredentials(){
+    return this.credential;
   }
   
+  
+  // TODO: implement signatures
   
 }

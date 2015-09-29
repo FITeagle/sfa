@@ -23,6 +23,7 @@ import org.fiteagle.north.sfa.exceptions.SearchFailedException;
 import org.fiteagle.north.sfa.util.GENI_Credential;
 import org.fiteagle.north.sfa.util.GENI_Privileges_Enum;
 import org.fiteagle.north.sfa.util.Privilege;
+import org.fiteagle.north.sfa.util.Signed_Credential;
 import org.fiteagle.north.sfa.util.URN;
 
 import java.io.UnsupportedEncodingException;
@@ -194,7 +195,7 @@ public class AbstractMethodProcessor {
       
       List<String> privilegeNames = new ArrayList<String>();
       
-      for (Privilege credential_privilege : credential.get_signed_credential().getCredential().getPrivilege()){
+      for (Privilege credential_privilege : credential.get_signed_credential().getCredentials().getPrivilege()){
         privilegeNames.add(credential_privilege.getName());
       }
       
@@ -271,16 +272,62 @@ public class AbstractMethodProcessor {
   
     private void checkCredentialParts(GENI_Credential credential){
     if (credential.get_geni_type() == null || credential.get_geni_version() == null
-        || credential.get_geni_value() == null || !("privilege").equals(credential.get_signed_credential().getCredential().getType())) {
+        || credential.get_geni_value() == null || !("privilege").equals(credential.get_signed_credential().getCredentials().getType())) {
       handleNotValidPrivileges();
     }
-    for (Privilege privilege : credential.get_signed_credential().getCredential().getPrivilege()){
+    
+    if(isDelegatedCredential(credential)){
+      checkDelegatedCredential(credential);
+    }
+    
+    for (Privilege privilege : credential.get_signed_credential().getCredentials().getPrivilege()){
       if(privilege.getName() == null){
         handleNotValidPrivileges();
       }
     }
+    
+    //TODO: check expiration time
     }
   
+    private boolean isDelegatedCredential(GENI_Credential credential){
+      if(credential.get_signed_credential().getCredentials().getParent() == null){
+        return false;
+      }
+      else
+        return true;
+    }
+    
+    private void checkDelegatedCredential(GENI_Credential geni_credential){
+      Signed_Credential credential = geni_credential.get_signed_credential();
+      String delecated_target = credential.getCredentials().getTargetURN();
+      String parent_target = credential.getCredentials().getParent().getParent_credential().getTargetURN();
+      
+      if(!delecated_target.equals(parent_target)){
+        throw new ForbiddenException("Delegated credential should have the same target as parent credential");
+      }
+      
+      for (Privilege delegated_privilege : credential.getCredentials().getPrivilege()){
+        String parent_privilege_canDelegate = getParentDelegation(delegated_privilege.getName(), credential);
+        if(parent_privilege_canDelegate == "" || "false".equals(parent_privilege_canDelegate)){
+          throw new ForbiddenException(" Parent credential has not delegated this privilege");
+        }
+        
+      }
+      
+      //TODO: check expiration time
+      //TODO: check signatures
+    }
+    
+    private String getParentDelegation(String delegated_privilege, Signed_Credential credential){
+      String privilege_canDelegate = "";
+      for(Privilege parent_Privilege : credential.getCredentials().getParent().getParent_credential().getPrivilege()){
+        if(delegated_privilege.equals(parent_Privilege.getName())){
+          privilege_canDelegate = parent_Privilege.getCanDelegate();
+        }
+      }
+      return privilege_canDelegate;
+    }
+    
     private void handleNotValidPrivileges(){
       throw new ForbiddenException("Operation forbidden, privileges are not valid for this method");
     }

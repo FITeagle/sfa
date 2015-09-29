@@ -15,6 +15,7 @@ final String TARGET_GID = "target_gid";
 final String EXPIRES = "expires";
 final String PRIVILEGE = "privilege";
 final String PRIVILEGES = "privileges";
+final String PARENT = "parent";
   
   private String credential_type;
   private String owner_gid;
@@ -23,6 +24,7 @@ final String PRIVILEGES = "privileges";
   private String target_gid;
   private String credential_expiration;
   private List<Privilege> credential_privileges;
+  private Credentials parent_;
   
   @XmlElement(name=TYPE)
   private void setType(String type){
@@ -86,6 +88,16 @@ final String PRIVILEGES = "privileges";
   
   public List<Privilege> getPrivilege(){
     return this.credential_privileges;
+  }
+  
+  
+  @XmlElement(name=PARENT)
+  private void setParent(Credentials parent_credentials){
+    this.parent_ = parent_credentials;
+  }
+  
+  public Credentials getParent(){
+    return this.parent_;
   }
   
 }
