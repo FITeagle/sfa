@@ -169,14 +169,14 @@ public class ProcessAllocate extends AbstractMethodProcessor{
           Resource res = resIter.nextResource();
           StmtIterator stmtIter = res.listProperties();
           while(stmtIter.hasNext()){
-            Statement stmt = stmtIter.nextStatement();
-            if("deployedOn".equals(stmt.getPredicate().getLocalName()) || "requires".equals(stmt.getPredicate().getLocalName())){
-              Statement newStatement = new StatementImpl(stmt.getSubject(), stmt.getPredicate(), originalResourceNames.get(stmt.getObject().toString()));
-              newRequestedResourcesModel.add(newStatement);
-            }
-            else{
+              Statement stmt = stmtIter.nextStatement();
+//            if("deployedOn".equals(stmt.getPredicate().getLocalName()) || "requires".equals(stmt.getPredicate().getLocalName())){
+//              Statement newStatement = new StatementImpl(stmt.getSubject(), stmt.getPredicate(), originalResourceNames.get(stmt.getObject().toString()));
+//              newRequestedResourcesModel.add(newStatement);
+//            }
+//            else{
               newRequestedResourcesModel.add(stmt);
-            }
+        //    }
           }
         }
         
