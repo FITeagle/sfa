@@ -51,6 +51,8 @@ public class SFA_XMLRPC_Handler implements ISFA_XMLRPC_InvocationHandler {
 			final OutputStream outputStream, final String path,
 			final X509Certificate cert) throws XmlRpcException, IOException {
 		this.writer = new PrintWriter(outputStream);
+		
+		LOGGER.log(Level.INFO, "START: Dispatching input stream");
 		try {
 			this.handler.setPath(path);
 			this.handler.setCert(cert);
@@ -64,6 +66,7 @@ public class SFA_XMLRPC_Handler implements ISFA_XMLRPC_InvocationHandler {
 			this.xmlrpcServer.getSerializer().writeError(1, message,
 					this.writer);
 		}
+		LOGGER.log(Level.INFO, "END: Dispatching input stream");
 		this.writer.close();
 	}
 
@@ -71,9 +74,9 @@ public class SFA_XMLRPC_Handler implements ISFA_XMLRPC_InvocationHandler {
 	@SuppressWarnings("rawtypes")
 	public Object invoke(final String methodName, final List parameter)
 			throws Throwable {
-		
-		System.out.println("            parameter:"+parameter);
-		
+	
+		LOGGER.log(Level.INFO, "START: Handling " + methodName);
+		SFA_XMLRPC_Handler.LOGGER.log(Level.INFO, "parameter:"+parameter);		
 		SFA_XMLRPC_Handler.LOGGER.log(Level.INFO, "Working on method: "
 				+ methodName);
 		SFA_XMLRPC_Handler.LOGGER.log(Level.INFO, "Working on path: "
@@ -84,6 +87,8 @@ public class SFA_XMLRPC_Handler implements ISFA_XMLRPC_InvocationHandler {
 				+ certInfo);
 
 		Object result = this.manager.handle(methodName, parameter, this.path, this.cert);
+
+		LOGGER.log(Level.INFO, "END: Handling " + methodName);
 		return result;
 	}
 

@@ -1,6 +1,28 @@
 package org.fiteagle.north.sfa.am.listResources;
 
-import com.hp.hpl.jena.rdf.model.*;
+import java.io.UnsupportedEncodingException;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.logging.Logger;
+
+import javax.jms.JMSException;
+import javax.xml.bind.JAXBException;
+
+import org.fiteagle.api.core.Config;
+import org.fiteagle.api.core.IConfig;
+import org.fiteagle.api.core.IGeni;
+import org.fiteagle.api.core.IMessageBus;
+import org.fiteagle.api.core.MessageUtil;
+import org.fiteagle.api.core.OntologyModelUtil;
+import org.fiteagle.north.sfa.am.ISFA_AM;
+import org.fiteagle.north.sfa.am.common.AbstractMethodProcessor;
+
+import com.hp.hpl.jena.rdf.model.AnonId;
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.rdf.model.ResIterator;
+import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.vocabulary.RDF;
 
 import info.openmultinet.ontology.exceptions.InvalidModelException;
@@ -8,27 +30,13 @@ import info.openmultinet.ontology.translators.geni.AdvertisementConverter;
 import info.openmultinet.ontology.vocabulary.Omn;
 import info.openmultinet.ontology.vocabulary.Omn_lifecycle;
 
-import org.fiteagle.api.core.*;
-import org.fiteagle.north.sfa.am.GENI_CodeEnum;
-import org.fiteagle.north.sfa.am.ISFA_AM;
-import org.fiteagle.north.sfa.am.common.AbstractMethodProcessor;
-import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
-import org.fiteagle.north.sfa.exceptions.BadVersionException;
-import org.fiteagle.north.sfa.util.GENI_Credential;
-
-import javax.jms.JMSException;
-import javax.xml.bind.JAXBException;
-
-import java.io.UnsupportedEncodingException;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-
 /**
  * Created by dne on 03.03.15.
  */
 public class ListResourcesProcessor extends AbstractMethodProcessor{
   
+    private static final Logger LOGGER = Logger.getLogger(ListResourcesProcessor.class.getName());
+
     public ListResourcesProcessor(final List<?> parameter) {
         this.parameter = parameter;
     }
@@ -55,7 +63,9 @@ public class ListResourcesProcessor extends AbstractMethodProcessor{
     private Model getResources() throws JMSException, UnsupportedEncodingException {
         Model requestModel = ModelFactory.createDefaultModel();
         String serializedModel = MessageUtil.serializeModel(requestModel, IMessageBus.SERIALIZATION_TURTLE);
+        LOGGER.info("START: Listing resources: " + serializedModel);
         Model model = getSender().sendRDFRequest(serializedModel, IMessageBus.TYPE_GET, IMessageBus.TARGET_RESOURCE_ADAPTER_MANAGER);
+        LOGGER.info("END: Listing resources: " + OntologyModelUtil.toString(model));
        return  model;
     }
 

@@ -1,39 +1,48 @@
 package org.fiteagle.north.sfa.am.allocate;
 
-import com.hp.hpl.jena.rdf.model.*;
-import com.hp.hpl.jena.rdf.model.impl.StatementImpl;
-
-import info.openmultinet.ontology.exceptions.DeprecatedRspecVersionException;
-import info.openmultinet.ontology.exceptions.InvalidModelException;
-import info.openmultinet.ontology.exceptions.MissingRspecElementException;
-import info.openmultinet.ontology.translators.AbstractConverter;
-import info.openmultinet.ontology.translators.geni.ManifestConverter;
-import info.openmultinet.ontology.translators.geni.RequestConverter;
-import info.openmultinet.ontology.translators.tosca.OMN2Tosca.MultipleNamespacesException;
-import info.openmultinet.ontology.translators.tosca.OMN2Tosca.MultiplePropertyValuesException;
-import info.openmultinet.ontology.translators.tosca.OMN2Tosca.RequiredResourceNotFoundException;
-import info.openmultinet.ontology.translators.tosca.Tosca2OMN.UnsupportedException;
-import info.openmultinet.ontology.vocabulary.Omn;
-import info.openmultinet.ontology.vocabulary.Omn_lifecycle;
-import info.openmultinet.ontology.translators.dm.DeliveryMechanism;
-
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.InputStream;
+import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
-import java.util.*;
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.stream.XMLStreamException;
 
-import org.fiteagle.api.core.*;
+import org.fiteagle.api.core.Config;
+import org.fiteagle.api.core.IConfig;
+import org.fiteagle.api.core.IGeni;
+import org.fiteagle.api.core.IMessageBus;
+import org.fiteagle.api.core.MessageBusOntologyModel;
+import org.fiteagle.api.core.MessageUtil;
+import org.fiteagle.api.core.OntologyModelUtil;
 import org.fiteagle.north.sfa.am.ISFA_AM;
 import org.fiteagle.north.sfa.am.ReservationStateEnum;
 import org.fiteagle.north.sfa.am.common.AbstractMethodProcessor;
 import org.fiteagle.north.sfa.exceptions.BadArgumentsException;
 import org.fiteagle.north.sfa.util.URN;
 
+import com.hp.hpl.jena.rdf.model.Model;
+import com.hp.hpl.jena.rdf.model.ModelFactory;
+import com.hp.hpl.jena.rdf.model.ResIterator;
+import com.hp.hpl.jena.rdf.model.Resource;
+import com.hp.hpl.jena.rdf.model.Statement;
+import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.vocabulary.RDF;
+
+import info.openmultinet.ontology.exceptions.DeprecatedRspecVersionException;
+import info.openmultinet.ontology.exceptions.InvalidModelException;
+import info.openmultinet.ontology.exceptions.MissingRspecElementException;
+import info.openmultinet.ontology.translators.dm.DeliveryMechanism;
+import info.openmultinet.ontology.translators.geni.ManifestConverter;
+import info.openmultinet.ontology.translators.tosca.Tosca2OMN.UnsupportedException;
+import info.openmultinet.ontology.vocabulary.Omn;
+import info.openmultinet.ontology.vocabulary.Omn_lifecycle;
 
 
 public class ProcessAllocate extends AbstractMethodProcessor{
@@ -77,7 +86,6 @@ public class ProcessAllocate extends AbstractMethodProcessor{
       
   }
   
-  @SuppressWarnings("unchecked")
   public Model reserveInstances() throws JAXBException, InvalidModelException, MissingRspecElementException {
     
 
@@ -87,14 +95,13 @@ public class ProcessAllocate extends AbstractMethodProcessor{
     Resource topology = requestModel.createResource("http://"+this.urn.getDomain()+"/topology/"+ this.urn.getSubject());
     topology.addProperty(RDF.type, Omn.Topology);
     Model requestedResources = getRequestedResources(topology, incoming);
-    LOGGER.log(Level.INFO, "allocate model " + requestedResources);
     requestModel.add(requestedResources);
       
 
     String serializedModel = MessageUtil.serializeModel(requestModel, IMessageBus.SERIALIZATION_TURTLE);
-    LOGGER.log(Level.INFO, "send reservation request ...");
+    LOGGER.log(Level.INFO, "START: Reserving model: " + serializedModel);
     Model resultModel = getSender().sendRDFRequest(serializedModel, IMessageBus.TYPE_CREATE, IMessageBus.TARGET_RESERVATION);
-    LOGGER.log(Level.INFO, "reservation reply received.");
+    LOGGER.log(Level.INFO, "END: Reserving model: " + OntologyModelUtil.toString(resultModel));
 
     return resultModel;
   }

@@ -1,20 +1,17 @@
 package org.fiteagle.north.sfa.am.getVersion;
 
-import java.io.File;
-import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import org.apache.jena.atlas.logging.Log;
 import org.fiteagle.api.core.Config;
 import org.fiteagle.api.core.IConfig;
 import org.fiteagle.api.core.IGeni;
 import org.fiteagle.api.core.IMessageBus;
 import org.fiteagle.api.core.MessageUtil;
+import org.fiteagle.api.core.OntologyModelUtil;
 import org.fiteagle.north.sfa.am.ISFA_AM;
 import org.fiteagle.north.sfa.am.common.AbstractMethodProcessor;
 import org.fiteagle.north.sfa.exceptions.EmptyReplyException;
@@ -36,8 +33,10 @@ public class ProcessGetVersion extends AbstractMethodProcessor {
 	}
 
 	public Model getTestbedDescription() {
+	    	LOGGER.info("START: Getting testbed description...");
 		Model testbedDescriptionModel = getSender().sendSPARQLQueryRequest("",
 				IMessageBus.TARGET_FEDERATION_MANAGER);
+		LOGGER.info("STOP: Testbed description: " + OntologyModelUtil.toString(testbedDescriptionModel));
 		return testbedDescriptionModel;
 	}
 
@@ -49,7 +48,6 @@ public class ProcessGetVersion extends AbstractMethodProcessor {
 		}
 		String testbedDescription = MessageUtil.serializeModel(
 				testbedDescriptionModel, IMessageBus.SERIALIZATION_RDFJSON);
-		LOGGER.log(Level.INFO, "result is " + testbedDescription);
 		return testbedDescription;
 	}
 
@@ -61,7 +59,6 @@ public class ProcessGetVersion extends AbstractMethodProcessor {
 
 		value.put(IGeni.GENI_API, API_VERSION);
 		value.put(ISFA_AM.OMN_TESTBED, testbedDescription);
-		LOGGER.log(Level.INFO, "omn_testbed " + value.get(ISFA_AM.OMN_TESTBED));
 
 		final String[] extensions = getSupportedExtensions();
 

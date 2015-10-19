@@ -1,65 +1,39 @@
 package org.fiteagle.north.sfa.am;
 
-import java.io.IOException;
 import java.io.UnsupportedEncodingException;
 import java.security.cert.X509Certificate;
-import java.util.*;
-import java.util.jar.Manifest;
+import java.util.HashMap;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.zip.Deflater;
 
 import javax.jms.JMSException;
 import javax.xml.bind.JAXBException;
 
-
-
-import javax.xml.stream.XMLStreamException;
-
-//import info.openmultinet.ontology.exceptions.InvalidModelException;
-import com.hp.hpl.jena.rdf.model.ResIterator;
-import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.rdf.model.StmtIterator;
-import com.hp.hpl.jena.vocabulary.RDF;
-
-import info.openmultinet.ontology.exceptions.DeprecatedRspecVersionException;
-import info.openmultinet.ontology.exceptions.InvalidModelException;
-import info.openmultinet.ontology.exceptions.MissingRspecElementException;
-import info.openmultinet.ontology.translators.geni.AdvertisementConverter;
-import info.openmultinet.ontology.translators.geni.ManifestConverter;
-import info.openmultinet.ontology.translators.tosca.OMN2Tosca.MultipleNamespacesException;
-import info.openmultinet.ontology.translators.tosca.OMN2Tosca.MultiplePropertyValuesException;
-import info.openmultinet.ontology.translators.tosca.OMN2Tosca.RequiredResourceNotFoundException;
-import info.openmultinet.ontology.vocabulary.Omn;
-import info.openmultinet.ontology.vocabulary.Omn_lifecycle;
-
-import org.apache.commons.codec.binary.Base64;
-import org.fiteagle.api.core.IConfig;
-import org.fiteagle.api.core.IGeni;
-import org.fiteagle.api.core.IMessageBus;
 import org.fiteagle.api.core.MessageUtil;
 import org.fiteagle.north.sfa.am.allocate.ProcessAllocate;
+import org.fiteagle.north.sfa.am.common.AbstractMethodProcessor;
+import org.fiteagle.north.sfa.am.delete.ProcessDelete;
+import org.fiteagle.north.sfa.am.describe.DescribeProcessor;
+import org.fiteagle.north.sfa.am.dm.SFA_AM_Delegate_Default;
+import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
+import org.fiteagle.north.sfa.am.getVersion.ProcessGetVersion;
 import org.fiteagle.north.sfa.am.listResources.ListResourcesProcessor;
 import org.fiteagle.north.sfa.am.performOperationalAction.PerformOperationalActionHandler;
+import org.fiteagle.north.sfa.am.provision.ProcessProvision;
 import org.fiteagle.north.sfa.am.renew.RenewHandler;
+import org.fiteagle.north.sfa.am.status.StatusProcessor;
 import org.fiteagle.north.sfa.exceptions.BadArgumentsException;
 import org.fiteagle.north.sfa.exceptions.BadVersionException;
+import org.fiteagle.north.sfa.exceptions.EmptyReplyException;
 import org.fiteagle.north.sfa.exceptions.ForbiddenException;
 import org.fiteagle.north.sfa.exceptions.SearchFailedException;
 import org.fiteagle.north.sfa.exceptions.URNParsingException;
-import org.fiteagle.north.sfa.am.status.StatusProcessor;
-import org.fiteagle.north.sfa.am.common.AbstractMethodProcessor;
-import org.fiteagle.north.sfa.am.dm.SFA_AM_Delegate_Default;
-import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
-import org.fiteagle.north.sfa.exceptions.EmptyReplyException;
-import org.fiteagle.north.sfa.am.delete.ProcessDelete;
-import org.fiteagle.north.sfa.am.describe.DescribeProcessor;
-import org.fiteagle.north.sfa.am.getVersion.ProcessGetVersion;
-import org.fiteagle.north.sfa.am.provision.ProcessProvision;
-import org.fiteagle.north.sfa.util.GENI_Credential;
-import org.fiteagle.north.sfa.util.URN;
 
 import com.hp.hpl.jena.rdf.model.Model;
+
+import info.openmultinet.ontology.exceptions.InvalidModelException;
+import info.openmultinet.ontology.exceptions.MissingRspecElementException;
 
 public class SFA_AM implements ISFA_AM {
     private final static Logger LOGGER = Logger.getLogger(SFA_AM.class.getName());
@@ -77,10 +51,8 @@ public class SFA_AM implements ISFA_AM {
 
         this.delegate = new SFA_AM_Delegate_Default();
         SFA_AM.LOGGER.log(Level.INFO, System.getProperty("jboss.server.config.dir") + System.getProperty("file.separator") + "jetty-ssl.keystore");
-        SFA_AM.LOGGER.log(Level.INFO, "Working on method: " + methodName);
+        SFA_AM.LOGGER.log(Level.INFO, "START: Handling " + methodName);
         try {
-
-
             switch (methodName.toUpperCase()) {
                 case ISFA_AM.METHOD_GET_VERSION:
                     result = this.getVersion(parameter);
@@ -155,6 +127,7 @@ public class SFA_AM implements ISFA_AM {
             result = handleException(e, GENI_CodeEnum.BADARGS);
         } 
 
+        SFA_AM.LOGGER.log(Level.INFO, "END: Handling " + methodName);
         return result;
     }
 

@@ -38,13 +38,14 @@ public class StartUp {
 
     @PostConstruct
     public void addSfaApi() {
+	LOGGER.info("START");
         setDefaultModel();
         timerService.createIntervalTimer(0, 5000, new TimerConfig());
     }
 
     @PreDestroy
     public void deleteSfaApi() {
-
+	LOGGER.info("STOP");
     }
 
     @Timeout

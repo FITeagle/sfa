@@ -1,18 +1,8 @@
 package org.fiteagle.north.sfa.am.provision;
 
-import com.hp.hpl.jena.ontology.Individual;
-
-import info.openmultinet.ontology.exceptions.InvalidModelException;
-import info.openmultinet.ontology.translators.geni.ManifestConverter;
-import info.openmultinet.ontology.vocabulary.Omn;
-import info.openmultinet.ontology.vocabulary.Omn_lifecycle;
-import info.openmultinet.ontology.vocabulary.Omn_service;
-
 import java.io.UnsupportedEncodingException;
 import java.net.URLDecoder;
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Level;
@@ -20,27 +10,32 @@ import java.util.logging.Logger;
 
 import javax.xml.bind.JAXBException;
 
-import org.fiteagle.api.core.*;
+import org.fiteagle.api.core.Config;
+import org.fiteagle.api.core.IConfig;
+import org.fiteagle.api.core.IGeni;
+import org.fiteagle.api.core.IMessageBus;
+import org.fiteagle.api.core.MessageUtil;
+import org.fiteagle.api.core.OntologyModelUtil;
 import org.fiteagle.north.sfa.am.ISFA_AM;
-import org.fiteagle.north.sfa.am.ReservationStateEnum;
 import org.fiteagle.north.sfa.am.common.AbstractMethodProcessor;
-import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
-import org.fiteagle.north.sfa.exceptions.BadArgumentsException;
-import org.fiteagle.north.sfa.util.GENI_Credential;
 import org.fiteagle.north.sfa.util.URN;
 
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
 import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.rdf.model.Statement;
-import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.vocabulary.RDF;
+
+import info.openmultinet.ontology.exceptions.InvalidModelException;
+import info.openmultinet.ontology.translators.geni.ManifestConverter;
+import info.openmultinet.ontology.vocabulary.Omn;
+import info.openmultinet.ontology.vocabulary.Omn_service;
 
 public class ProcessProvision extends AbstractMethodProcessor {
   
   private final static Logger LOGGER = Logger.getLogger(ProcessProvision.class.getName());
   
-  private ProvisionOptions provisionOptions;
+  private ProvisionOptions provisionOptions; 
+  private String hostname = new Config().getProperty(IConfig.KEY_HOSTNAME);
   
   public ProcessProvision(final List<?> parameter) {
     this.parameter = parameter;
@@ -50,7 +45,7 @@ public class ProcessProvision extends AbstractMethodProcessor {
 
 		LOGGER.log(Level.INFO, "create provision model ");
 		Model requestModel = ModelFactory.createDefaultModel();
-
+		
 		for (URN urn : this.urns) {
 
 			if (ISFA_AM.SLICE.equals(urn.getType())) {
@@ -73,11 +68,10 @@ public class ProcessProvision extends AbstractMethodProcessor {
 
 		String serializedModel = MessageUtil.serializeModel(requestModel,
 				IMessageBus.SERIALIZATION_TURTLE);
-		LOGGER.log(Level.INFO, "send provision request ...");
+		LOGGER.log(Level.INFO, "START: Provision model: " + serializedModel);
 		Model provisionResponse = getSender().sendRDFRequest(serializedModel, IMessageBus.TYPE_CREATE,
 						IMessageBus.TARGET_ORCHESTRATOR);
-		LOGGER.log(Level.INFO,
-				"provision reply is received.");
+		LOGGER.log(Level.INFO, "END: Provisioned model: " + OntologyModelUtil.toString(provisionResponse));
 		return provisionResponse;
 	}
 
@@ -97,10 +91,8 @@ public class ProcessProvision extends AbstractMethodProcessor {
 	  final Map<String, Object> value = new HashMap<>();
 
 	  try {
-		  Config config = new Config( ) ;
-		  value.put(IGeni.GENI_RSPEC, ManifestConverter.getRSpec(provisionResponse, config.getProperty(IConfig.KEY_HOSTNAME)));
+		  value.put(IGeni.GENI_RSPEC, ManifestConverter.getRSpec(provisionResponse, hostname));
 	} catch (JAXBException | InvalidModelException e) {
-		// TODO Auto-generated catch block
 		LOGGER.log(Level.SEVERE,e.toString());
 	}
       this.addSliverInformation(value,provisionResponse);

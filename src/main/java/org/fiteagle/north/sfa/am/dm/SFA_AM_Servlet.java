@@ -12,7 +12,7 @@ import org.fiteagle.north.sfa.dm.SFA_XMLRPC_Handler;
 public class SFA_AM_Servlet extends AbstractSFA_Servlet {
 
 	public SFA_AM_Servlet() {
-		super();
+		super();		
 		this.handler = new SFA_XMLRPC_Handler(new SFA_AM());
 	}
 }
