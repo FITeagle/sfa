@@ -92,8 +92,14 @@ public class ProcessAllocate extends AbstractMethodProcessor{
     Model incoming  = parseRSpec(request);
     Model requestModel = ModelFactory.createDefaultModel();
  
+    
     Resource topology = requestModel.createResource("http://"+this.urn.getDomain()+"/topology/"+ this.urn.getSubject());
     topology.addProperty(RDF.type, Omn.Topology);
+    
+    if(!this.urn.getProject().isEmpty()){
+      topology.addProperty(Omn_lifecycle.project, this.urn.getProject());
+    }
+    
     Model requestedResources = getRequestedResources(topology, incoming);
     requestModel.add(requestedResources);
       

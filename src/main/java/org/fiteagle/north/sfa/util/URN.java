@@ -1,6 +1,8 @@
 package org.fiteagle.north.sfa.util;
 
 
+import info.openmultinet.ontology.translators.geni.CommonMethods;
+
 import org.fiteagle.north.sfa.exceptions.URNParsingException;
 
 /**
@@ -12,6 +14,7 @@ public class URN {
     private String subject;
     private String domain;
     private String type;
+    private String project;
     private static String prefix = "urn:publicid:IDN";
 
     public URN(String urnString) {
@@ -22,7 +25,7 @@ public class URN {
         String[] splitted = urnString.split("\\+");
         if (isCorrectLength(splitted)) {
             if (isCorrectPrefix(splitted[0])) {
-                this.domain = splitted[1].replaceAll(":", "%3A");
+                parseDomain(splitted[1]);
                 this.type = splitted[2];
                 this.subject = splitted[3];
             } else {
@@ -32,7 +35,7 @@ public class URN {
         } else {
             splitted = urnString.split("\\.");
             if (splitted.length == 2) {
-                this.domain = splitted[0].replaceAll(":", "%3A");
+                parseDomain(splitted[0]);
                 this.type = "user";
                 this.subject = splitted[1];
             } else {
@@ -64,6 +67,14 @@ public class URN {
     public String getDomain() {
         return domain;
     }
+    
+    public String getProject(){
+      return this.project;
+    }
+    
+    public void setProject(String project){
+      this.project = project;
+    }
 
     public void setType(String type) {
         this.type = type;
@@ -75,7 +86,10 @@ public class URN {
 
     @Override
     public String toString() {
+      if(this.project.isEmpty())
         return prefix + "+" + domain + "+" + type + "+" + subject;
+      else 
+        return prefix + "+" + domain + ":" + project + "+" + type + "+" + subject;
     }
 
     @Override
@@ -95,6 +109,17 @@ public class URN {
         return subject + "@" + domain;
     }
 
+    public void parseDomain(String domainString){
+      String[] splittedDomain = domainString.split("\\:");
+      if(splittedDomain.length > 1) {
+        this.domain = splittedDomain[0];
+        this.project = splittedDomain[1];
+      }
+      else {
+        this.domain = domainString;
+        this.project = "";
+      }
+    }
 
 
 }

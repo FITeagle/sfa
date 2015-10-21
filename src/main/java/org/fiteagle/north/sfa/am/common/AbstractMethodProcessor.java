@@ -99,6 +99,11 @@ public class AbstractMethodProcessor {
     public String getSliceURN(Model statusResponse) {
         StmtIterator stmtIterator = statusResponse.listStatements(new SimpleSelector(null,Omn.hasResource, (Object)null));
         Resource topology = stmtIterator.nextStatement().getSubject();
+        
+        String project = "";
+        if(topology.hasProperty(Omn_lifecycle.project)){
+          project = topology.getProperty(Omn_lifecycle.project).getString();
+        }
 
         String uri = topology.getURI();
         String localname = "";
@@ -114,7 +119,15 @@ public class AbstractMethodProcessor {
         //String localname =  uri.substring( uri.lastIndexOf('/') + 1 );
         //String localname = topology.getLocalName();
         //URN urn =  new URN("urn:publicid:IDN+"+topology.getNameSpace().replace("http://","")+"+slice+"+localname);
-        URN urn = new URN("urn:publicid:IDN+"+hostname+"+slice+"+localname);
+        
+        URN urn;
+        if(!project.isEmpty())
+          urn = new URN("urn:publicid:IDN+"+hostname+ ":" + project + "+slice+"+localname);
+        
+        else 
+          urn = new URN("urn:publicid:IDN+"+hostname+"+slice+"+localname);
+        
+        
         return urn.toString();
 
     }
