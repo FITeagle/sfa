@@ -59,8 +59,12 @@ public class SFA_AM_MDBSender {
 
     public Model sendRequest(Message request, String methodType, String methodTarget) {
 	LOGGER.log(Level.INFO, "START: Sending " + methodType + " to " + methodTarget);
+	
 	try {
-	    LOGGER.log(Level.INFO, "CONTENT: " + ((TextMessage) request).getText());
+	    LOGGER.info("Correlation ID: " + request.getJMSCorrelationID());
+	    LOGGER.info("Destination: " + request.getJMSDestination());
+	    LOGGER.info("ID: " + request.getJMSMessageID());
+	    LOGGER.log(Level.INFO, "CONTENT: " + ((TextMessage) request).getText());	    
 	} catch (JMSException e) {
 	    LOGGER.log(Level.INFO, "CONTENT: " + e.getMessage());
 	}
