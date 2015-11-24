@@ -4,10 +4,12 @@ import java.io.UnsupportedEncodingException;
 import java.util.List;
 
 
+
 //import info.openmultinet.ontology.exceptions.InvalidModelException;
 import info.openmultinet.ontology.exceptions.InvalidModelException;
-
+import info.openmultinet.ontology.exceptions.InvalidRspecValueException;
 import info.openmultinet.ontology.exceptions.MissingRspecElementException;
+
 import org.fiteagle.north.sfa.ISFA;
 
 import javax.jms.JMSException;
@@ -82,7 +84,7 @@ public interface ISFA_AM extends ISFA {
 	
 	public abstract Object describe(List<?> parameter) throws UnsupportedEncodingException, JAXBException, InvalidModelException;// , InvalidModelException;
 	
-	public abstract Object allocate(List<?> parameter) throws JAXBException, InvalidModelException, UnsupportedEncodingException, MissingRspecElementException;
+	public abstract Object allocate(List<?> parameter) throws JAXBException, InvalidModelException, UnsupportedEncodingException, MissingRspecElementException, InvalidRspecValueException;
 	
 	public abstract Object renew(List<?> parameter) throws UnsupportedEncodingException;
 	
