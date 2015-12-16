@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -216,6 +217,33 @@ public class ProcessAllocate extends AbstractMethodProcessor {
 				// }
 			}
 		}
+
+		// check whether replaced resources were also used as objects, replace
+		// old uri with new
+		List<Statement> toAdd = new ArrayList<Statement>();
+		List<Statement> toDelete = new ArrayList<Statement>();
+		Model model = ModelFactory.createDefaultModel();
+		for (Map.Entry<String, Resource> entry : originalResourceNames
+				.entrySet()) {
+			String oldUri = entry.getKey();
+			Resource newResource = entry.getValue();
+			StmtIterator statements = newRequestedResourcesModel
+					.listStatements();
+			while (statements.hasNext()) {
+				Statement stmt = statements.nextStatement();
+				if (stmt.getObject().isURIResource()
+						&& stmt.getObject().asResource().getURI()
+								.equals(oldUri)) {
+					toDelete.add(stmt);
+					Statement statementToAdd = model
+							.createStatement(stmt.getSubject(),
+									stmt.getPredicate(), newResource);
+					toAdd.add(statementToAdd);
+				}
+			}
+		}
+		newRequestedResourcesModel.add(toAdd);
+		newRequestedResourcesModel.remove(toDelete);
 
 		return newRequestedResourcesModel;
 	}
