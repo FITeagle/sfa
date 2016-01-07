@@ -23,7 +23,7 @@ public interface ISFA_SA extends ISFA {
 	String METHOD_GET_KEYS = "GETKEYS" ;
 
 	Object getVersion(List<?> parameter);
-	Object getCredential(X509Certificate certificate) throws Exception;
+	Object getCredential(X509Certificate userCertificate, List<?> parameter) throws Exception;
 	Object register(List<?> parameter) throws Exception;
 
     Object renewSlice(List<?> parameter) throws JAXBException, DatatypeConfigurationException;

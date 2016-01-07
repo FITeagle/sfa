@@ -275,7 +275,7 @@ protected KeyStore loadKeyStore(StoreType type) throws KeyStoreException, NoSuch
       X509Certificate cert = (X509Certificate) loadKeyStore(StoreType.TRUSTSTORE).getCertificate(sa_alias);
       return cert;
   }
-  public Key getSAPrivateKey() throws NoSuchAlgorithmException, CertificateException, KeyStoreException, IOException, UnrecoverableEntryException {
+  public PrivateKey getSAPrivateKey() throws NoSuchAlgorithmException, CertificateException, KeyStoreException, IOException, UnrecoverableEntryException {
     PrivateKey privateKey = null;
     KeyStore  ks = loadKeyStore(StoreType.TRUSTSTORE);
     KeyStore.PasswordProtection protection = new KeyStore.PasswordProtection(getSA_PrivateKeyPassword());

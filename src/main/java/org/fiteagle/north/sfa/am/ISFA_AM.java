@@ -46,6 +46,7 @@ public interface ISFA_AM extends ISFA {
 	String URN = "urn";
 	String REQUEST = "request";
 	String EndTime = "endTime";
+	String StartTime ="startTime";
 	String node = "node";
 	String componentManagerId = "component_manager_id";
 	String RequiredResources = "requiredResources";
@@ -64,6 +65,7 @@ public interface ISFA_AM extends ISFA {
 	String GENI_RSPEC_VERSION = "geni_rspec_version";
   String GENI_BEST_EFFORT = "geni_best_effort";
   String GENI_END_TIME = "geni_end_time";
+
   String GENI_USERS = "geni_users";
   
   final String PRIVILEGE_DEFAULT = "*";
@@ -75,9 +77,9 @@ public interface ISFA_AM extends ISFA {
   final String PRIVILEGE_BIND = "bind";
   final String PRIVILEGE_CONTROL = "control";
   final String PRIVILEGE_INSTANTIATE = "instantiate";
-  
 
-	
+
+
 	public abstract Object listResources(List<?> parameter) throws JMSException, UnsupportedEncodingException, JAXBException, InvalidModelException;
 
 	public abstract Object getVersion(List<?> parameter);

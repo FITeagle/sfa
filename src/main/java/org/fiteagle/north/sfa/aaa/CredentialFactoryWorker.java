@@ -139,6 +139,7 @@ public class CredentialFactoryWorker {
         setTargetCertificate();
         setId();
         setType();
+        setSerial();
         setOwnerGID();
         setOwnerURN();
         setTargetGID();
@@ -146,6 +147,11 @@ public class CredentialFactoryWorker {
         setExpirationDate();
         setPrivleges();
         return credential;
+    }
+
+    private void setSerial() {
+        String uuid = UUID.randomUUID().toString();
+        credential.setSerial(uuid);
     }
 
     private void setTargetURN() {

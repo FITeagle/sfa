@@ -1,9 +1,7 @@
 package org.fiteagle.north.sfa.am.performOperationalAction;
 
-import com.hp.hpl.jena.ontology.Individual;
 import com.hp.hpl.jena.rdf.model.Model;
 import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.rdf.model.Property;
 import com.hp.hpl.jena.rdf.model.Resource;
 import com.hp.hpl.jena.vocabulary.RDF;
 
@@ -11,15 +9,11 @@ import info.openmultinet.ontology.vocabulary.Omn;
 import info.openmultinet.ontology.vocabulary.Omn_lifecycle;
 
 import org.apache.jena.riot.RiotException;
-import org.bouncycastle.crypto.engines.ISAACEngine;
 import org.fiteagle.api.core.IGeni;
 import org.fiteagle.api.core.IMessageBus;
 import org.fiteagle.api.core.MessageUtil;
-import org.fiteagle.north.sfa.ISFA;
 import org.fiteagle.north.sfa.am.ISFA_AM;
 import org.fiteagle.north.sfa.am.common.AbstractMethodProcessor;
-import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
-import org.fiteagle.north.sfa.util.GENI_Credential;
 import org.fiteagle.north.sfa.util.URN;
 
 import java.io.ByteArrayInputStream;
@@ -52,7 +46,7 @@ public class PerformOperationalActionHandler extends AbstractMethodProcessor {
                 Resource resource = model.createResource(URLDecoder.decode(urn.getSubject(), ISFA_AM.UTF_8));
                 resource.addProperty(RDF.type, Omn.Resource);
                 switch (action) {
-                    case IGeni.GENI_STATRT:
+                    case IGeni.GENI_START:
                         System.out.println("start");
                         resource.addProperty(Omn_lifecycle.hasState, Omn_lifecycle.Ready);
                         break;
@@ -80,7 +74,7 @@ public class PerformOperationalActionHandler extends AbstractMethodProcessor {
                 Resource topology = model.createResource("http://" + urn.getDomain() + "/topology/" + urn.getSubject());
                 topology.addProperty(RDF.type, Omn.Topology);
                 switch (action) {
-                    case IGeni.GENI_STATRT:
+                    case IGeni.GENI_START:
                         System.out.println("start");
                         topology.addProperty(Omn_lifecycle.hasState, Omn_lifecycle.Ready);
                         break;

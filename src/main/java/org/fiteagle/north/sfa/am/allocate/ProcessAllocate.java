@@ -4,6 +4,7 @@ import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -15,6 +16,8 @@ import java.util.logging.Logger;
 import javax.xml.bind.JAXBException;
 import javax.xml.stream.XMLStreamException;
 
+import com.hp.hpl.jena.rdf.model.*;
+import com.hp.hpl.jena.vocabulary.OWL;
 import org.fiteagle.api.core.Config;
 import org.fiteagle.api.core.IConfig;
 import org.fiteagle.api.core.IGeni;
@@ -28,12 +31,6 @@ import org.fiteagle.north.sfa.am.common.AbstractMethodProcessor;
 import org.fiteagle.north.sfa.exceptions.BadArgumentsException;
 import org.fiteagle.north.sfa.util.URN;
 
-import com.hp.hpl.jena.rdf.model.Model;
-import com.hp.hpl.jena.rdf.model.ModelFactory;
-import com.hp.hpl.jena.rdf.model.ResIterator;
-import com.hp.hpl.jena.rdf.model.Resource;
-import com.hp.hpl.jena.rdf.model.Statement;
-import com.hp.hpl.jena.rdf.model.StmtIterator;
 import com.hp.hpl.jena.vocabulary.RDF;
 
 import info.openmultinet.ontology.exceptions.DeprecatedRspecVersionException;
@@ -87,6 +84,9 @@ public class ProcessAllocate extends AbstractMethodProcessor {
 					ProcessAllocate.LOGGER.log(Level.INFO,
 							allocateOptions.get(ISFA_AM.EndTime).toString());
 				}
+				if (parameters.getKey().toString().equals(IGeni.GENI_START_TIME)){
+					allocateOptions.put(ISFA_AM.StartTime, parameters.getValue().toString());
+				}
 			}
 		}
 
@@ -107,6 +107,7 @@ public class ProcessAllocate extends AbstractMethodProcessor {
 			topology.addProperty(Omn_lifecycle.project, this.urn.getProject());
 		}
 
+		addDateInformation(topology);
 		Model requestedResources = getRequestedResources(topology, incoming);
 		requestModel.add(requestedResources);
 
@@ -121,6 +122,23 @@ public class ProcessAllocate extends AbstractMethodProcessor {
 						+ OntologyModelUtil.toString(resultModel));
 
 		return resultModel;
+	}
+
+	private void addDateInformation(Resource topology) {
+
+		if(allocateOptions.get(ISFA_AM.EndTime) != null){
+			String endTime =(String) allocateOptions.get(ISFA_AM.EndTime);
+			Property property = topology.getModel().createProperty(MessageBusOntologyModel.endTime.getNameSpace(), MessageBusOntologyModel.endTime.getLocalName());
+			property.addProperty(RDF.type, OWL.FunctionalProperty);
+			topology.addProperty(property,endTime);
+
+		}
+		if(allocateOptions.get(ISFA_AM.StartTime) != null){
+			String startTime =(String) allocateOptions.get(ISFA_AM.StartTime);
+			Property property = topology.getModel().createProperty(MessageBusOntologyModel.startTime.getNameSpace(), MessageBusOntologyModel.startTime.getLocalName());
+			property.addProperty(RDF.type, OWL.FunctionalProperty);
+			topology.addProperty(property,startTime);
+		}
 	}
 
 	private Model getRequestedResources(Resource topology, Model requestedModel) {

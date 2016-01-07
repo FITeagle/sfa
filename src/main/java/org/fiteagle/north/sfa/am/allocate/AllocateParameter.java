@@ -5,6 +5,16 @@ public class AllocateParameter {
 	private String URN;
 	private String request;
 	private String endTime;
+
+	public String getStartTime() {
+		return startTime;
+	}
+
+	public void setStartTime(String startTime) {
+		this.startTime = startTime;
+	}
+
+	private String startTime;
 	
 	public void setURN(String urn){
 		this.URN = urn;
