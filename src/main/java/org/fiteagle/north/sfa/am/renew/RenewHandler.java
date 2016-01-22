@@ -38,7 +38,9 @@ public class RenewHandler extends AbstractMethodProcessor {
     public RenewHandler(List<?> parameter) {
       this.parameter = parameter;
     }
-    
+
+
+    //TODO returns just one sliver if slice is renewed
     public Model renew() throws UnsupportedEncodingException {
         Map<String, Object> options = new HashMap<>();
         if(this.urns == null || this.urns.isEmpty()){
