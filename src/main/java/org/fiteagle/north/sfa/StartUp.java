@@ -40,7 +40,9 @@ public class StartUp {
     public void addSfaApi() {
 	LOGGER.info("START");
         setDefaultModel();
-        timerService.createIntervalTimer(0, 5000, new TimerConfig());
+    	TimerConfig config = new TimerConfig();
+		config.setPersistent(false);
+        timerService.createIntervalTimer(0, 5000, config);
     }
 
     @PreDestroy
