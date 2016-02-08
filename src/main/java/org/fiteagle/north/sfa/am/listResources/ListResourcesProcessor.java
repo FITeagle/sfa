@@ -81,7 +81,7 @@ public class ListResourcesProcessor extends AbstractMethodProcessor{
     public void createResponse(final HashMap<String, Object> result, Model topologyModel) throws JAXBException, InvalidModelException, UnsupportedEncodingException {
       String testbedResources = "";
       
-      if(ISFA_AM.VERSION_3.equals(this.delegate.getRspecVersion()) && ISFA_AM.GENI.equals(this.delegate.getRspecType())){
+      if(ISFA_AM.VERSION_3.equalsIgnoreCase(this.delegate.getRspecVersion()) && ISFA_AM.GENI.equalsIgnoreCase(this.delegate.getRspecType())){
         AdvertisementConverter converter = new AdvertisementConverter();
           converter.setVerbose(true);
         testbedResources = converter.getRSpec(topologyModel);
@@ -100,7 +100,7 @@ public class ListResourcesProcessor extends AbstractMethodProcessor{
         
         
     public boolean checkSupportedVersions() {
-      if(!(ISFA_AM.GENI.equals(this.delegate.getRspecType()) && ISFA_AM.VERSION_3.equals(this.delegate.getRspecVersion())) && !"omn".equals(this.delegate.getRspecType()))
+      if(!(ISFA_AM.GENI.equalsIgnoreCase(this.delegate.getRspecType()) && ISFA_AM.VERSION_3.equals(this.delegate.getRspecVersion())) && !"omn".equals(this.delegate.getRspecType()))
         return false;
       else 
         return true;
