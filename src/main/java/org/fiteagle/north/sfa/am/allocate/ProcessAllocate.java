@@ -6,6 +6,7 @@ import java.io.UnsupportedEncodingException;
 import java.nio.charset.Charset;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -16,8 +17,10 @@ import java.util.logging.Logger;
 import javax.xml.bind.JAXBException;
 import javax.xml.stream.XMLStreamException;
 
+import com.hp.hpl.jena.datatypes.xsd.XSDDateTime;
 import com.hp.hpl.jena.rdf.model.*;
 import com.hp.hpl.jena.vocabulary.OWL;
+
 import org.fiteagle.api.core.Config;
 import org.fiteagle.api.core.IConfig;
 import org.fiteagle.api.core.IGeni;
@@ -25,6 +28,7 @@ import org.fiteagle.api.core.IMessageBus;
 import org.fiteagle.api.core.MessageBusOntologyModel;
 import org.fiteagle.api.core.MessageUtil;
 import org.fiteagle.api.core.OntologyModelUtil;
+import org.fiteagle.api.core.TimeHelperMethods;
 import org.fiteagle.north.sfa.am.ISFA_AM;
 import org.fiteagle.north.sfa.am.ReservationStateEnum;
 import org.fiteagle.north.sfa.am.common.AbstractMethodProcessor;
@@ -84,8 +88,10 @@ public class ProcessAllocate extends AbstractMethodProcessor {
 					ProcessAllocate.LOGGER.log(Level.INFO,
 							allocateOptions.get(ISFA_AM.EndTime).toString());
 				}
-				if (parameters.getKey().toString().equals(IGeni.GENI_START_TIME)){
-					allocateOptions.put(ISFA_AM.StartTime, parameters.getValue().toString());
+				if (parameters.getKey().toString()
+						.equals(IGeni.GENI_START_TIME)) {
+					allocateOptions.put(ISFA_AM.StartTime, parameters
+							.getValue().toString());
 				}
 			}
 		}
@@ -107,6 +113,9 @@ public class ProcessAllocate extends AbstractMethodProcessor {
 			topology.addProperty(Omn_lifecycle.project, this.urn.getProject());
 		}
 
+		Model leaseInfo = getLeaseInfo(topology, incoming);
+		requestModel.add(leaseInfo);
+
 		addDateInformation(topology);
 		Model requestedResources = getRequestedResources(topology, incoming);
 		requestModel.add(requestedResources);
@@ -124,20 +133,91 @@ public class ProcessAllocate extends AbstractMethodProcessor {
 		return resultModel;
 	}
 
+	private Model getLeaseInfo(Resource topologyResource, Model incoming) {
+
+		ResIterator topologies = incoming.listSubjectsWithProperty(RDF.type,
+				Omn.Topology);
+		if (!topologies.hasNext()) {
+			return null;
+		}
+
+		Resource incomingTopology = topologies.next();
+		LOGGER.log(Level.INFO, "getLeaseInfo");
+
+		String serializedModel = MessageUtil.serializeModel(incoming,
+				IMessageBus.SERIALIZATION_TURTLE);
+		LOGGER.log(Level.INFO, "getLeaseInfo: incoming model "
+				+ serializedModel);
+
+		Model leaseInfo = ModelFactory.createDefaultModel();
+		Resource topology = leaseInfo.createResource(topologyResource.getURI());
+
+		if (incomingTopology.hasProperty(Omn_lifecycle.hasLease)) {
+
+			LOGGER.log(Level.INFO,
+					"createReservationModel: hasLease property present");
+			Resource lease = incomingTopology
+					.getProperty(Omn_lifecycle.hasLease).getObject()
+					.asResource();
+
+			if (lease.hasProperty(Omn_lifecycle.startTime)) {
+
+				XSDDateTime time = null;
+				Object startTime = ((Object) lease
+						.getProperty(Omn_lifecycle.startTime).getObject()
+						.asLiteral().getValue());
+				if (startTime instanceof XSDDateTime) {
+					time = (XSDDateTime) startTime;
+				}
+				Date date = TimeHelperMethods.getDateFromXSD(time);
+
+				Property property = leaseInfo.createProperty(
+						MessageBusOntologyModel.startTime.getNameSpace(),
+						MessageBusOntologyModel.startTime.getLocalName());
+				property.addProperty(RDF.type, OWL.FunctionalProperty);
+				topology.addProperty(property, new SimpleDateFormat(
+						"yyyy-MM-dd'T'HH:mm:ssXXX").format(date));
+			}
+
+			if (lease.hasProperty(Omn_lifecycle.expirationTime)) {
+				XSDDateTime time = null;
+				Object startTime = ((Object) lease
+						.getProperty(Omn_lifecycle.expirationTime).getObject()
+						.asLiteral().getValue());
+				if (startTime instanceof XSDDateTime) {
+					time = (XSDDateTime) startTime;
+				}
+
+				Date date = TimeHelperMethods.getDateFromXSD(time);
+				Property property = leaseInfo.createProperty(
+						MessageBusOntologyModel.endTime.getNameSpace(),
+						MessageBusOntologyModel.endTime.getLocalName());
+				property.addProperty(RDF.type, OWL.FunctionalProperty);
+				topology.addProperty(property, new SimpleDateFormat(
+						"yyyy-MM-dd'T'HH:mm:ssXXX").format(date));
+			}
+		}
+		return leaseInfo;
+	}
+
 	private void addDateInformation(Resource topology) {
 
-		if(allocateOptions.get(ISFA_AM.EndTime) != null){
-			String endTime =(String) allocateOptions.get(ISFA_AM.EndTime);
-			Property property = topology.getModel().createProperty(MessageBusOntologyModel.endTime.getNameSpace(), MessageBusOntologyModel.endTime.getLocalName());
+		if (allocateOptions.get(ISFA_AM.EndTime) != null) {
+			String endTime = (String) allocateOptions.get(ISFA_AM.EndTime);
+			Property property = topology.getModel().createProperty(
+					MessageBusOntologyModel.endTime.getNameSpace(),
+					MessageBusOntologyModel.endTime.getLocalName());
 			property.addProperty(RDF.type, OWL.FunctionalProperty);
-			topology.addProperty(property,endTime);
+			topology.addProperty(property, endTime);
 
 		}
-		if(allocateOptions.get(ISFA_AM.StartTime) != null){
-			String startTime =(String) allocateOptions.get(ISFA_AM.StartTime);
-			Property property = topology.getModel().createProperty(MessageBusOntologyModel.startTime.getNameSpace(), MessageBusOntologyModel.startTime.getLocalName());
+		if (allocateOptions.get(ISFA_AM.StartTime) != null) {
+			String startTime = (String) allocateOptions.get(ISFA_AM.StartTime);
+			Property property = topology.getModel().createProperty(
+					MessageBusOntologyModel.startTime.getNameSpace(),
+					MessageBusOntologyModel.startTime.getLocalName());
 			property.addProperty(RDF.type, OWL.FunctionalProperty);
-			topology.addProperty(property,startTime);
+			topology.addProperty(property, startTime);
 		}
 	}
 
