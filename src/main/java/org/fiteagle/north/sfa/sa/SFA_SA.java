@@ -44,6 +44,7 @@ import org.fiteagle.north.sfa.am.ISFA_AM;
 import org.fiteagle.north.sfa.am.dm.SFA_AM_MDBSender;
 import org.fiteagle.north.sfa.util.URN;
 import redstone.xmlrpc.XmlRpcArray;
+import redstone.xmlrpc.XmlRpcStruct;
 
 import javax.security.auth.x500.X500Principal;
 import javax.xml.bind.JAXBContext;
@@ -75,6 +76,8 @@ public class SFA_SA implements ISFA_SA {
                     break;
                 case ISFA_SA.METHOD_GET_CREDENTIAL:
                     result = this.getCredential(cert, parameter);
+    				// TODO DEBUG LINE - WILL BE DELETED
+    				if(result == null){ LOGGER.log(Level.SEVERE,"GET_CREDENTIAL RESULT NULL");};
                     break;
                 case ISFA_SA.METHOD_REGISTER:
                     result = this.register(parameter);
@@ -286,17 +289,60 @@ public class SFA_SA implements ISFA_SA {
     @Override
     public Object resolve(List<?> parameter) {
         LOGGER.log(Level.INFO, "Logging Resolve ");
+        HashMap<String,Object> result = new HashMap<>();
+        HashMap<String,Object> value = new HashMap<>();
+        URN ownerURN = null;
+        
         for(Object o: parameter){
             LOGGER.log(Level.INFO,parameter.toString());
+            Object o2 = ((XmlRpcStruct)o).get("credential");
+            if(o2.getClass().equals(String.class)){
+            	
+            	String credentialString = (String) o2;
+                JAXBContext context;
+				try {
+					context = JAXBContext.newInstance("org.fiteagle.north.sfa.aaa.jaxbClasses");
+				
+                Unmarshaller unmarshaller = context.createUnmarshaller();
+                StringReader reader = new StringReader(credentialString);
+                SignedCredential sc = (SignedCredential) unmarshaller.unmarshal(reader);
+
+                ownerURN = new URN(sc.getCredential().getOwnerURN());
+
+                value.put("gid", sc.getCredential().getOwnerGid());
+                value.put("name", ownerURN.getSubject());
+                
+				} catch (JAXBException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+            }
         }
 
-        HashMap<String,Object> result = new HashMap<>();
+        
+        
         String output = "";
         int code = 0;
 
         result.put("output", output);
         result.put("code", code);
-        result.put("value", "");
+        
+        value.put("uid","testsubject" );
+        value.put("hrn","testbed.test" );
+        value.put("uuid","ba21afe5-97d9-11e3-883a-001517becd24" );
+        value.put("email","testsubject@testmail.com" );
+//        value.put("gid","MIIEJzCCAw+gAwIBAgKCAQBeKHoUlCUKO616nUrVrfxjM9u9+f1B5f/A85hjz/AUxo6zlKuw0E7AEgEBbgYhyMuns9qgfXS668L4QS+tMmkAdi0QcY+0kmW4XQd9bBQJmLt1iMbA64XgGooNdSkpnbgGizufbmqLSSxDwG/Bus2+vSdSoxc2SRKNEEmxOWd33YlGciy1S7Jbq/0j3Y23BdFVrYkSCV31UqudseVgfvAZ/z48CVxrhkVs1U0XdeCpPPfoSCDnXqh+C7oEzNaMKR0GCaGudKnsB6aWjZzuZ3vmtMHa653ba/1oMALKmVFcycQ08mdc2YyjpTPpXTCI/pbskKSPU/Tgz237xIBWxwx3MA0GCSqGSIb3DQEBBQUAMFsxCzAJBgNVBAYTAkRFMQ8wDQYDVQQIDAZCZXJsaW4xDzANBgNVBAcMBkJlcmxpbjEMMAoGA1UECgwDVFVCMQswCQYDVQQLDAJBVjEPMA0GA1UEAwwGdGVzdENBMB4XDTE2MDkwNTEzNDQyNFoXDTE3MDkwNTAzNDQyNFowDzENMAsGA1UEAwwEYWxleDCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAK7+Ne3raihBc7faFVC3jlsiG99wnhnPSyLuzxV2zYeyaO1UOvu8SYqoh2ZWBnrdoNtmmc8DNFNpJ5tv0ktDBwDMf8MVj38FMfMPTgvZoqbk2Ifb8ef1GwZj6mgJ6KZGSWd0AKRs9fegQV7zfclu28nUlHtyievwyfNwkF38HppbZ9iyxlJJ6DWAYOz0sVKJG+pCvoOP0YMG9NRZsBkcnkdJDpQrHaQxPBgbBe/yzTrPg6DE7Vw/vbuyqDhtcyJGtQSqAbl2oIy+JwZTNpqIsMvZQNk3aW713gv9Ibsf+cZ2ZvQB5fhwTzdvMLe+WRImzYEybQ5odyHcMok8rTiqcu8CAwEAAaNBMD8wDAYDVR0TAQH/BAIwADAvBgNVHREEKDAmhiR1cm46cHVibGljaWQ6SUROK2xvY2FsaG9zdCt1c2VyK2FsZXgwDQYJKoZIhvcNAQEFBQADggEBAG4zn0Jrgg0Bk8px1F2JhmROVlj3v5MK/fxwMQRcV68ELD7Citbhc0qOh+zCh1QO9rHA4a7rEXMylPvFAu04UiPdXylSlGa/3U0wSLiBV5AXech5tM10oY/Ix9vlebNgfX/UIy1Ffl0uQG+kf0i2ySbFKGpeJiJHV0nlSO/rbg/vqwXcdVfvk0BJCR5w9GX0hiZwTve0LLCGLHvQDuuj7+YckzZj5J+jl+jDx/Tr3a3w1vP2xpxmTBQIJ4VUHZgPYeA81wJDsJEOwfvzrmvA1bHJonUr1I6n0zJ5DcKur6+wthOYMc7hcpW3SNvJGW5lLRBL6CZzFjYfZfwT92gNEbo=" );
+//        value.put("name","alex" );
+        
+        
+        
+        
+        
+        value.put("slices",new ArrayList<>() );
+        
+        result.put("value",value);
+        
+
         return result;
     }
 
