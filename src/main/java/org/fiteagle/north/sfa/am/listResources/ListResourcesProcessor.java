@@ -75,6 +75,7 @@ public class ListResourcesProcessor extends AbstractMethodProcessor{
         LOGGER.info("START: Listing resources: " + serializedModel);
         Model model = getSender().sendRDFRequest(serializedModel, IMessageBus.TYPE_GET, IMessageBus.TARGET_RESOURCE_ADAPTER_MANAGER);
         ResIterator it = model.listSubjectsWithProperty(Omn.isAttributeOf);
+        // TODO Refactor this and make it variable
         while(it.hasNext()){
         	Resource resource = it.next();
         	Statement statement = resource.getProperty(Omn.isAttributeOf);
