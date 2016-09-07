@@ -75,9 +75,10 @@ public class SFA_SA implements ISFA_SA {
                     result = this.getVersion(parameter);
                     break;
                 case ISFA_SA.METHOD_GET_CREDENTIAL:
+                	LOGGER.log(Level.SEVERE,"=======================Starting GET_CREDENTIAL");
                     result = this.getCredential(cert, parameter);
     				// TODO DEBUG LINE - WILL BE DELETED
-    				if(result == null){ LOGGER.log(Level.SEVERE,"GET_CREDENTIAL RESULT NULL");};
+    				if(result == null){ LOGGER.log(Level.SEVERE,"==========GET_CREDENTIAL RESULT NULL");};
                     break;
                 case ISFA_SA.METHOD_REGISTER:
                     result = this.register(parameter);
