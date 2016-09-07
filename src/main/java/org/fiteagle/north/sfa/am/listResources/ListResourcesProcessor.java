@@ -82,7 +82,9 @@ public class ListResourcesProcessor extends AbstractMethodProcessor{
         	RDFNode rdfObject = statement.getObject();
         	Node node = rdfObject.asNode();
         	String nodeString = node.getLiteralValue().toString();
-        	if(nodeString.equals("d28a8a82-d503-42c5-80e5-899469e9255d")){
+//        	if(nodeString.equals("d28a8a82-d503-42c5-80e5-899469e9255d")){
+            if(true){
+
                 LOGGER.info(resource.toString());
         	}else{
                 LOGGER.info("RESOURCE NOT FOR THIS EXPERIMENTER");
