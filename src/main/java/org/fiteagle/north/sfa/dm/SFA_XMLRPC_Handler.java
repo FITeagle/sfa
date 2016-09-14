@@ -12,6 +12,8 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.fiteagle.north.sfa.ISFA;
+import org.fiteagle.north.sfa.sa.dm.FixedXmlRpcDispatcher;
+import org.fiteagle.north.sfa.sa.dm.Fixed_XMLRPC_Server;
 
 import redstone.xmlrpc.XmlRpcDispatcher;
 import redstone.xmlrpc.XmlRpcException;
@@ -30,7 +32,7 @@ public class SFA_XMLRPC_Handler implements ISFA_XMLRPC_InvocationHandler {
 	private static final String DUMMY_RESPONSE_FILE_PROVISION = "/dummy-provision.xml";
 
 	private final XmlRpcServer xmlrpcServer;
-	private  XmlRpcDispatcher dispatcher;
+	private  FixedXmlRpcDispatcher dispatcher;
 	private PrintWriter writer;
 	private final ISFA manager;
 	private final ISFA_XMLRPC_InvocationHandler handler;
@@ -40,10 +42,12 @@ public class SFA_XMLRPC_Handler implements ISFA_XMLRPC_InvocationHandler {
 	public SFA_XMLRPC_Handler(final ISFA manager) {
 		this.manager = manager;
 		this.handler = this;
-		this.xmlrpcServer = new XmlRpcServer();
+		this.xmlrpcServer = new Fixed_XMLRPC_Server();
 		this.xmlrpcServer.setSerializer(new SFA_XMLRPC_Serializer());
 		this.xmlrpcServer.addInvocationHandler("__default__", this.handler);
 		// todo: xmlrpcServer.addInvocationInterceptor(securityModule);
+		
+		
 
 	}
 
@@ -56,7 +60,7 @@ public class SFA_XMLRPC_Handler implements ISFA_XMLRPC_InvocationHandler {
 		try {
 			this.handler.setPath(path);
 			this.handler.setCert(cert);
-			this.dispatcher = new XmlRpcDispatcher(this.xmlrpcServer, "");
+			this.dispatcher = new FixedXmlRpcDispatcher(this.xmlrpcServer, "");
 			// todo: forward path and certificate here for AuthN/AuthZ
 			this.dispatcher.dispatch(inputStream, this.writer);
 		} catch (XmlRpcException | NullPointerException e) {
