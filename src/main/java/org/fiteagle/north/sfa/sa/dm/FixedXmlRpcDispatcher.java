@@ -6,8 +6,11 @@ import java.io.Writer;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import org.fiteagle.north.sfa.dm.SFA_XMLRPC_Handler;
+import org.fiteagle.north.sfa.sa.SFA_SA;
 import org.xml.sax.SAXException;
 
 import redstone.xmlrpc.XmlRpcDispatcher;
@@ -20,6 +23,7 @@ import redstone.xmlrpc.XmlRpcMessages;
 import redstone.xmlrpc.XmlRpcServer;
 
 public class FixedXmlRpcDispatcher extends XmlRpcDispatcher {
+    protected static Logger LOGGER = Logger.getLogger(FixedXmlRpcDispatcher.class.getName());
 
 	
 	private Writer writer;
@@ -183,6 +187,9 @@ public class FixedXmlRpcDispatcher extends XmlRpcDispatcher {
 	 */
 
 	private void writeValue(Object value) throws IOException {
+    	LOGGER.log(Level.SEVERE,"======writeValue  -- Fixed XMlRpcDispatcher");
+    	LOGGER.log(Level.SEVERE,value.toString());
+
 		server.getSerializer().writeEnvelopeHeader(value, writer);
 
 		if (value != null) {
