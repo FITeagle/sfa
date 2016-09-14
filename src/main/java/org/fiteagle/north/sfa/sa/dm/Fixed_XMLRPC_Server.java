@@ -16,9 +16,5 @@ public class Fixed_XMLRPC_Server extends XmlRpcServer{
 	}
 	
 	
-	public void execute(InputStream paramInputStream, Writer paramWriter, String path, X509Certificate x509Certificate) throws XmlRpcException {
-		FixedXmlRpcDispatcher dispatcher = new FixedXmlRpcDispatcher(this, path);
-		dispatcher.dispatch(paramInputStream, paramWriter, x509Certificate);
-		
-	}
+	
 }

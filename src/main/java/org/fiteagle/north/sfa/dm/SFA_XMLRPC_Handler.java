@@ -31,7 +31,7 @@ public class SFA_XMLRPC_Handler implements ISFA_XMLRPC_InvocationHandler {
 	private static final String DUMMY_RESPONSE_FILE_DELETE = "/dummy-delete.xml";
 	private static final String DUMMY_RESPONSE_FILE_PROVISION = "/dummy-provision.xml";
 
-	private final XmlRpcServer xmlrpcServer;
+	private final Fixed_XMLRPC_Server xmlrpcServer;
 	private  FixedXmlRpcDispatcher dispatcher;
 	private PrintWriter writer;
 	private final ISFA manager;

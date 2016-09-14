@@ -41,7 +41,7 @@ public class FixedXmlRpcDispatcher extends XmlRpcDispatcher {
 	}
 
 	
-	public void dispatch(InputStream xmlInput, Writer xmlOutput, X509Certificate x509Certificate)
+	public void dispatch(InputStream xmlInput, Writer xmlOutput)
 			throws XmlRpcException {
 		// Parse the inbound XML-RPC message. May throw an exception.
 	  
