@@ -85,6 +85,7 @@ public class FixedXmlRpcDispatcher extends XmlRpcDispatcher {
 						localObject = postProcess(localXmlRpcInvocation,
 								localObject);
 						if (localObject != null)
+							
 							writeValue(localObject);
 					}
 				} catch (Throwable localThrowable) {
@@ -141,7 +142,8 @@ public class FixedXmlRpcDispatcher extends XmlRpcDispatcher {
 
 	private Object postProcess(XmlRpcInvocation invocation, Object returnValue) {
 		XmlRpcInvocationInterceptor p;
-
+    	LOGGER.log(Level.SEVERE,"======postProcess Beginning -- Fixed XMlRpcDispatcher");
+    	LOGGER.log(Level.SEVERE,returnValue.toString());
 		for (int i = 0; i < server.getInvocationInterceptors().size(); ++i) {
 			p = (XmlRpcInvocationInterceptor) server
 					.getInvocationInterceptors().get(i);
@@ -152,7 +154,9 @@ public class FixedXmlRpcDispatcher extends XmlRpcDispatcher {
 			// responsibility for writing a response directly to the client,
 			// break
 			// the interceptor chain and return immediately.
-
+			
+			LOGGER.log(Level.SEVERE,"======postProcess  END-- Fixed XMlRpcDispatcher");
+	    	LOGGER.log(Level.SEVERE,returnValue.toString());
 			if (returnValue == null) {
 				return null;
 			}
@@ -187,8 +191,7 @@ public class FixedXmlRpcDispatcher extends XmlRpcDispatcher {
 	 */
 
 	private void writeValue(Object value) throws IOException {
-    	LOGGER.log(Level.SEVERE,"======writeValue  -- Fixed XMlRpcDispatcher");
-    	LOGGER.log(Level.SEVERE,value.toString());
+
 
 		server.getSerializer().writeEnvelopeHeader(value, writer);
 
