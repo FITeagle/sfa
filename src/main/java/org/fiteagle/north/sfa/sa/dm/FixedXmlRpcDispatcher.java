@@ -44,7 +44,7 @@ public class FixedXmlRpcDispatcher extends XmlRpcDispatcher {
 	public void dispatch(InputStream xmlInput, Writer xmlOutput)
 			throws XmlRpcException {
 		// Parse the inbound XML-RPC message. May throw an exception.
-	  
+	    LOGGER.log(Level.SEVERE, "Dispatching...");
 		parse(xmlInput);
 		this.writer = xmlOutput;
 		int i = this.methodName.lastIndexOf(".");
@@ -75,6 +75,7 @@ public class FixedXmlRpcDispatcher extends XmlRpcDispatcher {
 					  Object localObject = null;
 					  if(localXmlRpcInvocationHandler instanceof SFA_XMLRPC_Handler){
 						  SFA_XMLRPC_Handler handler = (SFA_XMLRPC_Handler) localXmlRpcInvocationHandler;
+						  LOGGER.log(Level.SEVERE, "Found Method "+ methodName);
 					    localObject = handler.invoke(methodName, arguments);
 					  }else{
 					    localObject = localXmlRpcInvocationHandler
