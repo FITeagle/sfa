@@ -44,7 +44,7 @@ public class SFA_XMLRPC_Handler implements ISFA_XMLRPC_InvocationHandler {
 		this.handler = this;
 		this.xmlrpcServer = new Fixed_XMLRPC_Server();
 		this.xmlrpcServer.setSerializer(new SFA_XMLRPC_Serializer());
-		this.xmlrpcServer.addInvocationHandler("__default__", this.handler);
+		this.xmlrpcServer.addInvocationHandler("", this.handler);
 		// todo: xmlrpcServer.addInvocationInterceptor(securityModule);
 		
 		
