@@ -153,6 +153,7 @@ public class SFA_SA implements ISFA_SA {
         result.put("value",signedCredential);
         result.put("code",code);
         result.put("output",output);
+        LOGGER.log(Level.SEVERE, "SFA_SA  -- END OF -- getCredential Method");
         LOGGER.log(Level.SEVERE, signedCredential);
         return result;
     }
