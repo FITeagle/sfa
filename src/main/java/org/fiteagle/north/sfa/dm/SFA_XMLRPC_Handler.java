@@ -89,6 +89,8 @@ public class SFA_XMLRPC_Handler implements ISFA_XMLRPC_InvocationHandler {
 		Object result = this.manager.handle(methodName, parameter, this.path, this.cert);
 
 		LOGGER.log(Level.INFO, "END: Handling " + methodName);
+		LOGGER.log(Level.SEVERE, result.toString());
+		
 		return result;
 	}
 

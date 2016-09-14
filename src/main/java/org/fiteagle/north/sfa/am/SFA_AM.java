@@ -87,6 +87,8 @@ public class SFA_AM implements ISFA_AM {
 				break;
 			case ISFA_AM.METHOD_DELETE:
 				result = this.delete(parameter);
+				// TODO DEBUG LINE - WILL BE DELETED
+				if(result == null){ LOGGER.log(Level.SEVERE,"DELETE RESULT NULL");};
 				break;
 			case ISFA_AM.METHOD_SHUTDOWN:
 				result = this.shutdown(parameter);
