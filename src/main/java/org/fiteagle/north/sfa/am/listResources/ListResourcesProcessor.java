@@ -84,7 +84,7 @@ public class ListResourcesProcessor extends AbstractMethodProcessor{
         	Node node = rdfObject.asNode();
         	String nodeString = node.getLiteralValue().toString();
 //        	if(nodeString.equals("d28a8a82-d503-42c5-80e5-899469e9255d")){
-        	List<GENI_Credential> credentials = this.parseCredentialsParameters(parameter.get(1));
+//        	List<GENI_Credential> credentials = this.parseCredentialsParameters(parameter.get(1));
             if(true){
 
                 LOGGER.info(resource.toString());
