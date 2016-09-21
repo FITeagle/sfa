@@ -21,6 +21,7 @@ import org.fiteagle.api.core.MessageUtil;
 import org.fiteagle.api.core.OntologyModelUtil;
 import org.fiteagle.north.sfa.am.ISFA_AM;
 import org.fiteagle.north.sfa.am.common.AbstractMethodProcessor;
+import org.fiteagle.north.sfa.util.GENI_Credential;
 
 import com.hp.hpl.jena.graph.Node;
 import com.hp.hpl.jena.rdf.model.AnonId;
@@ -83,6 +84,7 @@ public class ListResourcesProcessor extends AbstractMethodProcessor{
         	Node node = rdfObject.asNode();
         	String nodeString = node.getLiteralValue().toString();
 //        	if(nodeString.equals("d28a8a82-d503-42c5-80e5-899469e9255d")){
+        	List<GENI_Credential> credentials = this.parseCredentialsParameters(parameter);
             if(true){
 
                 LOGGER.info(resource.toString());
