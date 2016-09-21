@@ -15,11 +15,9 @@ public class SFA_SA_Servlet extends AbstractSFA_Servlet {
 
 	protected static Logger LOGGER = Logger.getLogger(SFA_SA_Servlet.class
 			.getName());
-	private Fixed_XMLRPC_Server server;
 
 	public SFA_SA_Servlet() {
 		super();
-
 		this.handler = new SFA_XMLRPC_Handler(new SFA_SA());
 	}
 }
