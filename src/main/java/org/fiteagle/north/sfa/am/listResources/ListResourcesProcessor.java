@@ -157,7 +157,6 @@ public class ListResourcesProcessor extends AbstractMethodProcessor{
       if(ISFA_AM.VERSION_3.equalsIgnoreCase(this.delegate.getRspecVersion()) && ISFA_AM.GENI.equalsIgnoreCase(this.delegate.getRspecType())){
         AdvertisementConverter converter = new AdvertisementConverter();
           converter.setVerbose(true);
-          LOGGER.log(Level.SEVERE,topologyModel.toString());
 
         testbedResources = converter.getRSpec(topologyModel);
     }else if("omn".equals(this.delegate.getRspecType())){
