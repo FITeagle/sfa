@@ -1,6 +1,7 @@
 package org.fiteagle.north.sfa.am;
 
 import java.io.UnsupportedEncodingException;
+import java.security.cert.X509Certificate;
 import java.util.List;
 
 
@@ -80,7 +81,7 @@ public interface ISFA_AM extends ISFA {
 
 
 
-	public abstract Object listResources(List<?> parameter) throws JMSException, UnsupportedEncodingException, JAXBException, InvalidModelException;
+	public abstract Object listResources(List<?> parameter,X509Certificate cert) throws JMSException, UnsupportedEncodingException, JAXBException, InvalidModelException;
 
 	public abstract Object getVersion(List<?> parameter);
 	

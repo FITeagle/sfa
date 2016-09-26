@@ -1,6 +1,7 @@
 package org.fiteagle.north.sfa.am.listResources;
 
 import java.io.UnsupportedEncodingException;
+import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -39,6 +40,7 @@ import info.openmultinet.ontology.exceptions.InvalidModelException;
 import info.openmultinet.ontology.translators.geni.AdvertisementConverter;
 import info.openmultinet.ontology.vocabulary.Omn;
 import info.openmultinet.ontology.vocabulary.Omn_lifecycle;
+import info.openmultinet.ontology.vocabulary.Omn_service;
 
 /**
  * Created by dne on 03.03.15.
@@ -51,8 +53,8 @@ public class ListResourcesProcessor extends AbstractMethodProcessor{
         this.parameter = parameter;
     }
         
-    public Model listResources() throws UnsupportedEncodingException, JMSException {
-        Model resourcesResult = getResources();
+    public Model listResources(X509Certificate cert) throws UnsupportedEncodingException, JMSException {
+        Model resourcesResult = getResources(cert);
         Model topologyModel = ModelFactory.createDefaultModel();
         topologyModel.setNsPrefixes(resourcesResult.getNsPrefixMap());
         
@@ -70,46 +72,65 @@ public class ListResourcesProcessor extends AbstractMethodProcessor{
         return topologyModel;
     }
 
-    private Model getResources() throws JMSException, UnsupportedEncodingException {
+    private Model getResources(X509Certificate cert) throws JMSException, UnsupportedEncodingException {
         Model requestModel = ModelFactory.createDefaultModel();
         String serializedModel = MessageUtil.serializeModel(requestModel, IMessageBus.SERIALIZATION_TURTLE);
         LOGGER.info("START: Listing resources: " + serializedModel);
         Model model = getSender().sendRDFRequest(serializedModel, IMessageBus.TYPE_GET, IMessageBus.TARGET_RESOURCE_ADAPTER_MANAGER);
+        
+        // Getting all Ressources that are created from OpenBaton and are using a ProjectID
         ResIterator it = model.listSubjectsWithProperty(Omn.isAttributeOf);
-        // TODO Refactor this and make it variable
-        while(it.hasNext()){
-        	Resource resource = it.next();
-        	Statement statement = resource.getProperty(Omn.isAttributeOf);
-        	RDFNode rdfObject = statement.getObject();
-        	Node node = rdfObject.asNode();
-        	String nodeString = node.getLiteralValue().toString();
-//        	if(nodeString.equals("d28a8a82-d503-42c5-80e5-899469e9255d")){
-//        	List<GENI_Credential> credentials = this.parseCredentialsParameters(parameter.get(1));
-            if(true){
-
-                LOGGER.info(resource.toString());
-        	}else{
-                LOGGER.info("RESOURCE NOT FOR THIS EXPERIMENTER");
-                List<Statement> statementList = new ArrayList<Statement>();
-                StmtIterator statementIterator = model.listStatements();
-                while(statementIterator.hasNext()){
-                	Statement s = statementIterator.next();
-                	if(s.getSubject().getURI().equals(resource.getURI())){
-                        LOGGER.info("Found Resource we have to delete" + s.getSubject().getURI());
-                        statementList.add(s);
-                	}
-                	if(s.getObject().toString().equals(resource.getURI())){
-                        LOGGER.info("Found Resource we have to delete" + s.getSubject().getURI());
-                        statementList.add(s);
-                	}
-
-
-                }
-                model.remove(statementList);
-
-        	}
-
+        
+        String certSubjectName = cert.getSubjectDN().getName();
+        String experimenterName = "";
+        if(certSubjectName != null && !certSubjectName.isEmpty()){
+        String[] tmpArray = certSubjectName.split("=");
+        if(tmpArray.length > 1){
+        	experimenterName = tmpArray[1];
         }
+        }
+        if(!experimenterName.isEmpty() && !experimenterName.equals("")){
+            while(it.hasNext()){
+            	Resource resource = it.next();
+            	
+//            	Statement statement = resource.getProperty(Omn.isAttributeOf);
+//            	RDFNode rdfObject = statement.getObject();
+//            	Node node = rdfObject.asNode();
+//            	String nodeString = node.getLiteralValue().toString();
+//            	if(nodeString.equals("d28a8a82-d503-42c5-80e5-899469e9255d")){
+//            	List<GENI_Credential> credentials = this.parseCredentialsParameters(parameter.get(1));
+            	
+            	
+            	Statement statement = resource.getProperty(Omn_service.username);
+            	String username = statement.getObject().asLiteral().getString();
+
+                if(username.equals(experimenterName)){
+
+                    LOGGER.info(resource.toString());
+            	}else{
+                    LOGGER.info("RESOURCE NOT FOR THIS EXPERIMENTER");
+                    List<Statement> statementList = new ArrayList<Statement>();
+                    StmtIterator statementIterator = model.listStatements();
+                    while(statementIterator.hasNext()){
+                    	Statement s = statementIterator.next();
+                    	if(s.getSubject().getURI().equals(resource.getURI())){
+                            LOGGER.info("Found Resource we have to delete" + s.getSubject().getURI());
+                            statementList.add(s);
+                    	}
+                    	if(s.getObject().toString().equals(resource.getURI())){
+                            LOGGER.info("Found Resource we have to delete" + s.getSubject().getURI());
+                            statementList.add(s);
+                    	}
+
+
+                    }
+                    model.remove(statementList);
+
+            	}
+
+            }
+        }
+
         LOGGER.info("END: Listing resources: " + OntologyModelUtil.toString(model));
        return  model;
     }

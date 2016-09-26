@@ -65,7 +65,7 @@ public class SFA_AM implements ISFA_AM {
 				result = this.getVersion(parameter);
 				break;
 			case ISFA_AM.METHOD_LIST_RESOURCES:
-				result = this.listResources(parameter);
+				result = this.listResources(parameter,cert);
 				break;
 			case ISFA_AM.METHOD_ALLOCATE:
 				result = this.allocate(parameter);
@@ -241,7 +241,7 @@ public class SFA_AM implements ISFA_AM {
 	}
 
 	@Override
-	public Object listResources(final List<?> parameter) throws JMSException,
+	public Object listResources(final List<?> parameter,X509Certificate cert) throws JMSException,
 			UnsupportedEncodingException, JAXBException, InvalidModelException {
 		SFA_AM.LOGGER.log(Level.INFO, "listResources...");
 		HashMap<String, Object> result = new HashMap<>();
@@ -252,7 +252,7 @@ public class SFA_AM implements ISFA_AM {
 		listResourcesProcessor.parseOptionsParameters();
 		if (listResourcesProcessor.checkSupportedVersions()) {
 			listResourcesProcessor.setSender(SFA_AM_MDBSender.getInstance());
-			Model topologyModel = listResourcesProcessor.listResources();
+			Model topologyModel = listResourcesProcessor.listResources(cert);
 			listResourcesProcessor.createResponse(result, topologyModel);
 			return result;
 		} else {
