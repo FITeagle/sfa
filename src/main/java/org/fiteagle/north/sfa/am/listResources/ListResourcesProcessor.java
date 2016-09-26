@@ -103,9 +103,13 @@ public class ListResourcesProcessor extends AbstractMethodProcessor{
             	
             	Statement statement = resource.getProperty(Omn_service.username);
             	RDFNode rdfObject = null;
-            	if(statement != null) rdfObject = statement.getObject();
             	String username = "";
-            	if(rdfObject.isLiteral()) username = rdfObject.asLiteral().getString();
+            	
+            	if(statement != null) {
+            		rdfObject = statement.getObject();
+                	if(rdfObject.isLiteral()) username = rdfObject.asLiteral().getString();
+            	}
+            	
 
                 if(username.equals(experimenterName)){
 
