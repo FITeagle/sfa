@@ -33,10 +33,10 @@ public class ProcessGetVersion extends AbstractMethodProcessor {
 	}
 
 	public Model getTestbedDescription() {
-	    	LOGGER.info("START: Getting testbed description...");
+
 		Model testbedDescriptionModel = getSender().sendSPARQLQueryRequest("",
 				IMessageBus.TARGET_FEDERATION_MANAGER);
-		LOGGER.info("STOP: Testbed description: " + OntologyModelUtil.toString(testbedDescriptionModel));
+
 		return testbedDescriptionModel;
 	}
 

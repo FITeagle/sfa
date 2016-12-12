@@ -37,8 +37,7 @@ import info.openmultinet.ontology.exceptions.InvalidRspecValueException;
 import info.openmultinet.ontology.exceptions.MissingRspecElementException;
 
 public class SFA_AM implements ISFA_AM {
-	private final static Logger LOGGER = Logger.getLogger(SFA_AM.class
-			.getName());
+
 	private ISFA_AM_Delegate delegate;
 
 	public SFA_AM() {
@@ -53,12 +52,7 @@ public class SFA_AM implements ISFA_AM {
 		Object result;
 
 		this.delegate = new SFA_AM_Delegate_Default();
-		SFA_AM.LOGGER.log(
-				Level.INFO,
-				System.getProperty("jboss.server.config.dir")
-						+ System.getProperty("file.separator")
-						+ "jetty-ssl.keystore");
-		SFA_AM.LOGGER.log(Level.INFO, "START: Handling " + methodName);
+
 		try {
 			switch (methodName.toUpperCase()) {
 			case ISFA_AM.METHOD_GET_VERSION:
@@ -88,7 +82,6 @@ public class SFA_AM implements ISFA_AM {
 			case ISFA_AM.METHOD_DELETE:
 				result = this.delete(parameter);
 				// TODO DEBUG LINE - WILL BE DELETED
-				if(result == null){ LOGGER.log(Level.SEVERE,"DELETE RESULT NULL");};
 				break;
 			case ISFA_AM.METHOD_SHUTDOWN:
 				result = this.shutdown(parameter);
@@ -136,7 +129,6 @@ public class SFA_AM implements ISFA_AM {
 			result = handleException(e, GENI_CodeEnum.BADARGS);
 		}
 
-		SFA_AM.LOGGER.log(Level.INFO, "END: Handling " + methodName);
 		return result;
 	}
 
@@ -144,7 +136,6 @@ public class SFA_AM implements ISFA_AM {
 	public Object allocate(final List<?> parameter) throws JAXBException,
 			InvalidModelException, UnsupportedEncodingException,
 			MissingRspecElementException, InvalidRspecValueException {
-		SFA_AM.LOGGER.log(Level.INFO, "allocate...");
 		final HashMap<String, Object> result = new HashMap<>();
 		ProcessAllocate processAllocate = new ProcessAllocate(parameter);
 		processAllocate.parseAllocateParameter();
@@ -158,7 +149,6 @@ public class SFA_AM implements ISFA_AM {
 	@Override
 	public Object renew(final List<?> parameter)
 			throws UnsupportedEncodingException {
-		SFA_AM.LOGGER.log(Level.INFO, "renew...");
 		final HashMap<String, Object> result = new HashMap<>();
 		RenewHandler renewHandler = new RenewHandler(parameter);
 		renewHandler.parseURNList();
@@ -173,13 +163,11 @@ public class SFA_AM implements ISFA_AM {
 	@Override
 	public Object provision(final List<?> parameter)
 			throws UnsupportedEncodingException {
-		SFA_AM.LOGGER.log(Level.INFO, "provision...");
 		final HashMap<String, Object> result = new HashMap<>();
 		ProcessProvision processProvision = new ProcessProvision(parameter);
 		processProvision.parseURNList();
 		processProvision.handleCredentials(1, ISFA_AM.METHOD_PROVISION);
 		processProvision.handleOptions();
-		SFA_AM.LOGGER.log(Level.INFO, "provision parameters have been parsed");
 		processProvision.setSender(SFA_AM_MDBSender.getInstance());
 		Model provisionResponse = processProvision.provisionInstances();
 		processProvision.createResponse(result, provisionResponse);
@@ -189,7 +177,6 @@ public class SFA_AM implements ISFA_AM {
 	@Override
 	public Object status(final List<?> parameter)
 			throws UnsupportedEncodingException {
-		SFA_AM.LOGGER.log(Level.INFO, "status...");
 		final HashMap<String, Object> result = new HashMap<>();
 		StatusProcessor statusProcessor = new StatusProcessor(parameter);
 		statusProcessor.parseURNList();
@@ -203,7 +190,6 @@ public class SFA_AM implements ISFA_AM {
 	@Override
 	public Object performOperationalAction(final List<?> parameter)
 			throws UnsupportedEncodingException {
-		SFA_AM.LOGGER.log(Level.INFO, "performOperationalAction...");
 		final HashMap<String, Object> result = new HashMap<>();
 		PerformOperationalActionHandler performOperationalActionHandler = new PerformOperationalActionHandler(
 				parameter);
@@ -222,12 +208,10 @@ public class SFA_AM implements ISFA_AM {
 	@Override
 	public Object delete(final List<?> parameter)
 			throws UnsupportedEncodingException {
-		SFA_AM.LOGGER.log(Level.INFO, "delete...");
 		final HashMap<String, Object> result = new HashMap<>();
 		ProcessDelete processDelete = new ProcessDelete(parameter);
 		processDelete.parseURNList();
 		processDelete.handleCredentials(1, ISFA_AM.METHOD_DELETE);
-		SFA_AM.LOGGER.log(Level.INFO, "delete parameters are parsed");
 		processDelete.setSender(SFA_AM_MDBSender.getInstance());
 		Model deleteResponse = processDelete.deleteInstances();
 		processDelete.createResponse(result, deleteResponse);
@@ -243,7 +227,6 @@ public class SFA_AM implements ISFA_AM {
 	@Override
 	public Object listResources(final List<?> parameter,X509Certificate cert) throws JMSException,
 			UnsupportedEncodingException, JAXBException, InvalidModelException {
-		SFA_AM.LOGGER.log(Level.INFO, "listResources...");
 		HashMap<String, Object> result = new HashMap<>();
 		ListResourcesProcessor listResourcesProcessor = new ListResourcesProcessor(
 				parameter);
@@ -278,7 +261,6 @@ public class SFA_AM implements ISFA_AM {
 	public Object describe(List<?> parameter)
 			throws UnsupportedEncodingException, JAXBException,
 			InvalidModelException {
-		LOGGER.log(Level.INFO, "Describe... ");
 		final HashMap<String, Object> result = new HashMap<>();
 		DescribeProcessor describeProcessor = new DescribeProcessor(parameter);
 		describeProcessor.parseURNList();
@@ -293,7 +275,6 @@ public class SFA_AM implements ISFA_AM {
 
 	private HashMap<String, Object> handleException(Exception e,
 			GENI_CodeEnum errorCode) {
-		LOGGER.log(Level.WARNING, e.getMessage(), e);
 		HashMap<String, Object> result = new HashMap<>();
 		AbstractMethodProcessor abstractMethodProcessor = new AbstractMethodProcessor();
 		abstractMethodProcessor.delegate.setGeniCode(errorCode.getValue());

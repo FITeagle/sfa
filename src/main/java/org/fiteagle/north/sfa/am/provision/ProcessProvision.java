@@ -43,7 +43,6 @@ public class ProcessProvision extends AbstractMethodProcessor {
   
   public  Model provisionInstances() throws UnsupportedEncodingException {
 
-		LOGGER.log(Level.INFO, "create provision model ");
 		Model requestModel = ModelFactory.createDefaultModel();
 		
 		for (URN urn : this.urns) {
@@ -68,10 +67,8 @@ public class ProcessProvision extends AbstractMethodProcessor {
 
 		String serializedModel = MessageUtil.serializeModel(requestModel,
 				IMessageBus.SERIALIZATION_TURTLE);
-		LOGGER.log(Level.INFO, "START: Provision model: " + serializedModel);
 		Model provisionResponse = getSender().sendRDFRequest(serializedModel, IMessageBus.TYPE_CREATE,
 						IMessageBus.TARGET_ORCHESTRATOR);
-		LOGGER.log(Level.INFO, "END: Provisioned model: " + OntologyModelUtil.toString(provisionResponse));
 		return provisionResponse;
 	}
 

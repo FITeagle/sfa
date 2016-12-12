@@ -30,7 +30,7 @@ import javax.xml.bind.JAXBException;
  * Created by dne on 12.01.15.
  */
 public class DescribeProcessor extends AbstractMethodProcessor {
-    private final static Logger LOGGER = Logger.getLogger(DescribeProcessor.class.getName());
+   // private final static Logger LOGGER = Logger.getLogger(DescribeProcessor.class.getName());
 
     public DescribeProcessor(final List<?> parameter) {
     this.parameter = parameter;
@@ -51,7 +51,7 @@ public class DescribeProcessor extends AbstractMethodProcessor {
             }
         }
         String serializedModel = MessageUtil.serializeModel(requestModel, IMessageBus.SERIALIZATION_TURTLE);
-        LOGGER.log(Level.INFO, "send getValue request ...");
+
         Model resultModel = getSender().sendRDFRequest(serializedModel, IMessageBus.TYPE_GET, IMessageBus.TARGET_RESERVATION);
 
         return resultModel;

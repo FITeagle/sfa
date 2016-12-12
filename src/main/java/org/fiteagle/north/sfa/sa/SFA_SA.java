@@ -68,17 +68,14 @@ public class SFA_SA implements ISFA_SA {
                          final String path, final X509Certificate cert) {
         Object result;
         this.delegate = null;
-        SFA_SA.LOGGER.log(Level.INFO, "Working on method: " + methodName);
         try {
             switch (methodName.toUpperCase()) {
                 case ISFA_AM.METHOD_GET_VERSION:
                     result = this.getVersion(parameter);
                     break;
                 case ISFA_SA.METHOD_GET_CREDENTIAL:
-                	LOGGER.log(Level.SEVERE,"=======================Starting GET_CREDENTIAL");
                     result = this.getCredential(cert, parameter);
     				// TODO DEBUG LINE - WILL BE DELETED
-    				if(result == null){ LOGGER.log(Level.SEVERE,"==========GET_CREDENTIAL RESULT NULL");};
                     break;
                 case ISFA_SA.METHOD_REGISTER:
                     result = this.register(parameter);
@@ -133,7 +130,6 @@ public class SFA_SA implements ISFA_SA {
         URN ownerURN = X509Util.getURN(userCertificate);
         Credential credential = null;
         if(!parameter.isEmpty()){
-            LOGGER.log(Level.SEVERE, "found parameter list");
             String urnString = "";
             Map<String, String> inputMap = (Map<String, String>) parameter.get(0);
             URN target = new URN(inputMap.get("urn"));
@@ -153,8 +149,6 @@ public class SFA_SA implements ISFA_SA {
         result.put("value",signedCredential);
         result.put("code",code);
         result.put("output",output);
-        LOGGER.log(Level.SEVERE, "SFA_SA  -- END OF -- getCredential Method");
-        LOGGER.log(Level.SEVERE, signedCredential);
         return result;
     }
 
@@ -290,7 +284,6 @@ public class SFA_SA implements ISFA_SA {
 
     @Override
     public Object resolve(List<?> parameter) {
-        LOGGER.log(Level.INFO, "Logging Resolve ");
         HashMap<String,Object> result = new HashMap<>();
         HashMap<String,Object> value = new HashMap<>();
         HashMap<String,Object> subAuth = new HashMap<>();
@@ -298,7 +291,6 @@ public class SFA_SA implements ISFA_SA {
         URN ownerURN = null;
         
         for(Object o: parameter){
-            LOGGER.log(Level.INFO,parameter.toString());
             Object o2 = ((XmlRpcStruct)o).get("credential");
             if(o2.getClass().equals(String.class)){
             	
@@ -318,7 +310,7 @@ public class SFA_SA implements ISFA_SA {
                 
 				} catch (JAXBException e) {
 					// TODO Auto-generated catch block
-					e.printStackTrace();
+					LOGGER.log(Level.SEVERE, e.toString());
 				}
             }
         }
@@ -354,10 +346,7 @@ public class SFA_SA implements ISFA_SA {
 
     @Override
     public Object getKeys(List<?> parameter) {
-        LOGGER.log(Level.INFO, "Logging getKeys ");
-        for(Object o: parameter){
-            LOGGER.log(Level.INFO,parameter.toString());
-        }
+
 
         HashMap<String,Object> result = new HashMap<>();
         String output = "";
@@ -434,25 +423,6 @@ public class SFA_SA implements ISFA_SA {
             return this;
         }
 
-/*
-        public RegisterDelegate invoke() throws Exception {
-            sliceURN = new URN(()inputMap.get("urn"));
-            String type = inputMap.get("type");
-            XmlRpcArray credentialArray = inputMap.get("credentials");
-            String credentialString = credentialArray.getString(0);
-            JAXBContext context = JAXBContext.newInstance("org.fiteagle.north.sfa.aaa.jaxbClasses");
-            Unmarshaller unmarshaller = context.createUnmarshaller();
-            StringReader reader = new StringReader(credentialString);
-            SignedCredential sc = (SignedCredential) unmarshaller.unmarshal(reader);
 
-            ownerURN = new URN(sc.getCredential().getOwnerURN());
-
-            ownerCert = X509Util.buildX509Certificate(sc.getCredential().getOwnerGid());
-
-            CertificateAuthority ca = CertificateAuthority.getInstance();
-            sliceCert = ca.createSliceCertificate(sliceURN);
-            return this;
-        }
-        */
     }
 }

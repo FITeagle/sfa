@@ -26,8 +26,6 @@ import com.hp.hpl.jena.rdf.model.Resource;
 @Singleton
 public class StartUp {
 
-    private static final Logger LOGGER = Logger.getLogger(StartUp.class
-            .getName());
 
     @javax.annotation.Resource
     private TimerService timerService;
@@ -38,7 +36,6 @@ public class StartUp {
 
     @PostConstruct
     public void addSfaApi() {
-	LOGGER.info("START");
         setDefaultModel();
     	TimerConfig config = new TimerConfig();
 		config.setPersistent(false);
@@ -47,7 +44,7 @@ public class StartUp {
 
     @PreDestroy
     public void deleteSfaApi() {
-	LOGGER.info("STOP");
+	
     }
 
     @Timeout
@@ -64,17 +61,14 @@ public class StartUp {
                     timer.cancel();
                 }
             } catch (ResourceRepositoryException e) {
-                LOGGER.log(Level.INFO,
-                        "Errored while adding something to Database - will try again");
+
                 failureCounter++;
             }catch(Exception e){
-                LOGGER.warning(
-                        "Errored while working with Database - will try again");
+
                 failureCounter++;
             }
         }else{
-            LOGGER.log(Level.SEVERE,
-                    "Tried to add something to Database several times, but failed. Please check the OpenRDF-Database");
+
             timer.cancel();
         }
 

@@ -42,7 +42,7 @@ import java.util.zip.Deflater;
  * Created by dne on 16.03.15.
  */
 public class AbstractMethodProcessor {
-    private final static Logger LOGGER = Logger.getLogger(AbstractMethodProcessor.class.getName());
+   // private final static Logger LOGGER = Logger.getLogger(AbstractMethodProcessor.class.getName());
 
 
     public SFA_AM_MDBSender getSender() {
@@ -116,9 +116,7 @@ public class AbstractMethodProcessor {
         } catch (MalformedURLException e) {
             e.printStackTrace();
         }
-        //String localname =  uri.substring( uri.lastIndexOf('/') + 1 );
-        //String localname = topology.getLocalName();
-        //URN urn =  new URN("urn:publicid:IDN+"+topology.getNameSpace().replace("http://","")+"+slice+"+localname);
+
         
         URN urn;
         if(!project.isEmpty())
@@ -135,7 +133,6 @@ public class AbstractMethodProcessor {
     private String getGENI_OperationalState(RDFNode object) {
         switch (object.asResource().getLocalName()){
             case ISFA_AM.READY:
-                LOGGER.log(Level.INFO, ISFA_AM.READY);
                 return IGeni.GENI_READY;
             case ISFA_AM.UNCOMPLETED:
                 return IGeni.GENI_PENDING_ALLOCATION;

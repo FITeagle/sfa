@@ -50,7 +50,7 @@ public class SFA_AM_MDBSender {
     }
 
     public Model sendRDFRequest(String model, String methodType, String methodTarget) {
-	LOGGER.log(Level.INFO, "PREPARE: Sending RDF " + methodType + " to " + methodTarget);
+
 	final Message request = MessageUtil.createRDFMessage(model, methodType, methodTarget,
 		IMessageBus.SERIALIZATION_TURTLE, null, context);
 	Model response = sendRequest(request, methodType, methodTarget);
@@ -58,21 +58,13 @@ public class SFA_AM_MDBSender {
     }
 
     public Model sendRequest(Message request, String methodType, String methodTarget) {
-	LOGGER.log(Level.INFO, "START: Sending " + methodType + " to " + methodTarget);
+
 	
-	try {
-	    LOGGER.info("Correlation ID: " + request.getJMSCorrelationID());
-	    LOGGER.info("Destination: " + request.getJMSDestination());
-	    LOGGER.info("ID: " + request.getJMSMessageID());
-	    LOGGER.log(Level.INFO, "CONTENT: " + ((TextMessage) request).getText());	    
-	} catch (JMSException e) {
-	    LOGGER.log(Level.INFO, "CONTENT: " + e.getMessage());
-	}
+
 	context.createProducer().send(topic, request);
 	Message rcvMessage = MessageUtil.waitForResult(request, context, topic);
 	String resultString = MessageUtil.getStringBody(rcvMessage);
-	LOGGER.log(Level.INFO, "END: Sending " + methodType + " to " + methodTarget);
-	LOGGER.log(Level.INFO, "CONTENT: " + resultString);
+
 
 	if (MessageUtil.getMessageType(rcvMessage).equals(IMessageBus.TYPE_ERROR)) {
 	    if (resultString.equals(Response.Status.REQUEST_TIMEOUT.name())) {
@@ -81,7 +73,7 @@ public class SFA_AM_MDBSender {
 	    }
 	    throw new BadArgumentsException(resultString);
 	} else {
-	    LOGGER.log(Level.INFO, "Received reply");
+
 	    return MessageUtil.parseSerializedModel(resultString, IMessageBus.SERIALIZATION_TURTLE);
 	}
     }

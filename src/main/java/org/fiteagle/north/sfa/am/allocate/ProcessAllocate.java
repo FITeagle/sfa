@@ -11,8 +11,6 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 
 import javax.xml.bind.JAXBException;
 import javax.xml.stream.XMLStreamException;
@@ -49,8 +47,6 @@ import info.openmultinet.ontology.vocabulary.Omn_lifecycle;
 
 public class ProcessAllocate extends AbstractMethodProcessor {
 
-	private final static Logger LOGGER = Logger.getLogger(ProcessAllocate.class
-			.getName());
 
 	private Map<String, Object> allocateOptions = new HashMap<>();
 
@@ -63,10 +59,7 @@ public class ProcessAllocate extends AbstractMethodProcessor {
 
 	public void parseAllocateParameter() throws JAXBException,
 			InvalidModelException {
-		ProcessAllocate.LOGGER.log(Level.INFO, "parsing allocate parameter");
-		LOGGER.log(Level.INFO, "allocate parameters " + this.parameter);
-		LOGGER.log(Level.INFO, "number of allocate parameters "
-				+ this.parameter.size());
+
 
 		if (parameter.get(0) == null || parameter.get(2) == null) {
 			throw new BadArgumentsException(
@@ -74,9 +67,9 @@ public class ProcessAllocate extends AbstractMethodProcessor {
 		}
 		String slice_urn = (String) parameter.get(0);
 		this.urn = new URN(slice_urn);
-		LOGGER.log(Level.INFO, "urn " + this.urn);
+
 		this.request = (String) parameter.get(2);
-		LOGGER.log(Level.INFO, "request " + this.request);
+
 
 		@SuppressWarnings("unchecked")
 		final Map<String, ?> param2 = (Map<String, ?>) parameter.get(3);
@@ -85,8 +78,7 @@ public class ProcessAllocate extends AbstractMethodProcessor {
 				if (parameters.getKey().toString().equals(IGeni.GENI_END_TIME)) {
 					allocateOptions.put(ISFA_AM.EndTime, parameters.getValue()
 							.toString());
-					ProcessAllocate.LOGGER.log(Level.INFO,
-							allocateOptions.get(ISFA_AM.EndTime).toString());
+
 				}
 				if (parameters.getKey().toString()
 						.equals(IGeni.GENI_START_TIME)) {
@@ -122,13 +114,9 @@ public class ProcessAllocate extends AbstractMethodProcessor {
 
 		String serializedModel = MessageUtil.serializeModel(requestModel,
 				IMessageBus.SERIALIZATION_TURTLE);
-		LOGGER.log(Level.INFO, "START: Reserving model: " + serializedModel);
+
 		Model resultModel = getSender().sendRDFRequest(serializedModel,
 				IMessageBus.TYPE_CREATE, IMessageBus.TARGET_RESERVATION);
-		LOGGER.log(
-				Level.INFO,
-				"END: Reserving model: "
-						+ OntologyModelUtil.toString(resultModel));
 
 		return resultModel;
 	}
@@ -142,20 +130,18 @@ public class ProcessAllocate extends AbstractMethodProcessor {
 		}
 
 		Resource incomingTopology = topologies.next();
-		LOGGER.log(Level.INFO, "getLeaseInfo");
+
 
 		String serializedModel = MessageUtil.serializeModel(incoming,
 				IMessageBus.SERIALIZATION_TURTLE);
-		LOGGER.log(Level.INFO, "getLeaseInfo: incoming model "
-				+ serializedModel);
+
 
 		Model leaseInfo = ModelFactory.createDefaultModel();
 		Resource topology = leaseInfo.createResource(topologyResource.getURI());
 
 		if (incomingTopology.hasProperty(Omn_lifecycle.hasLease)) {
 
-			LOGGER.log(Level.INFO,
-					"createReservationModel: hasLease property present");
+
 			Resource lease = incomingTopology
 					.getProperty(Omn_lifecycle.hasLease).getObject()
 					.asResource();
@@ -361,10 +347,7 @@ public class ProcessAllocate extends AbstractMethodProcessor {
 				model = DeliveryMechanism.getModelFromUnkownInput(request);
 			} catch (UnsupportedException | XMLStreamException
 					| DeprecatedRspecVersionException e) {
-				LOGGER.log(
-						Level.SEVERE,
-						" problem has been occured while converting received request to rdf model \n",
-						e);
+
 			}
 		}
 

@@ -47,7 +47,7 @@ import info.openmultinet.ontology.vocabulary.Omn_service;
  */
 public class ListResourcesProcessor extends AbstractMethodProcessor{
   
-    private static final Logger LOGGER = Logger.getLogger(ListResourcesProcessor.class.getName());
+    //private static final Logger LOGGER = Logger.getLogger(ListResourcesProcessor.class.getName());
 
     public ListResourcesProcessor(final List<?> parameter) {
         this.parameter = parameter;
@@ -75,7 +75,6 @@ public class ListResourcesProcessor extends AbstractMethodProcessor{
     private Model getResources(X509Certificate cert) throws JMSException, UnsupportedEncodingException {
         Model requestModel = ModelFactory.createDefaultModel();
         String serializedModel = MessageUtil.serializeModel(requestModel, IMessageBus.SERIALIZATION_TURTLE);
-        LOGGER.info("START: Listing resources: " + serializedModel);
         Model model = getSender().sendRDFRequest(serializedModel, IMessageBus.TYPE_GET, IMessageBus.TARGET_RESOURCE_ADAPTER_MANAGER);
         
         // Getting all Ressources that are created from OpenBaton and are using a ProjectID
@@ -113,19 +112,15 @@ public class ListResourcesProcessor extends AbstractMethodProcessor{
 
                 if(username.equals(experimenterName)){
 
-                    LOGGER.info(resource.toString());
             	}else{
-                    LOGGER.info("RESOURCE NOT FOR THIS EXPERIMENTER");
                     List<Statement> statementList = new ArrayList<Statement>();
                     StmtIterator statementIterator = model.listStatements();
                     while(statementIterator.hasNext()){
                     	Statement s = statementIterator.next();
                     	if(s.getSubject().getURI().equals(resource.getURI())){
-                            LOGGER.info("Found Resource we have to delete" + s.getSubject().getURI());
                             statementList.add(s);
                     	}
                     	if(s.getObject().toString().equals(resource.getURI())){
-                            LOGGER.info("Found Resource we have to delete" + s.getSubject().getURI());
                             statementList.add(s);
                     	}
 
@@ -138,7 +133,6 @@ public class ListResourcesProcessor extends AbstractMethodProcessor{
             }
         }
 
-        LOGGER.info("END: Listing resources: " + OntologyModelUtil.toString(model));
        return  model;
     }
 

@@ -79,22 +79,15 @@ public class SFA_XMLRPC_Handler implements ISFA_XMLRPC_InvocationHandler {
 	public Object invoke(final String methodName, final List parameter)
 			throws Throwable {
 	
-		LOGGER.log(Level.INFO, "START: Handling " + methodName);
-		SFA_XMLRPC_Handler.LOGGER.log(Level.INFO, "parameter:"+parameter);		
-		SFA_XMLRPC_Handler.LOGGER.log(Level.INFO, "Working on method: "
-				+ methodName);
-		SFA_XMLRPC_Handler.LOGGER.log(Level.INFO, "Working on path: "
-				+ this.path);
+
+
 		final String certInfo = null == this.cert ? null : this.cert
 				.getSubjectX500Principal().toString();
-		SFA_XMLRPC_Handler.LOGGER.log(Level.INFO, "Working with cert: "
-				+ certInfo);
+
 
 		Object result = this.manager.handle(methodName, parameter, this.path, this.cert);
 
-		LOGGER.log(Level.INFO, "END: Handling " + methodName);
-        LOGGER.log(Level.SEVERE, "SFA_XMLRPC_Handler  -- END OF -- invoke Method");
-		LOGGER.log(Level.SEVERE, result.toString());
+
 		
 		return result;
 	}

@@ -8,8 +8,7 @@ import org.fiteagle.north.sfa.dm.SFA_XMLRPC_Handler;
 
 public class SFA_AM_Delegate_Default implements ISFA_AM_Delegate {
 
-	protected static Logger LOGGER = Logger
-			.getLogger(SFA_AM_Delegate_Default.class.getName());
+	//protected static Logger LOGGER = Logger.getLogger(SFA_AM_Delegate_Default.class.getName());
 
 	private boolean geni_compressed;
 	private boolean geni_available;

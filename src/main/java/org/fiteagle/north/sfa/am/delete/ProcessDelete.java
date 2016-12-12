@@ -27,7 +27,7 @@ import com.hp.hpl.jena.vocabulary.RDF;
 
 public class ProcessDelete extends AbstractMethodProcessor {
 	
-	private final static Logger LOGGER = Logger.getLogger(ProcessDelete.class.getName());
+//private final static Logger LOGGER = Logger.getLogger(ProcessDelete.class.getName());
 	
 	public ProcessDelete(final List<?> parameter) {
     this.parameter = parameter;
@@ -35,7 +35,7 @@ public class ProcessDelete extends AbstractMethodProcessor {
 	
 	public  Model deleteInstances() throws UnsupportedEncodingException {
 		
-		LOGGER.log(Level.INFO, "create delete model ");
+
 		Model requestModel = ModelFactory.createDefaultModel();
 		for (URN urn : this.urns) {
 
@@ -50,9 +50,9 @@ public class ProcessDelete extends AbstractMethodProcessor {
 		}
 
 		String serializedModel = MessageUtil.serializeModel(requestModel, IMessageBus.SERIALIZATION_TURTLE);
-		LOGGER.log(Level.INFO, "send delete request ...");
+
 		Model deleteResponse = getSender().sendRDFRequest(serializedModel, IMessageBus.TYPE_DELETE,IMessageBus.TARGET_ORCHESTRATOR);
-		LOGGER.log(Level.INFO,"delete reply is received.");
+
 		return deleteResponse;
 		
 	}
